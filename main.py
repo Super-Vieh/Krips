@@ -1,6 +1,6 @@
 from enum import Enum
 import random
-from Klassen import Spiel, Karten, Spieler, seitenKarten, mittlereKarten
+from Klassen import Spiel, Karten, Spieler, seitenKarten, mittlereKarten,initialize
 
 def main():
 
@@ -15,17 +15,19 @@ def main():
         random.shuffle(newdeck2)
 
 
-        spieler1 = Spieler(1, newdeck1, game1,)
-        spieler2 = Spieler(2, newdeck2, game1)
+        spieler1 = Spieler(1, newdeck1)
+        spieler2 = Spieler(2, newdeck2)
         game1.spieler1=spieler1
         game1.spieler2=spieler2
+
+        # Mega wichtig initialisiert das Spiel in Spieler sind zwei funktionen. Problem wegen circular import
+        # wird über eine quasi setter funktion in der _init_ gemacht
+        initialize(game1, spieler1, spieler2)
 
 
         spieler1.ersteAktion()
         spieler2.ersteAktion()
-
         game1.gamemaster()
-
 
         seitenKarten(game1, spieler1)
         seitenKarten(game1, spieler2)

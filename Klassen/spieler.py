@@ -1,22 +1,34 @@
-from alternate import Spieler
-from .spiel import Spiel,Karten
+
+from .karten import Karten
+
 class Spieler:
-    def __init__(self,spielernummer:int, owndeck: list[Karten],game:Spiel):
-        self.game = game
+    def __init__(self,spielernummer:int, owndeck: list[Karten]):
+        self.game:'Spiel' = None
         self.spielernummer=spielernummer
         self.owndeck = owndeck
-    anderreihe = False
+        self.gegenspieler: 'Spieler' = None
+
+
+    realanderreihe = False
     dreizehner      :list[Karten] =[]
     eigablage       :list[Karten] =[]
     normalpaekchen  :list[Karten] =[]
-    gegenspieler :Spieler
+
     @property
-    def anderreihe(self):
-        if self.gegenspieler.anderreihe== True and self.anderreihe == True: raise ValueError("Beider Spieler sind sind an der Reihe")
-        if self.gegenspieler.anderreihe == False and self.anderreihe == False: raise ValueError("Beider Spieler sind sind an der Reihe")
+    def anderreihe(self,realanderreihe:bool)->bool:
+        return realanderreihe
+
+    @anderreihe.setter
+    def anderreihe(self, value: bool):
+        realanderreihe = value
 
 
-
+    def set_gegenspieler(self, gegenspieler: 'Spieler'):
+        from .spiel import Spiel
+        self.gegenspieler = gegenspieler
+    def set_spiel(self, game:'Spiel'):
+        from .spiel import Spiel
+        self.game = game
 
     def ersteAktion(self) -> None:
 
@@ -42,5 +54,4 @@ class Spieler:
 
 
     #def istAmZug(self): #Wird geloopt solange anderreihe == True
-
 

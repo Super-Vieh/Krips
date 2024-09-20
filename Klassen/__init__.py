@@ -1,6 +1,12 @@
 from .spieler import Spieler
 from Klassen.spiel import Spiel,Karten ,KartenWert, KartenTyp
 
+def initialize(game:Spiel,spielerimport1,spielerimport2): #Spiel wird für den Spieler initialisiert
+    spielerimport1.set_spiel(game)
+    spielerimport2.set_spiel(game)
+    spielerimport1.set_gegenspieler(spielerimport2)
+    spielerimport2.set_gegenspieler(spielerimport1)
+
 
 
 
