@@ -46,12 +46,11 @@ class Spiel:
         return templist
 
 
-    def gamemaster(self):
+    def game_first_move(self):
         objdrz1 = self.spieler1Dreizehner[len(self.spieler1Dreizehner)-1] #erstezt das lezte objekt des ersten Dreizehnerpaeckchen
         objdrz2 = self.spieler2Dreizehner[len(self.spieler2Dreizehner)-1] #erstezt das lezte objekt des zweiten Dreizehnerpaeckchen
 
         if(objdrz1.karteOffen ==True and self.spieler2Dreizehner[len(self.spieler2Dreizehner)-1].karteOffen== True): #Wenn die längen gleich sind
-
             if  (objdrz1.kartenwert.value > objdrz2.kartenwert.value):# stimmt wenn spieler1 die höhere karte hat
                 self.spieler1.anderreihe = True
             elif(objdrz1.kartenwert.value < objdrz2.kartenwert.value):# stimmt wenn spieler2 die höhere karte hat
@@ -74,48 +73,48 @@ class Spiel:
 
 
 
-
-    def mitteHinlegen(self,karte:Karten,stelle:int)->None:
-
-        midliste = self.platzliste[stelle-1]
-        if (self.kannMitteHinlegen(karte, stelle)):
-            midliste.append(karte)
-        else:
-            return None
-
-
-
-
-    def kannMitteHinlegen(self,karte:Karten,stelle:int)->bool: # Es wird überprüft ob das hinlegen der karte erlaubt , wichtig, in der Mitte
-        midliste = self.platzliste[stelle-1]
-        if (len(midliste) == karte.kartenwert.value-1 and midliste[len(midliste)].kartentyp == karte.kartentyp):
-            return True
-        else:
-            return False
-
-
-
-
-
-
-
-    def kannSeiteHinlegen(self,karte:Karten,stelle:int)->bool:
-        aktliste= self.platzliste[stelle-1]
-        if (len(aktliste) == 0):
-            return True
-        if (aktliste[len(aktliste)-1].kartenwert.value == karte.kartenwert.value + 1
-                and aktliste[len(aktliste)-1].farbe != karte.farbe):
-            return True
-        else:
-            return False
-
-
-    def seiteHinlegen(self,karte:Karten,stelle:int)->None:
-
-        aktliste:list[Karten] = self.platzliste[stelle-1]
-        if (self.kannSeiteHinlegen(karte, stelle)):
-            aktliste.append(karte)
-        else:
-            return None
+    #
+    # def mitteHinlegen(self,karte:Karten,stelle:int)->None:
+    #
+    #     midliste = self.platzliste[stelle-1]
+    #     if (self.kannMitteHinlegen(karte, stelle)):
+    #         midliste.append(karte)
+    #     else:
+    #         return None
+    #
+    #
+    #
+    #
+    # def kannMitteHinlegen(self,karte:Karten,stelle:int)->bool: # Es wird überprüft ob das hinlegen der karte erlaubt , wichtig, in der Mitte
+    #     midliste = self.platzliste[stelle-1]
+    #     if (len(midliste) == karte.kartenwert.value-1 and midliste[len(midliste)].kartentyp == karte.kartentyp):
+    #         return True
+    #     else:
+    #         return False
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    # def kannSeiteHinlegen(self,karte:Karten,stelle:int)->bool:
+    #     aktliste= self.platzliste[stelle-1]
+    #     if (len(aktliste) == 0):
+    #         return True
+    #     if (aktliste[len(aktliste)-1].kartenwert.value == karte.kartenwert.value + 1
+    #             and aktliste[len(aktliste)-1].farbe != karte.farbe):
+    #         return True
+    #     else:
+    #         return False
+    #
+    #
+    # def seiteHinlegen(self,karte:Karten,stelle:int)->None:
+    #
+    #     aktliste:list[Karten] = self.platzliste[stelle-1]
+    #     if (self.kannSeiteHinlegen(karte, stelle)):
+    #         aktliste.append(karte)
+    #     else:
+    #         return None
 
 

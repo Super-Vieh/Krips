@@ -30,16 +30,13 @@ def main():
 
         spieler1.ersteAktion()
         spieler2.ersteAktion()
+        spieler1.karte_aufdecken()
 
-        game1.gamemaster()
-
+        game1.game_first_move()
 
         seitenKarten(game1, spieler1)
-        seitenKarten(game1, spieler2)
 
-        # while(spieler1.anderreihe or spieler2.anderreihe):
-        #         if spieler1.anderreihe: spieler1.istAmZug()
-        #         if spieler2.anderreihe: spieler2.istAmZug()
+
 
 
 if __name__ == "__main__":
