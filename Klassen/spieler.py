@@ -59,7 +59,7 @@ class Spieler:
         spp1=self.game.spieler1Paechen
         spp2=self.game.spieler2Paechen
         if   packchen == 1:
-            if   self.spielernummer == 1 : drz1[len(drz1) - 1].karteOffen = True # erste karte des Dreizehner wird geöffnet.
+            if   self.spielernummer == 1 : drz1[len(drz1) - 1].karteOffen = True # erste Karte des Dreizehner wird geöffnet.
             elif self.spielernummer == 2 : drz2[len(drz2) - 1].karteOffen = True
         elif packchen == 0:
             if   self.spielernummer == 1: spp1[len(spp1) - 1].karteOffen = True
@@ -74,7 +74,7 @@ class Spieler:
         else:
             return None
 
-    def kannMitteHinlegen(self,karte:Karten,stelle:int)->bool: # Es wird überprüft ob das hinlegen der karte erlaubt , wichtig, in der Mitte
+    def kannMitteHinlegen(self,karte:Karten,stelle:int)->bool: # Es wird überprüft, ob das Hinlegen der karte erlaubt , wichtig, in der Mitte
         midliste = self.game.platzliste[stelle-1]
         if (len(midliste) == karte.kartenwert.value-1 and midliste[len(midliste)].kartentyp == karte.kartentyp):
             return True
@@ -98,4 +98,107 @@ class Spieler:
             aktliste.append(karte)
         else:
             return None
+
+    def kanngegnergeben(self,karte:Karten)->bool:
+        hf1 = self.game.spieler1Haufen
+        hf2 = self.game.spieler2Haufen
+        if   self.spielernummer == 1 :
+            if(karte.kartentyp == hf2[len(hf2)-1].kartentyp) and (karte.kartenwert.value == hf2[len(hf2)-1].kartenwert.value + 1) or  (karte.kartenwert.value == hf2[len(hf2)-1].kartenwert.value -1):
+                return True
+                # es wird überprüft, ob die karte auf dem Gegener haufen um eins größer oder kleiner ist als die karte die man hinlegen kann
+
+        elif self.spielernummer == 2 :
+            if (karte.kartentyp == hf1[len(hf1) - 1].kartentyp) and (karte.kartenwert.value == hf1[len(hf1) - 1].kartenwert.value + 1) or (karte.kartenwert.value == hf1[len(hf1) - 1].kartenwert.value - 1):
+                return True
+                # es wird überprüft, ob die karte auf dem Gegener haufen um eins größer oder kleiner ist als die karte die man hinlegen kann
+        else: return False
+
+    def gegnergeben(self, karte: Karten) -> None:
+        hf1 = self.game.spieler1Haufen
+        hf2 = self.game.spieler2Haufen
+        if self.spielernummer == 1 and self.kanngegnergeben(karte):
+                hf2.append(karte)
+        elif self.spielernummer == 2 and self.kanngegnergeben(karte):
+                hf1.append(karte)
+
+
+
+    # Die nächsten drei methoden
+    # überprüfen welcher spieler drann ist und ob die liste leer ist
+    # Dann wird überprüft, ob es auf den Mitte-, Seiten- oder Gegnerhauften soll
+    # Die Stelle wird hoffetlich berücksichtigt
+    def haufen_kartehinlegen(self,karte:Karten,stelle:int,ort:str = "Mitte")->None:
+        if self.spielernummer == 1:
+            if len(self.game.spieler1Haufen)!= 0:
+                if   ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler1Haufen.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler1Haufen.pop()
+                elif ort == "Gegner"and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler1Haufen.pop()
+        if self.spielernummer == 2:
+            if len(self.game.spieler2Haufen)!= 0:
+                if   ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler2Haufen.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler2Haufen.pop()
+                elif ort == "Gegner"and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler2Haufen.pop()
+
+
+    def dreizehner_karte_hinlegen(self,karte:Karten,stelle:int,ort:str = "Mitte")->None:
+        if self.spielernummer == 1:
+            if len(self.game.spieler1Dreizehner) != 0:
+                if ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler1Dreizehner.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler1Dreizehner.pop()
+                elif ort == "Gegner" and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler1Dreizehner.pop()
+        elif self.spielernummer == 2:
+            if len(self.game.spieler2Dreizehner) != 0:
+                if ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler2Dreizehner.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler2Dreizehner.pop()
+                elif ort == "Gegner" and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler2Dreizehner.pop()
+
+    def paeckchen_karte_hinlegen(self,karte:Karten,stelle:int,ort:str = "Mitte")->None:
+        if self.spielernummer == 1:
+            if len(self.game.spieler1Paechen)!= 0:
+                if   ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler1Paechen.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler1Paechen.pop()
+                elif ort == "Gegner"and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler1Paechen.pop()
+        if self.spielernummer == 2:
+            if len(self.game.spieler2Paechen)!= 0:
+                if   ort == "Mitte" and self.kannMitteHinlegen(karte, stelle):
+                    self.mitteHinlegen(karte, stelle)
+                    self.game.spieler2Paechen.pop()
+                elif ort == "Seite" and self.kannSeiteHinlegen(karte, stelle):
+                    self.seiteHinlegen(karte, stelle)
+                    self.game.spieler2Paechen.pop()
+                elif ort == "Gegner"and self.kanngegnergeben(karte):
+                    self.gegnergeben(karte)
+                    self.game.spieler2Paechen.pop()
+
+
 
