@@ -1,6 +1,6 @@
 from enum import Enum
 class KartenTyp(Enum):
-    Pik   = "Pik "
+    Pik   = "Pik"
     Coeur = "Coeur"
     Treff = "Treff"
     Karro = "Karro"

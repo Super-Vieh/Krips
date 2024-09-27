@@ -10,7 +10,14 @@ class Spieler:
         self.owndeck = owndeck
         self.gegenspieler: 'Spieler' = None
         self.anderreihe = False
-
+    #Funktionen bis jetzt:
+    #set_gegemspieler, set_spiel
+    #ersteAktion
+    #karte_aufdecken
+    #mitteHinlegen
+    #kannMitteHinlegen
+    #kannSeiteHinlegen
+    #seiteHinlegen
 
 
     def set_gegenspieler(self, gegenspieler: 'Spieler'):
@@ -99,3 +106,20 @@ class Spieler:
         else:
             return None
 
+    def kann_gegener_geben(self, karte: Karten) -> bool:
+        #kontroliert ob die karte um eins höher oder kleiner ist als die karte auf dem gegner packchen und ob die von der gleicher art ist
+        if self.spielernummer == 1:
+            sp2h =self.game.spieler2Haufen
+            if len(sp2h) == 0: return False
+            elif (karte.kartentyp == sp2h[len(sp2h)-1].kartentyp)and(karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value + 1) :
+                return True
+        if self.spielernummer == 2:
+            sp1h =self.game.spieler1Haufen
+            if len(sp1h) == 0: return False
+            elif (karte.kartentyp == sp1h[len(sp1h)-1].kartentyp)and(karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value + 1) :
+                return True
+    def gegener_geben(self,karte:Karten)->None:
+        if self.spielernummer == 1:
+            self.game.spieler2Haufen.append(karte)
+        if self.spielernummer == 2:
+            self.game.spieler1Haufen.append(karte)
