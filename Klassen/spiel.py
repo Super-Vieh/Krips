@@ -3,6 +3,8 @@ from .spieler import Spieler
 
 class Spiel:
 
+    current:Spieler=None
+    gameon = True
 
     spieler1:Spieler
     spieler2:Spieler
@@ -30,10 +32,12 @@ class Spiel:
     spieler1Haufen:     list[Karten] = []
     spieler1Paechen:    list[Karten] = []
     spieler1Dreizehner: list[Karten] = []
+    spieler1listen = [spieler1Paechen,spieler1Haufen,spieler1Dreizehner]
 
     spieler2Haufen:     list[Karten] = []
     spieler2Paechen:    list[Karten] = []
     spieler2Dreizehner: list[Karten] = []
+    spieler2listen = [spieler2Paechen,spieler2Haufen,spieler2Dreizehner]
 
     def kartenDeckErstellung(self) -> list[Karten]:
         templist=[] # Speichert die Karten
@@ -69,12 +73,59 @@ class Spiel:
                         print("Schleife engaged Spieler2 ist drann?", self.spieler2.anderreihe)
                         return None
     def play(self):
-        current:Spieler= None
-        if self.spieler1.anderreihe == True: current = self.spieler1
-        elif self.spieler2.anderreihe == True: current = self.spieler2
-        while current.anderreihe:
-            action:str = input("Was soll gemacht werden?"
-                       "Karte aufdecken = A0 oder A1"
-                       "Karte hilegen = M0-7 oder 0-7S0-7")
+            # karte kann von  den 3 spieler päckchen und 8 Seitenstreifen gelegt werden.
+            # karte kann auf die 8 Mittlerenpäckchen, die 8 Seitenstreifen und den gegner Haufen gelegt werden.
+            action:str = input(f"\nSpieler{self.current.spielernummer} ist drann."
+                               "\nWas soll gemacht werden?\n"
+                       "Karte aufdecken = A0 oder A1\n" # Aufgedeckt werden können nur Päckchen und Dreizehner 
+                       "Karte hilegen = (A0-2,S0-7,)M0-7*S0-7*G0\n"
+                       "Runde Aufhören= P\n")
+            lenaction = len(action)
+
+            if lenaction == 1 and action == "P": self.current.aufhören()
+            if lenaction == 2 and action == "A0": self.current.karte_aufdecken(0) ;return None
+            elif lenaction == 2 and action == "A1": self.current.karte_aufdecken(1); return None
+            first= action[0]#Herkunftslistentyp
+            second= int(action[1])#herkuftsliste
+            third= action[2]#Ziellistentyp
+            fourth= int(action[3])#zielliste
+            match (first, third):# M = Mitte, S = Seite, G = Gegner, A=Haupt
+                case ("A", "M"):
+                    if self.current.spielernummer == 1:
+                        self.current.mitteHinlegen(fourth,self.spieler1listen[second])
+                        #fourth ist ein int welcher den index der zielliste anzeigt an dem die karte hingelegt werden muss.
+                        #spieler1listen ist eine liste mit den listen der spieler welcher als origin verändert wird.
+                    if self.current.spielernummer == 2:
+                        self.current.mitteHinlegen(fourth,self.spieler2listen[second])
+                case ("A", "S"):
+                    if self.current.spielernummer == 1:
+                        self.current.seiteHinlegen(fourth,self.spieler1listen[second])
+                    if self.current.spielernummer == 2:
+                        self.current.seiteHinlegen(fourth,self.spieler2listen[second])
+                case ("A", "G"):
+                    if self.current.spielernummer == 1:
+                        self.current.gegener_geben(self.spieler1listen[second])
+                    if self.current.spielernummer == 2:
+                        self.current.gegener_geben(self.spieler2listen[second])
+                case ("S", "M"):
+                    if self.current.spielernummer == 1:
+                        self.current.mitteHinlegen(fourth,self.platzliste[second])
+                    if self.current.spielernummer == 2:
+                        self.current.mitteHinlegen(fourth,self.platzliste[second])
+                case ("S", "S"):
+                    if self.current.spielernummer == 1:
+                        self.current.seiteHinlegen(fourth,self.platzliste[second])
+                    if self.current.spielernummer == 2:
+                        self.current.seiteHinlegen(fourth,self.platzliste[second])
+                case ("S", "G"):
+                    if self.current.spielernummer == 1:
+                        self.current.gegener_geben(self.platzliste[second])
+                    if self.current.spielernummer == 2:
+                        self.current.gegener_geben(self.platzliste[second])
+                case _:
+                    print("Ungültige Aktion.")
+
+
+
 
 

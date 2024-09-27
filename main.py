@@ -1,6 +1,6 @@
 from enum import Enum
 import random
-from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot
+from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 
 
@@ -35,11 +35,12 @@ def main():
     game1.pik1.append(karte11)
     game1.pik2.append(karte10)
 
-    print(f"Spieler 1 ist dran:{spieler1.anderreihe}")
+    play_init(game1)
 
-    #print_top(game1)
-    #print_sidesplus(game1)
-    #print_bot(game1)
+
+
+
+    print(f"Spieler 1 ist dran:{spieler1.anderreihe}")
 
 
 if __name__ == "__main__":

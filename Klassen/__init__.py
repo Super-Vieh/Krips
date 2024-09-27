@@ -154,7 +154,15 @@ def print_middle(game:Spiel,i :int):
             print(f"\033[35m___null-{game.karro2[ml8l-1].kartenwert.value}\033[0m", end="___ ")
         elif ml4l != 0 and ml8l == 0:
             print(f"\033[35m___ {game.karro1[ml4l-1].kartenwert.value}-null\033[0m", end="___ ")
-
+def play_init(game:Spiel):
+    while game.gameon:
+        if game.spieler1.anderreihe == True: game.current = game.spieler1
+        elif game.spieler2.anderreihe == True: game.current = game.spieler2
+        while game.current.anderreihe == True:
+            print_top(game)
+            print_sidesplus(game)
+            print_bot(game)
+            game.play()
 
 def print_sidesplus(game:Spiel):
     for i in range(4):
@@ -252,4 +260,3 @@ def print_sidesplus(game:Spiel):
                     print(f"\033[90m{game.platzliste8[j].kartenwert.value}\033[0m", end=",")
                 elif game.platzliste8[j].kartentyp.value == "Karro":
                     print(f"\033[35m{game.platzliste8[j].kartenwert.value}\033[0m", end=",")
-            print()
