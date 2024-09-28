@@ -9,7 +9,22 @@ def initialize(game:Spiel,spielerimport1,spielerimport2): #Spiel wird für den S
     spielerimport2.set_gegenspieler(spielerimport1)
 
 
-
+def initialize_paechen(game:Spiel):
+    game.spieler1listen.append(game.spieler1Paechen)
+    game.spieler1listen.append(game.spieler1Haufen)
+    game.spieler1listen.append(game.spieler1Dreizehner)
+    game.spieler2listen.append(game.spieler2Paechen)
+    game.spieler2listen.append(game.spieler2Haufen)
+    game.spieler2listen.append(game.spieler2Dreizehner)
+def play_init(game:Spiel):
+    while game.gameon:
+        if game.spieler1.anderreihe == True: game.current = game.spieler1
+        elif game.spieler2.anderreihe == True: game.current = game.spieler2
+        while game.current.anderreihe == True:
+            print_top(game)
+            print_sidesplus(game)
+            print_bot(game)
+            game.play()
 
 def seitenKarten(game:Spiel, momentanerspieler:Spieler):
     for liste in game.platzliste:
@@ -26,7 +41,7 @@ def mittlereKarten(game:Spiel):
         print("----------------")
 
 def print_top(game:Spiel):
-    print("Spieler2:")
+    print("\nSpieler2:")
     #Es kann passieren das die listen kein ellement haben dann wird null geprintet
     try:sp2pl = game.spieler2Paechen[len(game.spieler2Paechen) - 1]
     except IndexError:sp2pl = None
@@ -49,8 +64,8 @@ def print_top(game:Spiel):
         print("null",end="   ")
     else:
         if sp2hl.karteOffen == True:
-            print(sp2pl.kartenwert.value,end="-")
-            print(sp2pl.kartentyp.value,end="   ")
+            print(sp2hl.kartenwert.value,end="-")
+            print(sp2hl.kartentyp.value,end="   ")
     if sp2dl is None:
         print("null",end="   ")
     else:
@@ -63,13 +78,13 @@ def print_bot(game:Spiel):
     print("\n")
     print("Spieler1:")
     #Es kann passieren das die listen kein ellement haben dann wird null geprintet
-    try:sp1pl = game.spieler1Paechen[len(game.spieler1Paechen) - 1]
+    try:sp1pl = game.spieler1Paechen[- 1]
     except IndexError:sp1pl = None
 
     try:sp1hl = game.spieler1Haufen[len(game.spieler1Haufen) - 1]
     except IndexError:sp1hl = None
 
-    try:sp1dl = game.spieler1Dreizehner[len(game.spieler1Dreizehner) - 1]
+    try:sp1dl = game.spieler1Dreizehner[- 1]
     except IndexError:sp1dl = None
 
     if(sp1pl is None):
@@ -82,9 +97,9 @@ def print_bot(game:Spiel):
     if sp1hl is None:
         print("null",end="   ")
     else:
-        if sp1hl.karteOffen == True:
-            print(sp1pl.kartenwert.value,end="-")
-            print(sp1pl.kartentyp.value,end="   ")
+        if game.spieler1Haufen[-1].karteOffen == True:
+            print(sp1hl.kartenwert.value,end="-")
+            print(sp1hl.kartentyp.value,end="   ")
     if sp1dl is None:
         print("null",end="   ")
     else:
@@ -154,15 +169,7 @@ def print_middle(game:Spiel,i :int):
             print(f"\033[35m___null-{game.karro2[ml8l-1].kartenwert.value}\033[0m", end="___ ")
         elif ml4l != 0 and ml8l == 0:
             print(f"\033[35m___ {game.karro1[ml4l-1].kartenwert.value}-null\033[0m", end="___ ")
-def play_init(game:Spiel):
-    while game.gameon:
-        if game.spieler1.anderreihe == True: game.current = game.spieler1
-        elif game.spieler2.anderreihe == True: game.current = game.spieler2
-        while game.current.anderreihe == True:
-            print_top(game)
-            print_sidesplus(game)
-            print_bot(game)
-            game.play()
+
 
 def print_sidesplus(game:Spiel):
     for i in range(4):
