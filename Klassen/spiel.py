@@ -79,12 +79,15 @@ class Spiel:
         # karte kann auf die 8 Mittlerenpäckchen, die 8 Seitenstreifen und den gegner Haufen gelegt werden.
         action: str = input(f"\nSpieler{self.current.spielernummer} ist drann."
                             "\nWas soll gemacht werden?\n"
-                            "Karte aufdecken = A0 oder A1\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner 
+                            "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner 
                             "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                            "Runde Aufhören= P\n")
+                            "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips =K funktioniert noch nicht\n")
+        #action:str = input()
+
         lenaction = len(action)
 
         if lenaction == 1 and action == "P": self.current.aufhoeren();return None
+        if lenaction == 1 and action == "R": self.current.resetHaufen();return None
         if lenaction == 2 and action == "A0":
             self.current.karte_aufdecken(0);return None  # packchen
         elif lenaction == 2 and action == "A2":
@@ -93,7 +96,9 @@ class Spiel:
         try: second = int(action[1])  #herkuftsliste
         except ValueError: return None
         except IndexError: return None
-        third = action[2]  #Ziellistentyp
+        if (first == "A") and (second >2): return None
+        try: third = action[2]  #Ziellistentyp
+        except IndexError: return None
         try:fourth = int(action[3])  #zielliste
         except ValueError: return None
         except IndexError: return None

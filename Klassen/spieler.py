@@ -111,9 +111,16 @@ class Spieler:
 
     def seiteHinlegen(self,stelle:int,origin:list[Karten])->None:
         aktliste:list[Karten] = self.game.platzliste[stelle-1]
-        if origin and len(aktliste) == 0: aktliste.append(origin.pop());return None
+        if origin and len(aktliste) == 0:
+            tempkarte= origin.pop()
+            tempkarte.karteOffen = True
+            aktliste.append(tempkarte)
+            return None
         if origin and (self.kannSeiteHinlegen(origin[-1], stelle)):
-            aktliste.append(origin.pop())
+            tempkarte= origin.pop()
+            tempkarte.karteOffen = True
+            aktliste.append(tempkarte)
+            return None
 
 
     def kann_gegener_geben(self, karte: Karten) -> bool:
@@ -156,4 +163,3 @@ class Spieler:
             self.game.spieler2Haufen.append(self.game.spieler2Paechen.pop())
             self.anderreihe= False
             self.gegenspieler.anderreihe= True
-

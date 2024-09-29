@@ -29,14 +29,12 @@ def main():
     game1.game_first_move()
     initialize_paechen(game1)
 
-
-
     play_init(game1)
 
 
 
 
-    print(f"Spieler 1 ist dran:{spieler1.anderreihe}")
+
 
 
 if __name__ == "__main__":
