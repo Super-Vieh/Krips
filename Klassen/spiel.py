@@ -5,6 +5,7 @@ from .spieler import Spieler
 class Spiel:
     current: Spieler = None
     gameon = True
+    wouldbeKrips=False
 
     spieler1: Spieler
     spieler2: Spieler
@@ -81,18 +82,27 @@ class Spiel:
                             "\nWas soll gemacht werden?\n"
                             "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner 
                             "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                            "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips =K funktioniert noch nicht\n")
+                            "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
         #action:str = input()
 
         lenaction = len(action)
-
+        print(self.wouldbeKrips)
+        print(self.current.ist_krips(),"Hello")
         if lenaction == 1 and action == "P": self.current.aufhoeren();return None
         if lenaction == 1 and action == "R": self.current.resetHaufen();return None
+        if lenaction == 1 and action == "K" and self.wouldbeKrips== True:
+            self.current.wegen_krips_aufhoeren()
+            return None
         if lenaction == 2 and action == "A0":
-            self.current.karte_aufdecken(0);return None  # packchen
+            self.current.karte_aufdecken(0)
+            self.wouldbeKrips = self.current.ist_krips()
+            return None  # packchen
         elif lenaction == 2 and action == "A2":
-            self.current.karte_aufdecken(1); return None  # Dreizhener
-        first = action[0]  #Herkunftslistentyp
+            self.current.karte_aufdecken(1)
+            self.wouldbeKrips = self.current.ist_krips()
+            return None  # Dreizehner
+        try: first = action[0]  #Herkunftslistentyp
+        except IndexError:return None
         try: second = int(action[1])  #herkuftsliste
         except ValueError: return None
         except IndexError: return None
@@ -102,23 +112,29 @@ class Spiel:
         try:fourth = int(action[3])  #zielliste
         except ValueError: return None
         except IndexError: return None
+
         match (first, third):  # M = Mitte, S = Seite, G = Gegner, A=Haupt
             case ("A", "M"):
                 if self.current.spielernummer == 1:
                     self.current.mitteHinlegen(fourth, self.spieler1listen[second])
-                    #fourth ist ein int welcher den index der zielliste anzeigt an dem die karte hingelegt werden muss.
-                    #spieler1listen ist eine liste mit den listen der spieler welcher als origin verändert wird.
                 if self.current.spielernummer == 2:
                     self.current.mitteHinlegen(fourth, self.spieler2listen[second])
             case ("A", "S"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.spieler1listen[second])
+                    print(self.wouldbeKrips)
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.spieler2listen[second])
+
             case ("A", "G"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.gegener_geben(self.spieler1listen[second])
+
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.gegener_geben(self.spieler2listen[second])
             case ("S", "M"):
                 if self.current.spielernummer == 1:
@@ -127,13 +143,18 @@ class Spiel:
                     self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
             case ("S", "S"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
             case ("S", "G"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.gegener_geben(self.platzliste[second - 1])
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.gegener_geben(self.platzliste[second - 1])
+
             case _:
                 print("Ungültige Aktion.")

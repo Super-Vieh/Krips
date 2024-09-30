@@ -163,3 +163,34 @@ class Spieler:
             self.game.spieler2Haufen.append(self.game.spieler2Paechen.pop())
             self.anderreihe= False
             self.gegenspieler.anderreihe= True
+    def wegen_krips_aufhoeren(self):
+        if self.spielernummer == 1:
+            if self.game.spieler1Paechen[-1].karteOffen == True: self.aufhoeren()
+            else:
+                self.anderreihe== False
+                self.gegenspieler.anderreihe==True
+        if self.spielernummer == 2:
+            if self.game.spieler2Paechen[-1].karteOffen == True: self.aufhoeren()
+            else:
+                self.anderreihe== False
+                self.gegenspieler.anderreihe==True
+
+    def ist_krips(self )-> bool: # Wenn irgendeine karte hingelegt werden kann wird true zurückgegeben. Auch wenn eine Karte reingelegt wurde
+        if self.spielernummer == 1:
+            templiste=[self.game.spieler1Paechen,self.game.spieler1Haufen,self.game.spieler1Dreizehner]
+            valideliste =[liste for liste in (self.game.platzliste + templiste) if len(liste) > 0] # Heist listcomprehesion elementof x for x in x if(soemthing)
+            for slist in valideliste:
+                for mliste in self.game.mittlereliste:
+                    if slist and mliste:#Check ob die listen leer sind
+                        if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
+                            return True
+
+        if self.spielernummer == 2:
+            templiste=[self.game.spieler2Paechen,self.game.spieler2Haufen,self.game.spieler2Dreizehner]
+            valideliste=[liste for liste in (self.game.platzliste + templiste) if len(liste) > 0]
+            for slist in valideliste:
+                for mliste in self.game.mittlereliste:
+                    if slist and mliste:#Check ob die listen leer sind
+                        if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
+                            return True
+        return False
