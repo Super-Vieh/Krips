@@ -1,5 +1,6 @@
 from enum import Enum
 import random
+from Pygame import GUI, MKarte
 from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,initialize_paechen
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 
@@ -12,7 +13,6 @@ def main():
 
     random.shuffle(newdeck1)
     random.shuffle(newdeck2)
-
 
     spieler1 = Spieler(1, newdeck1)
     spieler2 = Spieler(2, newdeck2)
@@ -29,7 +29,9 @@ def main():
     game1.game_first_move()
     initialize_paechen(game1)
 
-    play_init(game1)
+    #play_init(game1)
+    gui = GUI(game1)
+    gui.instance()
 
 
 
