@@ -159,3 +159,4 @@ class Spiel:
             case _:
                 print("Ungültige Aktion.")
 #
+*

@@ -37,10 +37,16 @@ class GUI:
 
 
     def create_centerlist(self,bild): # ist dazu da die ersten 8 pluse in die mitte zu legen
+        # Muss noch überprüft werden ob die karten richtig gelegt werden
 
         for i in range(1,5):
             kartendarstellung:any  = bild
-            for k in self.game.platzliste[i-1]:# für jedekarte in der kartenliste
+            if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i-1]) == 0:
+                self.centerlist.append(MKarte(self.screen, 720, i * 125 , bild))
+                print("12121H")
+                continue
+
+            for k in self.game.mittlereliste[i-1]:# für jedekarte in derMittlereliste
                 match(k.kartentyp.value): #  wird geschaut aus welcher liste die bilder genommenwerden sollen
                     case ("Pik"):
                         kartendarstellung= self.Kartentypen[0]
@@ -51,12 +57,16 @@ class GUI:
                     case ("Karro"):
                         kartendarstellung= self.Kartentypen[3]
 
-            self.centerlist.append(MKarte(self.screen, 720, i * 125 , kartendarstellung[self.game.platzliste[i-1][-1].kartenwert.value-1]))
+            self.centerlist.append(MKarte(self.screen, 720, i * 125 , kartendarstellung[self.game.mittlereliste[i-1][-1].kartenwert.value-1]))
         for i in range(1,5):
 
             kartendarstellung:any  = bild
-            for k in self.game.platzliste[i+4-1]:# für jedekarte in der kartenliste
-                match(k.kartentyp.value): #  wird geschaut aus welcher liste die bilder genommenwerden sollen
+            if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i+4-1]) == 0:
+                self.centerlist.append(MKarte(self.screen, 820, i * 125 , bild))
+                print("Hello"+ str(i+4-1))
+                continue
+            for k in self.game.mittlereliste[i+4-1]:
+                match(k.kartentyp.value):
                     case ("Pik"):
                         kartendarstellung= self.Kartentypen[0]
                     case ("Coeur"):
@@ -66,7 +76,7 @@ class GUI:
                     case ("Karro"):
                         kartendarstellung= self.Kartentypen[3]
 
-            self.centerlist.append(MKarte(self.screen, 820, i * 125 , kartendarstellung[self.game.platzliste[i+4-1][-1].kartenwert.value-1]))
+            self.centerlist.append(MKarte(self.screen, 820, i * 125 , kartendarstellung[self.game.mittlereliste[i+4-1][-1].kartenwert.value-1]))
     def create_sidelist(self,bild):
         kartendarstellung:any  = bild
         for i in range(0, 4):
@@ -139,12 +149,12 @@ class GUI:
         self.initate_cards()
         while self.run:
             self.screen.fill((30, 31, 34)) #Alles muss nach dem fill kommen sonst wird es nicht angezeigt
-            self.draw(self.movable_cards) # liste wird gezeichnet
+            self.draw(self.movable_cards) # liste von den bewegbaren karten
             self.draw(self.centerlist)
             self.draw(self.sidelist)
             self.bewege_karte(self.waehle_karteaus())
 
-
+            #self.define_movable()
 
 
 
@@ -152,6 +162,22 @@ class GUI:
                 if event.type == pygame.QUIT:
                     self.run = False
             pygame.display.update()
+
+            #def define_movable(self):
+             # for i in self.game.platzliste:
+              #  if not i:
+               #     continue
+                #else:
+                 #   for k in self.sidelist:
+                  #    if i[-1].kartenwert == k.kartenwert and i[-1].kartentyp == k.kartentyp:
+                   #       self.movable_cards.append(k)
+                    #      self.sidelist.remove(k)
+
+
+
+
+
+
 
 
 

@@ -31,7 +31,10 @@ def main():
     game1.game_first_move()
     initialize_paechen(game1)
 
-    game1.mittlereliste.append(karte1)
+
+    game1.mittlereliste[0].append(karte1)
+
+
    # play_init(game1)
     gui = GUI(game1)
     gui.instance()
