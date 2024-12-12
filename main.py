@@ -31,6 +31,7 @@ def main():
 
 
     game1.mittlereliste[0].append(karte1)
+    #game1.platzliste[1].append(karte1) bug entsteht
 
 
    # play_init(game1)

@@ -20,7 +20,9 @@ class MKarte:
 # schreibe eine funktion die die karten korrekt darstellt offen zu
 # kreire immaginäre felder 1/2 der x achse nach links oder nach rechts von der Letzen karte der liste
 # schreibe eine weitere funktion die die Karten nur auf diese immaginären felder legen lässt
-# Implementier die Spiel regeln
+
+
+#Implementier die Spiel regeln
 
 
 
@@ -32,27 +34,14 @@ class GUI:
         self.movable_cards:list[MKarte]= []
         self.centerlist = []
         self.sidelist = []
-        self.playerlist = []
         self.game = game
         self.Kartentypen = []
 
-    #def create_player_packages(self,bild):
-    #    for i in range(2):#geht von 0 bis 2
-    #        index = i+1   #index geht von 1 bis 3
-    #        match(index):
-    #            case 1:
-    #                    x_wert = 50# x wert muss noch gemacht werden
-    #                    y_wert = 50# y wert muss noch gemacht werden
-    #                    if self.game.spieler1Paechen[0].karteOffen == False:
-    #                        self.playerlist.append(MKarte(self.screen, x_wert, y_wert, bild, self.game.spieler1Paechen[0]))
-    #                    elif self.game.spieler1Paechen[0].karteOffen == True:
-    #                        self.playerlist.append(MKarte(self.screen, x_wert, y_wert, bild, self.game.spieler1Paechen[0]))
-    #
-    #
-    #            case 2:
-    #
-    #            case 3:
-    
+    def create_player_package(self,bild):
+        for i in range(2):#geht von 0 bis 2
+            index = i+1
+            
+
     def create_centerlist(self,bild): # ist dazu da die ersten 8 pluse in die mitte zu legen
         # Muss noch überprüft werden ob die karten richtig gelegt werden
 
