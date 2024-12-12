@@ -3,8 +3,6 @@ import random
 from Pygame import GUI, MKarte
 from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,initialize_paechen
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
-
-
 def main():
     game1 = Spiel()
 
@@ -38,11 +36,6 @@ def main():
    # play_init(game1)
     gui = GUI(game1)
     gui.instance()
-
-
-
-
-
 
 
 if __name__ == "__main__":

@@ -5,20 +5,24 @@ from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 
 class MKarte:
 
-    def __init__(self,screen:any,x:int,y:int,bild:any):
+    def __init__(self,screen:any,x:int,y:int,bild:any,kard_reference:Karten):
         self.x = x
         self.y = y
         self.bild = bild
         self.screen = screen
         self.state = False # 0 = nicht ausgewaehlt, 1 = ausgewaehlt
         self.bewegbar= False
+        self.kard_reference:Karten = kard_reference
+
+#Todo
+# schreibe eine Funktion welche die Spieler päckchen positioniert
+# schreibe eine Funktion die die karten dynamik des aufdeckens erlaubt / konflikt mit karte aufheben
+# schreibe eine funktion die die karten korrekt darstellt offen zu
+# kreire immaginäre felder 1/2 der x achse nach links oder nach rechts von der Letzen karte der liste
+# schreibe eine weitere funktion die die Karten nur auf diese immaginären felder legen lässt
 
 
-
-
-
-
-
+#Implementier die Spiel regeln
 
 
 
@@ -42,8 +46,10 @@ class GUI:
         for i in range(1,5):
             kartendarstellung:any  = bild
             if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i-1]) == 0:
-                self.centerlist.append(MKarte(self.screen, 720, i * 125 , bild))
-                print("12121H")
+                k =Karten(KartenTyp.Pik,KartenWert.Ass)
+                x_wert = 720
+                y_wert = i * bild.get_height()*2 +i*25
+                self.centerlist.append(MKarte(self.screen, x_wert, y_wert +25, bild,k))
                 continue
 
             for k in self.game.mittlereliste[i-1]:# für jedekarte in derMittlereliste
@@ -56,14 +62,16 @@ class GUI:
                         kartendarstellung= self.Kartentypen[2]
                     case ("Karro"):
                         kartendarstellung= self.Kartentypen[3]
-
-            self.centerlist.append(MKarte(self.screen, 720, i * 125 , kartendarstellung[self.game.mittlereliste[i-1][-1].kartenwert.value-1]))
+                x_wert = 720
+                y_wert = i * bild.get_height()*2 +i*25 # keine ahnung warum mal 2. i*25 ist der abstand zwischen den karten
+            self.centerlist.append(MKarte(self.screen, x_wert, y_wert +25 , kartendarstellung[self.game.mittlereliste[i-1][-1].kartenwert.value-1],k))
         for i in range(1,5):
 
-            kartendarstellung:any  = bild
             if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i+4-1]) == 0:
-                self.centerlist.append(MKarte(self.screen, 820, i * 125 , bild))
-                print("Hello"+ str(i+4-1))
+                k =Karten(KartenTyp.Pik,KartenWert.Ass)
+                x_wert = 820
+                y_wert = i * bild.get_height()*2 +i*25 # keine ahnung warum mal 2. i*25 ist der abstand zwischen den karten
+                self.centerlist.append(MKarte(self.screen, x_wert, y_wert +25 , bild,k))
                 continue
             for k in self.game.mittlereliste[i+4-1]:
                 match(k.kartentyp.value):
@@ -75,8 +83,9 @@ class GUI:
                         kartendarstellung= self.Kartentypen[2]
                     case ("Karro"):
                         kartendarstellung= self.Kartentypen[3]
-
-            self.centerlist.append(MKarte(self.screen, 820, i * 125 , kartendarstellung[self.game.mittlereliste[i+4-1][-1].kartenwert.value-1]))
+            x_wert = 820
+            y_wert= i * bild.get_height()*2 +i*25
+            self.centerlist.append(MKarte(self.screen, 820, y_wert +25, kartendarstellung[self.game.mittlereliste[i+4-1][-1].kartenwert.value-1],k))
     def create_sidelist(self,bild):
         kartendarstellung:any  = bild
         for i in range(0, 4):
@@ -97,7 +106,7 @@ class GUI:
                 temp = self.centerlist[i]
                 y_wert = temp.y
                 x_wert = temp.x - 100 -it* bild.get_width()/2   # Bild ist der Placeholder und wird als formatierungsvorlage genutzt
-                self.sidelist.append(MKarte(self.screen, x_wert, y_wert, kartendarstellung[k.kartenwert.value-1]))
+                self.sidelist.append(MKarte(self.screen, x_wert, y_wert, kartendarstellung[k.kartenwert.value-1],k))
                 it +=1
         for i in range(4, 8):
             it =0
@@ -116,7 +125,7 @@ class GUI:
                 temp = self.centerlist[i]
                 y_wert = temp.y
                 x_wert = temp.x + 100 +it * bild.get_width()/2   # Bild ist der Placeholder und wird als formatierungsvorlage genutzt
-                self.sidelist.append(MKarte(self.screen, x_wert, y_wert, kartendarstellung[k.kartenwert.value-1]))
+                self.sidelist.append(MKarte(self.screen, x_wert, y_wert, kartendarstellung[k.kartenwert.value-1],k))
                 it +=1
 
 
@@ -132,29 +141,33 @@ class GUI:
         plus=pygame.image.load('Bilder/Plus.png')
         plus=self.sizeofkards(plus,50)
         self.initate_cards()
-        for i in self.game.platzliste:
-            for k in i:
-                print(k.kartentyp.value,k.kartenwert.value)
+
 
 
 
         destination = (100, 100)
         destination2 = (200, 200)
-        feld1:MKarte =MKarte(self.screen, 0, 0, placeholder_rueckseite)
-        feld2:MKarte =MKarte(self.screen, 200, 500, plus)
-        self.movable_cards.append(feld1)
-        self.movable_cards.append(feld2)
+        #feld1:MKarte =MKarte(self.screen, 0, 0, placeholder_rueckseite)
+        #feld2:MKarte =MKarte(self.screen, 200, 500, plus,
+        #self.movable_cards.append(feld1)
+        #self.movable_cards.append(feld2)
         self.create_centerlist(plus)
         self.create_sidelist(placeholder_rueckseite)
         self.initate_cards()
         while self.run:
             self.screen.fill((30, 31, 34)) #Alles muss nach dem fill kommen sonst wird es nicht angezeigt
-            self.draw(self.movable_cards) # liste von den bewegbaren karten
+
+
+            self.define_movable()
             self.draw(self.centerlist)
             self.draw(self.sidelist)
-            self.bewege_karte(self.waehle_karteaus())
-
-            #self.define_movable()
+            temp = self.waehle_karteaus()
+            if temp.state == False:
+                self.hebe_karte_auf(temp)
+            elif temp.state == True:
+                print(temp.kard_reference.kartenwert, temp.kard_reference.kartentyp)
+                self.lege_karte_ab(temp)
+            self.set_card_at_center(temp)
 
 
 
@@ -162,20 +175,6 @@ class GUI:
                 if event.type == pygame.QUIT:
                     self.run = False
             pygame.display.update()
-
-            #def define_movable(self):
-             # for i in self.game.platzliste:
-              #  if not i:
-               #     continue
-                #else:
-                 #   for k in self.sidelist:
-                  #    if i[-1].kartenwert == k.kartenwert and i[-1].kartentyp == k.kartentyp:
-                   #       self.movable_cards.append(k)
-                    #      self.sidelist.remove(k)
-
-
-
-
 
 
 
@@ -190,35 +189,60 @@ class GUI:
         for bild in list:
             self.screen.blit(bild.bild, (bild.x, bild.y))
     def waehle_karteaus(self)->MKarte:
+        #Es müssen mindest 1 karte bewegbar sein
         maus = pygame.mouse.get_pos()
         templiste:list[int] =[]
-        for i in self.movable_cards: #Pythagoras länge der hypotenuse als werkzeug
-            templiste.append(((i.x+i.bild.get_width()/2 - maus[0])**2 + (i.y+i.bild.get_height()/2- maus[1])**2)**0.5) #sqrt (a^2 +b^2) = c
+        for i in self.sidelist: #Pythagoras länge der hypotenuse als werkzeug
+              if i.bewegbar == True:
+                #print(i.kard_reference.kartenwert, i.kard_reference.kartentyp)
+                pytagoras_a_quadrat = (i.x+i.bild.get_width()/2 - maus[0])**2
+                pytagoras_b_quadrat = (i.y+i.bild.get_height()/2- maus[1])**2
+                pytagoras_c = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
+                templiste.append(pytagoras_c) #sqrt (a^2 +b^2) = c
+        if not templiste:
+            return None
+        indize = self.indize_waehle_karteaus(templiste)
+        return self.sidelist[indize]
+    def indize_waehle_karteaus(self,templiste) -> int:
+        kl_it = 0
+        kr: int = templiste[0]
+        #speichert die erste hypotenuse zum vergleichen
+        for i in range(len(templiste)):
+            #geht durch alle alle Elemente durch und hat für ein Element den indize "i"
+            if templiste[i] < kr:
+                #wenn die aktuelle hypotenuse kleiner ist als die vorherige
+                kr = templiste[i]
+                #wird die Speichervariable überschrieben.
+                kl_it = i# ist die Position der kleineren hypotenuse in der Liste
+        #print(self.sidelist[kl_it].kard_reference.kartenwert, self.sidelist[kl_it].kard_reference.kartentyp)
+        return kl_it
 
-        kl_it=0
-        kl_len:int =templiste[0]
-        for j in templiste:
-            if j <kl_len:
-                kl_len = j
-                kl_it +=1
-        return self.movable_cards[kl_it]
-
-
-    #geht jedes objekt in der liste durch und vergleicht die distanz mit der Maus(Pytagoras). Die kleinste länge wird zurück gegeben
-    def bewege_karte(self,feld):
-
+    def set_card_at_center(self,feld:MKarte):
         if  feld.state== True:
             eingabe = pygame.mouse.get_pos()
             feld.x = eingabe[0]-feld.bild.get_width()/2 # setzt die Position der Karte zu der Mitter der Maus
             feld.y = eingabe[1]-feld.bild.get_height()/2
 
+
+    def hebe_karte_auf(self, feld):
+        #print(feld.kard_reference.kartenwert, feld.kard_reference.kartentyp)
+        if feld == None:
+            return None
         if pygame.mouse.get_pressed()[0]:
-            pygame.time.delay(250) # delay damit der klick nicht mehrmals gezählt wird
-            if feld.state == True: feld.state = False
-            else:feld.state = True
+            # delay damit der klick nicht mehrmals gezählt wird
+            pygame.time.delay(250)
+            feld.state = True
+            print(feld.kard_reference.kartenwert, feld.kard_reference.kartentyp)
+
+
         # eingabe ist ein Tupel (x,y)
 
-
+    def lege_karte_ab(self,feld):
+        if pygame.mouse.get_pressed()[0]:
+            pygame.time.delay(250) # delay damit der klick nicht mehrmals gezählt wird
+            if feld.state == True : feld.state = False
+            #elif feld.bewegbar:
+            #   feld.state = True
     def transfer_list_to_middle(self):#Muss noch angeschaut werden
         self.centerlist[0].karte = self.game.pik1[-1]
         self.centerlist[1].karte = self.game.pik2[-1]
@@ -229,6 +253,22 @@ class GUI:
         self.centerlist[6].karte = self.game.karro1[-1]
         self.centerlist[7].karte = self.game.karro2[-1]
 
+    def define_movable(self):
+        #Es wird überprüft und gesetzt ob man eine karte bewegen kann
+            for karte in self.sidelist:
+                if karte.state == True:
+                    return None
+                    #soll schauen ob eine Karte hochgehoben ist und wenn ja wird der define movable a
+                    #erst wenn die karte wieder runtergelegt wird kann eine nächste karte hochgehoben werden bzw.
+                    #ist noch nicht kontroliert ob es wirklich funktioniert
+                #alle karten in der liste von den dargestellten karten
+                for liste in self.game.platzliste:
+                    #alle karten in den platzlisten werden überprüft
+                    if karte.kard_reference is liste[-1]:
+                        karte.bewegbar = True
+
+                    #else:
+                     #   karte.bewegbar = False
     def initate_cards(self):
         placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')
         placeholder_rueckseite = self.sizeofkards(placeholder_rueckseite)# ändert die größe zu einer vorherbestimmten größe
