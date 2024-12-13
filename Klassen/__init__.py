@@ -40,7 +40,7 @@ def mittlereKarten(game:Spiel):
             print(karte.kartentyp.value, "-", karte.kartenwert)
         print("----------------")
 
-def print_top(game:Spiel):
+def print_top(game:Spiel): #Folgende Print ausgaben waren mit "!Hilfe" von Chat GPT erstellt
     print("\nSpieler2:")
     #Es kann passieren das die listen kein ellement haben dann wird null geprintet
     try:sp2pl = game.spieler2Paechen[len(game.spieler2Paechen) - 1]
