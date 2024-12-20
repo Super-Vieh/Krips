@@ -32,7 +32,7 @@ def main():
 
     #game1.mittlereliste[0].append(karte1)
     game1.platzliste[1].append(karte1)
-    game1.platzliste[6].append(karte1)
+    game1.spieler2Haufen.append(karte1)
 
 
 
