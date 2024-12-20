@@ -30,11 +30,13 @@ def main():
     initialize_paechen(game1)
 
 
-    game1.mittlereliste[0].append(karte1)
-    #game1.platzliste[1].append(karte1) bug entsteht
+    #game1.mittlereliste[0].append(karte1)
+    game1.platzliste[1].append(karte1)
+    game1.platzliste[6].append(karte1)
 
 
-   # play_init(game1)
+
+# play_init(game1)
     gui = GUI(game1)
     gui.instance()
 

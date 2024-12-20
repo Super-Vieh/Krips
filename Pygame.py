@@ -15,6 +15,7 @@ class MKarte:
         self.highlighted = False
         self.kard_reference:Karten = kard_reference#
 
+
 #Todo
 # schreibe eine Funktion welche die Spieler päckchen positioniert
 # schreibe eine Funktion die die karten dynamik des aufdeckens erlaubt / konflikt mit karte aufheben
@@ -111,37 +112,21 @@ class GUI:
 
             self.centerlist.append(MKarte(self.screen, 820, y_wert +25,geholtes_bild,k))
 
-    def create_sidelist(self,bild):
-        kartendarstellung:any  = bild
-        for i in range(0, 4):
+
+    def create_sidelist(self, bild):
+        for i in range(8):
             it = 0
-            for k in self.game.platzliste[i]:  # für jede Karte in der Kartenliste
-                # Wird überprüft, welcher Liste die Karte gehört
+            for k in self.game.platzliste[i]:
                 kartendarstellung = self.match_funktion(k)
                 geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
 
-                temp = self.centerlist[i]
+                temp = self.centerlist[i % 4]
                 y_wert = temp.y
-                x_wert = temp.x - 100 - it * bild.get_width() / 2  # Bild ist der Placeholder und wird als Formatierungsvorlage genutzt
+                x_wert = temp.x + (-100 if i < 4 else 200) + (-it if i<4 else it) * bild.get_width() / 2
+                #erste klammer ist allgemeine karten positionierung die zweite ist positionierung der karten in der reihe
 
                 self.sidelist.append(MKarte(self.screen, x_wert, y_wert, geholtes_bild, k))
                 it += 1
-        for i in range(4, 8):
-            it =0
-            for k in self.game.platzliste[i]:# für jedekarte in der kartenliste
-
-                #wird überprüft welcher zu liste die karte gehört
-                kartendarstellung= self.match_funktion(k)
-                geholtes_bild =  kartendarstellung[k.kartenwert.value-1]
-
-                temp = self.centerlist[i]
-                y_wert = temp.y
-                x_wert = temp.x + 100 +it * bild.get_width()/2   # Bild ist der Placeholder und wird als formatierungsvorlage genutzt
-
-
-                #hier wird die aus der match funktion genommene liste genutzt
-                self.sidelist.append(MKarte(self.screen, x_wert, y_wert, geholtes_bild,k))
-                it +=1
 
     def match_funktion(self, karte:Karten):
         match(karte.kartentyp.value): #  wird geschaut aus welcher liste die bilder genommenwerden sollen
@@ -256,6 +241,7 @@ class GUI:
         return kl_it
 
     def set_card_at_center(self,feld:MKarte):
+        #Die funktion wird immer ausgeführt.
         if  feld.state== True:
             eingabe = pygame.mouse.get_pos()
             feld.x = eingabe[0]-feld.bild.get_width()/2 # setzt die Position der Karte zu der Mitter der Maus
@@ -263,7 +249,7 @@ class GUI:
 
 
     def hebe_karte_auf(self, feld):
-        #print(feld.kard_reference.kartenwert, feld.kard_reference.kartentyp)
+
         if feld == None:
             return None
         if pygame.mouse.get_pressed()[0]:
@@ -278,13 +264,14 @@ class GUI:
 
     def lege_karte_ab(self,feld):
         if pygame.mouse.get_pressed()[0]:
-            pygame.time.delay(250) # delay damit der klick nicht mehrmals gezählt wird
+            pygame.time.delay(250) # delay dami2t der klick nicht mehrmals gezählt wird
             if feld.state == True :
                 feld.state = False
                 feld.highlighted= False
-            #elif feld.bewegbar:
-            #   feld.state = True
 
+            #self.waehle_karteaus()
+
+    #def an_karte_legen(self,feld_active:MKarte,feld_passive:MKarte):
     def define_movable(self):
         #Es wird überprüft und gesetzt ob man eine karte bewegen kann
             joint_list = self.sidelist+self.playerlist
