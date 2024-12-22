@@ -75,10 +75,14 @@ class Spiel:
                         print("Schleife engaged Spieler2 ist drann?", self.spieler2.anderreihe)
                         return None
 
-    def play(self,action:str):
+    def play(self):
         # karte kann von  den 3 spieler päckchen und 8 Seitenstreifen gelegt werden.
         # karte kann auf die 8 Mittlerenpäckchen, die 8 Seitenstreifen und den gegner Haufen gelegt werden.
-
+        action: str = input(f"\nSpieler{self.current.spielernummer} ist drann."
+                            "\nWas soll gemacht werden?\n"
+                            "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
+                            "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
+                            "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
         #action:str = input()
 
         lenaction = len(action)

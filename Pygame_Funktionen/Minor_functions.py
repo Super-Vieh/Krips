@@ -19,17 +19,18 @@ def waehle_karteaus(self)->MKarte:
     maus = pygame.mouse.get_pos()
     templiste:list[int] =[]
 
-    joint_list = self.sidelist+self.gamelist
-    for i in joint_list: #Pythagoras länge der hypotenuse als werkzeug
-        if i.bewegbar == True:
-            pytagoras_a_quadrat = (i.x+i.bild.get_width()/2 - maus[0])**2
-            pytagoras_b_quadrat = (i.y+i.bild.get_height()/2- maus[1])**2
-            pytagoras_c = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
-            templiste.append(pytagoras_c) #sqrt (a^2 +b^2) = c
+
+    for i in self.gamelist: #Pythagoras länge der hypotenuse als werkzeug
+
+        pytagoras_a_quadrat = (i.x+i.bild.get_width()/2 - maus[0])**2
+        pytagoras_b_quadrat = (i.y+i.bild.get_height()/2- maus[1])**2
+        pytagoras_c = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
+        templiste.append(pytagoras_c) #sqrt (a^2 +b^2) = c
     if not templiste:
         return None
     indize = indize_waehle_karteaus(self,templiste)
-    return joint_list[indize]
+    return self.gamelist[indize]
+
 def indize_waehle_karteaus(self,templiste) -> int:
     kl_it = 0
     kr: int = templiste[0]
@@ -55,6 +56,9 @@ def hebe_karte_auf(self, feld):
 
     if feld == None:
         return None
+    if feld.bewegbar == False:
+        return None
+
     if pygame.mouse.get_pressed()[0]:
         # delay damit der klick nicht mehrmals gezählt wird
         pygame.time.delay(250)
@@ -67,6 +71,7 @@ def hebe_karte_auf(self, feld):
 
 def lege_karte_ab(self,feld):
     if pygame.mouse.get_pressed()[0]:
+        self.action_done=True
         pygame.time.delay(250) # delay dami2t der klick nicht mehrmals gezählt wird
         if feld.state == True :
             feld.state = False
@@ -77,21 +82,19 @@ def lege_karte_ab(self,feld):
     #def an_karte_legen(self,feld_active:MKarte,feld_passive:MKarte):
 def define_movable(self):
     #Es wird überprüft und gesetzt ob man eine karte bewegen kann
-    joint_list = self.sidelist+self.gamelist
-    for karte in joint_list:
+
+    for karte in self.gamelist:
         if karte.state == True:
-            return None
+            karte.bewegbar= True
             #soll schauen ob eine Karte hochgehoben ist und wenn ja wird der define movable a
             #erst wenn die karte wieder runtergelegt wird kann eine nächste karte hochgehoben werden bzw.
             #ist noch nicht kontroliert ob es wirklich funktioniert
         #alle karten in der liste von den dargestellten karten
-        joint_list_fuer_paeckchen = self.game.platzliste+self.game.spieler1listen+self.game.spieler2listen
+        joint_list_fuer_paeckchen= self.game.platzliste+self.game.spieler1listen+self.game.spieler2listen
         for liste in joint_list_fuer_paeckchen:
             #alle karten in den platzlisten werden überprüft
             if not liste:
                 continue
             if karte.kard_reference is liste[-1]:
                 karte.bewegbar = True
-
-            #else:
-            #   karte.bewegbar = False
+                #karte.highlighted = True

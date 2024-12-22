@@ -31,15 +31,16 @@ def main():
 
 
     #game1.mittlereliste[0].append(karte1)
-    game1.platzliste[1].append(karte1)
-    game1.spieler2Haufen.append(karte1)
+    #game1.platzliste[1].append(karte1)
+    #game1.spieler2Haufen.append(karte1)
 
 
 
-# play_init(game1)
+
     gui = GUI(game1)
     gui.instance()
-
+    #print(game1.current.spielernummer)
+    #play_init(game1,gui)
 
 if __name__ == "__main__":
     main()
