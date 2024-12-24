@@ -4,7 +4,7 @@ from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,pr
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 from Pygame_Funktionen import MKarte
 from Pygame_Funktionen import create_sidelist,create_centerlist,create_player_packages,initate_cards,delete_kard_from_gamelist
-from Pygame_Funktionen import sizeofkards,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,define_movable,set_card_at_center
+from Pygame_Funktionen import find_origin_list,sizeofkards,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,define_movable,set_card_at_center
 
 
 
@@ -32,26 +32,28 @@ class GUI:
         self.action_done = False
         self.placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')
         self.placeholder_rueckseite = sizeofkards(self,self.placeholder_rueckseite)# ändert die größe zu einer vorherbestimmten größe
-
+        self.plus = pygame.image.load('Bilder/Plus.png')
+        self.plus = sizeofkards(self,self.plus,50)
 
 
 
 
     def instance(self):
-        plus = pygame.image.load('Bilder/Plus.png')
-        plus = sizeofkards(self,plus, 50)
+
         initate_cards(self)
         destination = (100, 100)
         destination2 = (200, 200)
-        create_centerlist(self, plus)
+        create_centerlist(self, self.plus)
         create_sidelist(self)
         create_player_packages(self)
         initate_cards(self)
+        self.game.game_first_move()
         while self.run:
             self.screen.fill((30, 31, 34))  # Alles muss nach dem fill kommen sonst wird es nicht angezeigt
 
             define_movable(self)
-
+            if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
+            elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
             self.untilize_play()
             draw(self, self.gamelist)
             draw(self, self.centerlist)
@@ -84,9 +86,13 @@ class GUI:
         if not temp: print("Keine Karte ausgewählt")
         if temp.state == False:
             hebe_karte_auf(self, temp)
+            #print(find_origin_list(self,temp))
         elif temp.state == True:
             #print(temp.kard_reference.kartenwert, temp.kard_reference.kartentyp)
-            lege_karte_ab(self, temp)
+            ergebniss_string =lege_karte_ab(self, temp)
+            if ergebniss_string:
+                #print("test1")
+                self.game.play(ergebniss_string)
         set_card_at_center(self, temp)
         self.reset()
 
@@ -100,6 +106,7 @@ class GUI:
             delete_kard_from_gamelist(self)
             create_player_packages(self)
             create_sidelist(self)
+            create_centerlist(self,self.plus)
             self.action_done=False
 
 

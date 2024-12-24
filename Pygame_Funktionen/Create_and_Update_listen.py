@@ -4,7 +4,7 @@ from .MKarte import MKarte
 from Klassen import Karten, KartenWert, KartenTyp
 from .Minor_functions import sizeofkards,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf
 #Todo
-# #Alle karten welche auf den Kripsplätzen müssen gelöscht werden
+# #Centerlist wrong
 def create_player_packages(self):
     bild = self.placeholder_rueckseite
     for i in range(3):
@@ -19,33 +19,7 @@ def create_player_packages(self):
                 handle_haufen(self, x_wert, y_wert1, y_wert2, index)
             case 2:
                 handle_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild)
-# def delete_kard_from_gamelist(self):# Nicht sicher. Bei bugs überprüfen
-# jointlist= []
-# #alle wichtigen listen werden gelöscht und bei unnötigen karten objekten sollen die karten gelöscht werden
-# for list in self.game.platzliste:
-#     if list :jointlist+=list
-# for list in self.game.mittlereliste:
-#     if list :jointlist.append(list[-1])
-# for list in self.game.spieler1listen:
-#     if list :jointlist.append(list[-1])
-# for list in self.game.spieler2listen:
-#     if list :jointlist.append(list[-1])
-#
-# # es Wird nach duplikaten gesucht
-# # wenn eine gefunden wird wird sie aus der liste gamelist gelöscht
-#
-# gesehen = []
-# duplikat = []
-# for mkard in self.gamelist:
-#     for card in jointlist:
-#        gesehen.append(card.kard_reference)
-#        if card.kard_reference in gesehen:
-#             duplikat.append(card)
-#     for karte in gesehen:
-#         for card in duplikat:
-#             if karte.kard_reference == card.kard_reference:
-#                gesehen.remove(karte)
-#                self.gamelist.remove(karte)
+
 def delete_kard_from_gamelist(self):
     self.gamelist = []
 def handle_paechen(self, x_wert, y_wert1, y_wert2, bild):
@@ -75,43 +49,37 @@ def add_card_to_gamelist(self, card, x_wert, y_wert, bild=None):
             dargestelltes_bild = geholtes_bild_liste[card.kartenwert.value - 1]
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, dargestelltes_bild, card))
 def create_centerlist(self, bild):
-
     x_wert1 = 720
     x_wert2 = 820
 
-    for i in range(1, 5):
+    # Add the left part of the cards (1, 3, 5, 7)
+    for i in range(4):
 
         kartendarstellung = bild
         k = Karten(KartenTyp.Pik, KartenWert.Ass)
-        if not self.game.mittlereliste or not self.game.mittlereliste[i-1]:
-            x_wert1 = 720
-            y_wert = i * bild.get_height() * 2 + i * 25
+        if not self.game.mittlereliste or not self.game.mittlereliste[i]:
+            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
             self.centerlist.append(MKarte(self.screen, x_wert1, y_wert + 25, bild, k))
             continue
 
-        for k in self.game.mittlereliste[i - 1]:
+        for k in self.game.mittlereliste[i*2]:
             kartendarstellung = match_funktion(self, k)
             geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
-            x_wert1 = 720
-            y_wert = i * bild.get_height() * 2 + i * 25
+            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
+            self.centerlist.append(MKarte(self.screen, x_wert1, y_wert + 25, geholtes_bild, k))
 
-        self.centerlist.append(MKarte(self.screen, x_wert1, y_wert + 25, geholtes_bild, k))
-
-    for i in range(1, 5):
-        if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i + 4 - 1]) == 0:
-            x_wert2 = 820
-            y_wert = i * bild.get_height() * 2 + i * 25
+    # Add the right part of the cards (2, 4, 6, 8)
+    for i in range(4):
+        if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i + 4]) == 0:
+            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
             self.centerlist.append(MKarte(self.screen, x_wert2, y_wert + 25, bild, k))
             continue
 
-        for k in self.game.mittlereliste[i + 4 - 1]:
+        for k in self.game.mittlereliste[i*2]:
             kartendarstellung = match_funktion(self, k)
             geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
-
-        x_wert2 = 820
-        y_wert = i * bild.get_height() * 2 + i * 25
-        self.centerlist.append(MKarte(self.screen,x_wert2, y_wert + 25, geholtes_bild, k))
-
+            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
+            self.centerlist.append(MKarte(self.screen, x_wert2, y_wert + 25, geholtes_bild, k))
 def create_sidelist(self):
     for i in range(8):
         it = 0
