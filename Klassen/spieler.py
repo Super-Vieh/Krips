@@ -126,14 +126,14 @@ class Spieler:
     def kann_gegener_geben(self, karte: Karten) -> bool:
         #kontroliert ob die karte um eins höher oder kleiner ist als die karte auf dem gegner packchen und ob die von der gleicher art ist
         if self.spielernummer == 1:
-            sp2h =self.game.spieler2Haufen
+            sp2h = self.game.spieler2Haufen
             if len(sp2h) == 0: return False
-            elif (karte.kartentyp == sp2h[len(sp2h)-1].kartentyp)and(karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value + 1) :
+            elif (karte.kartentyp == sp2h[len(sp2h)-1].kartentyp)and((karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp2h[len(sp2h)-1].kartenwert.value -1)) :
                 return True
         if self.spielernummer == 2:
             sp1h =self.game.spieler1Haufen
             if len(sp1h) == 0: return False
-            elif (karte.kartentyp == sp1h[len(sp1h)-1].kartentyp)and(karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value + 1) :
+            elif (karte.kartentyp == sp1h[len(sp1h)-1].kartentyp)and((karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value + 1) or (karte.kartenwert.value == sp1h[len(sp1h)-1].kartenwert.value -1)) :
                 return True
 
     def gegener_geben(self,origin:list[Karten])->None:
@@ -145,15 +145,19 @@ class Spieler:
                 self.game.spieler1Haufen.append(origin.pop())
     def resetHaufen(self):
        if self.spielernummer == 1:
-        for i in self.game.spieler1Haufen:
-            i.karteOffen = False
-        self.game.spieler1Paechen = self.game.spieler1Haufen
-        self.game.spieler1Haufen = []
+            for i in self.game.spieler1Haufen:
+                i.karteOffen = False
+            for kard in self.game.spieler1Haufen[:]:
+                self.game.spieler1Paechen.append(kard)
+                self.game.spieler1Haufen.remove(kard)
+            self.game.spieler1Haufen = []
        if self.spielernummer == 2:
-        for i in self.game.spieler2Haufen:
-            i.karteOffen = False
-        self.game.spieler2Paechen = self.game.spieler2Haufen
-        self.game.spieler2Haufen = []
+            for i in self.game.spieler2Haufen:
+                i.karteOffen = False
+            for kard in self.game.spieler2Haufen[:]:
+                self.game.spieler2Paechen.append(kard)
+                self.game.spieler2Haufen.remove(kard)
+            self.game.spieler2Haufen = []
     def aufhoeren(self):
         if self.spielernummer ==1 and self.game.spieler1Paechen and self.game.spieler1Paechen[-1].karteOffen == True:
             self.game.spieler1Haufen.append(self.game.spieler1Paechen.pop())
@@ -169,28 +173,50 @@ class Spieler:
             else:
                 self.anderreihe== False
                 self.gegenspieler.anderreihe==True
+            self.game.wouldbeKrips = False
         if self.spielernummer == 2:
             if self.game.spieler2Paechen[-1].karteOffen == True: self.aufhoeren()
             else:
+
                 self.anderreihe== False
                 self.gegenspieler.anderreihe==True
-
-    def ist_krips(self )-> bool: # Wenn irgendeine karte hingelegt werden kann wird true zurückgegeben. Auch wenn eine Karte reingelegt wurde
+            self.game.wouldbeKrips = False
+    def ist_krips(self )-> bool:
+        # Kontroliert ob ein Krips gelegt werden kann. Die funktion wird in play() aufgerufen
         if self.spielernummer == 1:
-            templiste=[self.game.spieler1Paechen,self.game.spieler1Haufen,self.game.spieler1Dreizehner]
-            valideliste =[liste for liste in (self.game.platzliste + templiste) if len(liste) > 0] # Heist listcomprehesion elementof x for x in x if(soemthing)
+            ownliste=[self.game.spieler1Paechen,self.game.spieler1Haufen,self.game.spieler1Dreizehner]
+            valideliste =[liste for liste in (self.game.platzliste + ownliste) if len(liste) > 0] # Heist listcomprehesion elementof x for x in x if(soemthing)
             for slist in valideliste:
+                if slist[-1].kartenwert.value == 1: #Wenn irgenwo ein Ass leigt
+                    return True
                 for mliste in self.game.mittlereliste:
                     if slist and mliste:#Check ob die listen leer sind
                         if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
                             return True
 
         if self.spielernummer == 2:
-            templiste=[self.game.spieler2Paechen,self.game.spieler2Haufen,self.game.spieler2Dreizehner]
-            valideliste=[liste for liste in (self.game.platzliste + templiste) if len(liste) > 0]
+            ownliste=[self.game.spieler2Paechen,self.game.spieler2Haufen,self.game.spieler2Dreizehner]
+            valideliste=[liste for liste in (self.game.platzliste + ownliste) if len(liste) > 0]
             for slist in valideliste:
+                if slist[-1].kartenwert.value == 1: #Wenn irgenwo ein Ass leigt
+                    return True
                 for mliste in self.game.mittlereliste:
                     if slist and mliste:#Check ob die listen leer sind
                         if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
+                            print("Test krips")
                             return True
         return False
+    def krips_karte_gespielt(self, list_of_second:list[Karten]):
+        # ist eine Funktion welche kontroliert, ob die gelegte karte nicht das Krips bedient und wenn es das tut wird wouldbekrips auf false gesetzt
+        # wird in der play() funktion genutzt um Krips zu kontrolieren. Nur in dem Fall das eine Karte in die mitte gelegt wird, wird die funktiomn aufgerufen.
+        if self.game.wouldbeKrips == False or not list_of_second:
+            return None
+        for kripslist in self.game.mittlereliste or not list_of_second:
+            #die übergebene list_of second gibt die zuletzt gelegte karte wieder
+            if kripslist and list_of_second[-1].kartentyp == kripslist[-1].kartentyp and list_of_second[-1].kartenwert.value -1 == kripslist[-1].kartenwert.value:
+                self.game.wouldbeKrips = False
+
+
+
+
+

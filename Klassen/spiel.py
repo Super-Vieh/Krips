@@ -33,12 +33,12 @@ class Spiel:
     spieler1Haufen: list[Karten] = []
     spieler1Paechen: list[Karten] = []
     spieler1Dreizehner: list[Karten] = []
-    spieler1listen = [spieler1Dreizehner, spieler1Paechen, spieler1Haufen]
+    spieler1listen = []
 
     spieler2Haufen: list[Karten] = []
     spieler2Paechen: list[Karten] = []
     spieler2Dreizehner: list[Karten] = []
-    spieler2listen = [spieler2Dreizehner, spieler2Paechen, spieler2Haufen]
+    spieler2listen = []
 
     def kartenDeckErstellung(self) -> list[Karten]:
         templist = []  # Speichert die Karten
@@ -58,12 +58,21 @@ class Spiel:
 
         if (objdrz1.karteOffen == True and self.spieler2Dreizehner[
             len(self.spieler2Dreizehner) - 1].karteOffen == True):  #Wenn die längen gleich sind
-            if (objdrz1.kartenwert.value > objdrz2.kartenwert.value):  # stimmt wenn spieler1 die höhere karte hat
+            # Hier wird entschieden wer anfängt die Höhere Karte im Dreizehnerpäckchen gewinnt. Ausnahme ist wenn ein Ass kommt
+            if (objdrz1.kartenwert.value > objdrz2.kartenwert.value) or (objdrz1.kartenwert.value == 1 and objdrz2.kartenwert.value != 1):  # stimmt wenn spieler1 die höhere karte hat
                 self.spieler1.anderreihe = True
-            elif (objdrz1.kartenwert.value < objdrz2.kartenwert.value):  # stimmt wenn spieler2 die höhere karte hat
-                self.spieler2.anderreihe = True
-            else:
+                self.current = self.spieler1
+                #Hier wird die möglichkeit auf das erste Krips geschaffen.
+                if self.current.anderreihe == True and self.current.spielernummer==1 and self.current.ist_krips() == True:
+                    self.wouldbeKrips = True
 
+            elif (objdrz1.kartenwert.value < objdrz2.kartenwert.value) or (objdrz2.kartenwert.value == 1 and objdrz1.kartenwert.value != 1):  # stimmt wenn spieler2 die höhere karte hat
+                self.spieler2.anderreihe = True
+                self.current = self.spieler2
+                if self.current.anderreihe == True and self.current.spielernummer==2 and self.current.ist_krips() == True:
+                    self.wouldbeKrips = True
+
+            else:
                 for karte in range(4):  #geht durch die ersten 4 plätze auf jeder seite durch und vergleich sie
 
                     if (self.platzliste[karte][0].kartenwert.value > self.platzliste[karte + 4][0].kartenwert.value):
@@ -84,30 +93,49 @@ class Spiel:
                 # "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                 # "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
         #action:str = input()
+        print(action)
+        #test sollte gelöscht werden
+
+        # bis hier
 
         lenaction = len(action)
         print(f"{self.current.spielernummer} ist drann")
+        print(f"{self.current.ist_krips()} current is krips")
+        print(f"{self.wouldbeKrips} wouldbeKrips")
         #print(self.wouldbeKrips)
         #print(self.current.ist_krips(),"Hello")
         if lenaction == 1 and action == "P": self.current.aufhoeren();return None
         if lenaction == 1 and action == "R": self.current.resetHaufen();return None
-        if lenaction == 1 and action == "K" and self.wouldbeKrips== True:
-            self.current.wegen_krips_aufhoeren()
+        if lenaction == 1 and action == "K":
+            if self.wouldbeKrips== True:
+                self.current.wegen_krips_aufhoeren()
             return None
-        if lenaction == 2 and action == "A0":
+        elif lenaction == 2 and action == "A0" or lenaction == 4 and action == "A0A0":
+            self.wouldbeKrips = self.current.ist_krips()
             self.current.karte_aufdecken(0)
+            return None
+        elif lenaction == 2 and action == "A2" or lenaction == 4 and action == "A2A2":
             self.wouldbeKrips = self.current.ist_krips()
-            return None  # packchen
-        elif lenaction == 2 and action == "A2":
             self.current.karte_aufdecken(1)
-            self.wouldbeKrips = self.current.ist_krips()
+
             return None  # Dreizehner
+        if action == "A1":
+            if not self.spieler1Paechen and self.spieler1Haufen and self.current.spielernummer == 1:
+                self.wouldbeKrips = self.current.ist_krips()
+                self.current.resetHaufen()
+
+
+        if not self.spieler2Paechen and self.spieler2Haufen and self.current.spielernummer == 2:
+            self.wouldbeKrips = self.current.ist_krips()
+            self.current.resetHaufen()
+
+
+
         try: first = action[0]  #Herkunftslistentyp
         except IndexError:return None
         try: second = int(action[1])  #herkuftsliste
         except ValueError: return None
         except IndexError: return None
-        if (first == "A") and (second >2): return None
         try: third = action[2]  #Ziellistentyp
         except IndexError: return None
         try:fourth = int(action[3])  #zielliste
@@ -115,16 +143,22 @@ class Spiel:
         except IndexError: return None
 
         match (first, third):  # M = Mitte, S = Seite, G = Gegner, A=Haupt
+            case ("A","A"):
+                if second==0 and fourth == 1:
+                    self.current.aufhoeren()
             case ("A", "M"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.mitteHinlegen(fourth, self.spieler1listen[second])
+                    self.current.krips_karte_gespielt(self.spieler1listen[second])
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.mitteHinlegen(fourth, self.spieler2listen[second])
+                    self.current.krips_karte_gespielt(self.spieler1listen[second])
             case ("A", "S"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.spieler1listen[second])
-                    print(self.wouldbeKrips)
                 if self.current.spielernummer == 2:
                     self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.spieler2listen[second])
@@ -139,9 +173,13 @@ class Spiel:
                     self.current.gegener_geben(self.spieler2listen[second])
             case ("S", "M"):
                 if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+                    self.current.krips_karte_gespielt(self.platzliste[second - 1])
                 if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
                     self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+                    self.current.krips_karte_gespielt(self.platzliste[second - 1])
             case ("S", "S"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
@@ -150,13 +188,21 @@ class Spiel:
                     self.wouldbeKrips = self.current.ist_krips()
                     self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
             case ("S", "G"):
+                print("test for S G")
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
+                    print("test for S G player 1")
                     self.current.gegener_geben(self.platzliste[second - 1])
                 if self.current.spielernummer == 2:
                     self.wouldbeKrips = self.current.ist_krips()
+                    print("test for S G player 2")
                     self.current.gegener_geben(self.platzliste[second - 1])
-
+            case ("A", "R"):
+                if second == fourth:
+                    self.current.resetHaufen()
+            case ("K", "K"):
+                if second == fourth:
+                    self.current.wegen_krips_aufhoeren()
             case _:
                 print("Ungültige Aktion.")
 #

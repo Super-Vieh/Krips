@@ -24,7 +24,12 @@ def play_init(game:Spiel):
             print_top(game)
             print_sidesplus(game)
             print_bot(game)
-            game.play()
+            action: str = input(f"\nSpieler{game.current.spielernummer} ist drann."
+                    "\nWas soll gemacht werden?\n"
+                    "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
+                    "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
+                    "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
+            game.play(action)
 
 def seitenKarten(game:Spiel, momentanerspieler:Spieler):
     for liste in game.platzliste:

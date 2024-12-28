@@ -1,6 +1,6 @@
 import pygame
 
-from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,initialize_paechen
+from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 from Pygame_Funktionen import MKarte
 from Pygame_Funktionen import create_sidelist,create_centerlist,create_player_packages,initate_cards,delete_kard_from_gamelist
@@ -43,20 +43,25 @@ class GUI:
         initate_cards(self)
         destination = (100, 100)
         destination2 = (200, 200)
+
+        initate_cards(self)
+        self.game.game_first_move()
+
         create_centerlist(self, self.plus)
         create_sidelist(self)
         create_player_packages(self)
-        initate_cards(self)
-        self.game.game_first_move()
         while self.run:
             self.screen.fill((30, 31, 34))  # Alles muss nach dem fill kommen sonst wird es nicht angezeigt
-
             define_movable(self)
             if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
             elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
             self.untilize_play()
             draw(self, self.gamelist)
             draw(self, self.centerlist)
+            krips_knoepfe = self.create_knopf()
+            for button in krips_knoepfe:
+                pygame.draw.rect(self.screen, (255, 0, 0), button)
+
 
             # Get the current mouse position
             mouse_pos = pygame.mouse.get_pos()
@@ -66,6 +71,7 @@ class GUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.run = False
+                self.krips(event, krips_knoepfe)
             pygame.display.update()
 
 
@@ -78,10 +84,12 @@ class GUI:
                         # "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                         # "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
 
-        #if self.game.gameon:
-         #   if self.game.spieler1.anderreihe == True: self.game.current =  self.game.spieler1
-          #  elif  self.game.spieler2.anderreihe == True:  self.game.current =  self.game.spieler2
-        #if self. game.current.anderreihe == True:
+
+        # while (self.game.spieler1Paechen  or self.game.spieler2Paechen) and pygame.key.get_pressed()[pygame.K_RETURN]:
+        #     self.game.play("A0")
+        #     self.game.play("A0A1")
+        #     self.reset()
+        #     return None
         temp = waehle_karteaus(self)
         if not temp: print("Keine Karte ausgewählt")
         if temp.state == False:
@@ -109,6 +117,16 @@ class GUI:
             create_centerlist(self,self.plus)
             self.action_done=False
 
-
-
+    def create_knopf(self):
+        button_color = (255, 0, 0)  # Red color
+        button_rects = [
+            pygame.Rect(400, 25, 100, 108),  # Button at (400, 25)
+            pygame.Rect(1085, 655, 100, 108)  # Button at (400, 655)
+        ]
+        return button_rects
+    def krips(self,event,knoepfe_liste):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for rect in knoepfe_liste:
+                if rect.collidepoint(event.pos):
+                    self.game.play("K")
 

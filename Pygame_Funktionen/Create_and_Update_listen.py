@@ -1,10 +1,11 @@
+# Funktionen die zu der Klasse GUI gehören
 import pygame
 import Pygame # kann aucbh nicht genutzt werden
 from .MKarte import MKarte
 from Klassen import Karten, KartenWert, KartenTyp
 from .Minor_functions import sizeofkards,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf
-#Todo
-# #Centerlist wrong
+
+
 def create_player_packages(self):
     bild = self.placeholder_rueckseite
     for i in range(3):
@@ -25,70 +26,78 @@ def delete_kard_from_gamelist(self):
 def handle_paechen(self, x_wert, y_wert1, y_wert2, bild):
     if self.game.spieler1Paechen:
         add_card_to_gamelist(self, self.game.spieler1Paechen[-1], x_wert, y_wert1, bild)
+        self.gamelist.append(MKarte(self.screen, x_wert , y_wert1,self.placeholder_rueckseite, None))
+    else: self.gamelist.append(MKarte(self.screen,x_wert,y_wert1,self.plus,None))
     if self.game.spieler2Paechen:
         add_card_to_gamelist(self, self.game.spieler2Paechen[-1], x_wert, y_wert2, bild)
-
+        self.gamelist.append(MKarte(self.screen, x_wert , y_wert2,self.placeholder_rueckseite, None))
+    else: self.gamelist.append(MKarte(self.screen,x_wert,y_wert2,self.plus,None))
 def handle_haufen(self, x_wert, y_wert1, y_wert2, index):
     if self.game.spieler1Haufen:
         add_card_to_gamelist(self, self.game.spieler1Haufen[-1], x_wert + index * 180, y_wert1)
+    else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1, self.plus, None))
     if self.game.spieler2Haufen:
         add_card_to_gamelist(self, self.game.spieler2Haufen[-1], x_wert + index * 180, y_wert2)
-
+    else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert2, self.plus, None))
 def handle_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild):
     if self.game.spieler1Dreizehner:
         add_card_to_gamelist(self, self.game.spieler1Dreizehner[-1], x_wert + index * 180, y_wert1, bild)
+        self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1,self.placeholder_rueckseite, None))
     if self.game.spieler2Dreizehner:
         add_card_to_gamelist(self, self.game.spieler2Dreizehner[-1], x_wert + index * 180, y_wert2, bild)
+        self.gamelist.append(MKarte(self.screen, x_wert+ index * 180 , y_wert2,self.placeholder_rueckseite, None))
+
 
 def add_card_to_gamelist(self, card, x_wert, y_wert, bild=None):
-    if not check_if_card_is_in_a_list(self, card):
         if not card.karteOffen:
-            self.gamelist.append(MKarte(self.screen, x_wert, y_wert, bild or self.placeholder_rueckseite, card))
+            self.gamelist.append(MKarte(self.screen, x_wert, y_wert,  self.placeholder_rueckseite, card))
         else:
             geholtes_bild_liste = match_funktion(self, card)
             dargestelltes_bild = geholtes_bild_liste[card.kartenwert.value - 1]
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, dargestelltes_bild, card))
 def create_centerlist(self, bild):
-    x_wert1 = 720
-    x_wert2 = 820
+    x_wert1 = 700
+    x_wert2 = 800
 
-    # Add the left part of the cards (1, 3, 5, 7)
-    for i in range(4):
+    for i in range(8):
+        y_wert = (i*108)/2 + i*12.5 if i%2==0 else ((i-1)*108)/2 + (i-1)*12.5    #karten höhe ist 108 || i%4 * 108
+        y_wert+= 140
+        current_list= self.game.mittlereliste[i]
 
-        kartendarstellung = bild
-        k = Karten(KartenTyp.Pik, KartenWert.Ass)
-        if not self.game.mittlereliste or not self.game.mittlereliste[i]:
-            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
-            self.centerlist.append(MKarte(self.screen, x_wert1, y_wert + 25, bild, k))
-            continue
+        if current_list:
+            kartendarstellung = match_funktion(self, current_list[-1])
+            geholtes_bild = kartendarstellung[current_list[-1].kartenwert.value - 1]
+        if i % 2 == 0:
+            if not current_list:
 
-        for k in self.game.mittlereliste[i*2]:
-            kartendarstellung = match_funktion(self, k)
-            geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
-            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
-            self.centerlist.append(MKarte(self.screen, x_wert1, y_wert + 25, geholtes_bild, k))
+                self.centerlist.append(MKarte(self.screen, x_wert1, y_wert, bild, None))
+            else:
+                self.centerlist.append(MKarte(self.screen, x_wert1, y_wert, geholtes_bild, current_list[-1]))
+        elif i % 2 == 1:
+            if not current_list:
+                self.centerlist.append(MKarte(self.screen, x_wert2, y_wert, bild, None))
+            else:
 
-    # Add the right part of the cards (2, 4, 6, 8)
-    for i in range(4):
-        if len(self.game.mittlereliste) == 0 or len(self.game.mittlereliste[i + 4]) == 0:
-            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
-            self.centerlist.append(MKarte(self.screen, x_wert2, y_wert + 25, bild, k))
-            continue
+                self.centerlist.append(MKarte(self.screen, x_wert2, y_wert, geholtes_bild, current_list[-1]))
 
-        for k in self.game.mittlereliste[i*2]:
-            kartendarstellung = match_funktion(self, k)
-            geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
-            y_wert = (i + 1) * bild.get_height() * 2 + (i + 1) * 25
-            self.centerlist.append(MKarte(self.screen, x_wert2, y_wert + 25, geholtes_bild, k))
+
+
 def create_sidelist(self):
     for i in range(8):
         it = 0
+        y_wert = i * 133 if i < 4 else (i - 4) * 133 # gekürze funktion
+
+        y_wert+=140
+
+        if not self.game.platzliste[i]:
+
+            x_wert = 600 if i < 4 else 900
+            self.gamelist.append(MKarte(self.screen, x_wert, y_wert, self.plus, None))
         for k in self.game.platzliste[i]:
             kartendarstellung = match_funktion(self, k)
             geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
 
-            y_wert = i * geholtes_bild.get_height()+i*25  if i <4 else i%4 * geholtes_bild.get_height()+(i%4*25)
-            y_wert+=140
+
             #hard coded values
             x_wert = 700 + (-100 if i < 4 else 200) + (-it if i < 4 else it) * geholtes_bild.get_width() / 2
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, geholtes_bild, k))
@@ -106,11 +115,7 @@ def match_funktion(self, karte: Karten):
             kartendarstellung = self.Kartentypen[3]
     return kartendarstellung
 
-def check_if_card_is_in_a_list(self, karte: Karten):
-    for jkarte in self.gamelist:
-        if karte == jkarte.kard_reference:
-            return True
-    return False
+
 
 def initate_cards(self):
     placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')

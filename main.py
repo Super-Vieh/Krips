@@ -48,8 +48,10 @@ def main():
 
     gui = GUI(game1)
     gui.instance()
+    #print(game1.spieler1Paechen)
     #print(game1.current.spielernummer)
-    #play_init(game)
+    #play_init(game1)
+
 
 if __name__ == "__main__":
     main()

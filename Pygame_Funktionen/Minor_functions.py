@@ -1,15 +1,25 @@
+# Funktionen die zu der Klasse GUI gehören
 import pygame
 from .MKarte import MKarte
 
 def sizeofkards(self,placeholder_bild,neue_breite=75)->any: # verändert die karte adequat zur eingegebenen breite
     neue_hoehe = placeholder_bild.get_height() * neue_breite/placeholder_bild.get_width()
     kleines_bild = pygame.transform.scale(placeholder_bild, (int(neue_breite), int(neue_hoehe)))
-
     return kleines_bild
 def draw(self, list):
+    highpriority = []
+    lowpriority = []
+    #differenzierung in haupbilder und bilder die im hintergrund sein sollen
     for bild in list:
+        if bild.kard_reference: highpriority.append(bild)
+        else:lowpriority.append(bild)
+    for bild in lowpriority:
         self.screen.blit(bild.bild, (bild.x, bild.y))
 
+    for bild in highpriority:
+        if  bild.kard_reference and bild.kard_reference.karteOffen == False:
+            self.screen.blit(self.placeholder_rueckseite, (bild.x, bild.y))
+        else: self.screen.blit(bild.bild, (bild.x, bild.y))
         if bild.highlighted:
             highlight_rect = pygame.Rect(bild.x, bild.y, bild.bild.get_width(), bild.bild.get_height())
             pygame.draw.rect(self.screen, (255, 255, 0), highlight_rect, 2)  # Gelber Rand, Dicke 4
@@ -19,6 +29,16 @@ def waehle_karteaus(self)->MKarte:
     maus = pygame.mouse.get_pos()
     templiste:list[int] =[]
     jointlist = self.gamelist+self.centerlist
+    # Hier werden die Gegenerischen packchenkarten entfernt.
+    if self.game.current.spielernummer == 1:
+        for kard in jointlist:
+            if self.game.spieler2Paechen and kard.kard_reference == self.game.spieler2Paechen[-1]:
+                jointlist.remove(kard)
+    if self.game.current.spielernummer == 2:
+        for kard in jointlist:
+            if self.game.spieler1Paechen and kard.kard_reference == self.game.spieler1Paechen[-1]:
+                jointlist.remove(kard)
+
 
     for i in jointlist: #Pythagoras länge der hypotenuse als werkzeug
 
@@ -29,7 +49,8 @@ def waehle_karteaus(self)->MKarte:
     if not templiste:
         return None
     indize = indize_waehle_karteaus(self,templiste)
-    jointlist[indize].highlighted = True
+    #if jointlist[indize].kard_reference != None:
+        #print(find_origin_list(self,jointlist[indize]))
     return jointlist[indize]
 
 def indize_waehle_karteaus(self,templiste) -> int:
@@ -88,7 +109,7 @@ def lege_karte_ab(self,feld)-> str:
         temp = waehle_karteaus(self)
         str1 = find_origin_list(self,feld)
         str2 = find_origin_list(self,temp)
-        ergebnis = str1+str2
+        ergebnis = (str1 or "")+(str2 or "")
         print(ergebnis)
         return ergebnis
 
@@ -115,6 +136,7 @@ def define_movable(self):
 def find_origin_list(self,feld:MKarte)->str:
     # findet die urpsrungsliste der karte
 
+    map = {0: 2, 1: 1, 2: 0}
     for sublist in self.game.platzliste:
         for kard in sublist:
             if kard == feld.kard_reference:
@@ -123,27 +145,71 @@ def find_origin_list(self,feld:MKarte)->str:
     for sublist in self.game.spieler1listen:
         for kard in sublist:
             if kard == feld.kard_reference:
-                if sublist in self.game.spieler1listen:
+                if sublist in self.game.spieler1listen and self.game.current.spielernummer== 1:
                     return f"A{self.game.spieler1listen.index(sublist)}"
 
     for sublist in self.game.spieler2listen:
         for kard in sublist:
             if kard == feld.kard_reference:
-                if sublist in self.game.spieler2listen:
+                if sublist in self.game.spieler2listen and self.game.current.spielernummer== 2:
                     return f"A{self.game.spieler2listen.index(sublist)}"
 
     for sublist in self.game.mittlereliste:
         for kard in sublist:
             if kard == feld.kard_reference:
-                return f"M{self.game.mittlereliste.index(sublist)}"
+                return f"M{self.game.mittlereliste.index(sublist)+1}"
     return given_card_find_appropriate_list(self,feld)
 def given_card_find_appropriate_list(self,feld:MKarte)->str:
-    if feld.x == 720:
-        i = (feld.y-25)/125
-        return f"M{2*int(i) -1}"
+    #funktion die die liste von der karte findet wenn es keine karte in der list gibt
+    #600 und #900 linke und rechte seite der platzlisten
+    #700 und #800 Kripslisten
+    match(feld.x):#wird nach x position gefiltert
 
-    if feld.x == 820:
-        i = (feld.y-25)/125
-        return f"M{2*int(i)}"
+        case 600:
+            i = (feld.y-140)/133
+            return f"S{int(i+1)}"
+        case 700:
+            i = (feld.y-140)/66.5
+            return f"M{int(i)+1}"
+            #+1 weil die funktion play nur i von 1 -> 8 nutzt
+        case 755:
+
+            # 3 optionen möglich
+            # 1. Karte karte nehmen bom haufen
+            # 2. Karte auf den gegenerischen Haufen legen
+            # 3. Eigene Runde beenden.
+            # "R0" = Runde beenden
+            # "G0" = Karte auf den gegnerischen Haufen legen
+            # "A1" = Karte vom eigenen Haufen nehmen oder auf eigenen Haufen legen
+
+            if feld.y ==25:
+                if self.game.current.spielernummer == 1:
+                    #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
+                    if self.game.spieler1Haufen and not self.game.spieler1Paechen:
+                        return "R0"
+                    return "A1"
+                if self.game.current.spielernummer == 2:
+                    return "G0"
+            if feld.y == 655:
+                if self.game.current.spielernummer == 2:
+                    #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
+                    if self.game.spieler2Haufen and not self.game.spieler2Paechen:
+                        return "R0"
+                    return "A1"
+                if self.game.current.spielernummer == 1:
+                    return "G0"
+
+        case 800:
+            #Herleitung durch die funtkion Create_centerlist
+            i = (feld.y-140)/66.5
+            i+=1
+            return f"M{int(i)+1}"
+            #+1 weil die funktion play nur i von 1 -> 8 nutzt
+
+        case 900:
+            i = (feld.y+392)/133
+            return f"S{int(i)+1}"
+
+
 
 
