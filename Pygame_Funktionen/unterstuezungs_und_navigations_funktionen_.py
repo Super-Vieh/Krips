@@ -1,8 +1,10 @@
 # Funktionen die zu der Klasse GUI gehören
 import pygame
-from .MKarte import MKarte
-
-def sizeofkards(self,placeholder_bild,neue_breite=75)->any: # verändert die karte adequat zur eingegebenen breite
+from .mk_karte import MKarte
+# Diese Datei beinhaltet Teile der Funktion der Klasse GUI und wurde erstellt um die Datei kürzer zu gestallten.
+## Die Funktionen in dieser Datei sind: aendere_kartenformat, draw, waehle_karteaus, indize_waehle_karteaus, setze_karte_auf_den_zeiger,
+# hebe_karte_auf, lege_karte_ab, definiere_bewegbare_karten, finde_die_ursprungsliste, finde_die_adequate_liste
+def aendere_kartenformat(self, placeholder_bild, neue_breite=75)->any: # verändert die karte adequat zur eingegebenen breite
     neue_hoehe = placeholder_bild.get_height() * neue_breite/placeholder_bild.get_width()
     kleines_bild = pygame.transform.scale(placeholder_bild, (int(neue_breite), int(neue_hoehe)))
     return kleines_bild
@@ -50,7 +52,7 @@ def waehle_karteaus(self)->MKarte:
         return None
     indize = indize_waehle_karteaus(self,templiste)
     #if jointlist[indize].kard_reference != None:
-        #print(find_origin_list(self,jointlist[indize]))
+        #print(finde_die_ursprungsliste(self,jointlist[indize]))
     return jointlist[indize]
 
 def indize_waehle_karteaus(self,templiste) -> int:
@@ -66,20 +68,18 @@ def indize_waehle_karteaus(self,templiste) -> int:
             kl_it = i# ist die Position der kleineren hypotenuse in der Liste
     return kl_it
 
-def set_card_at_center(self,feld:MKarte):
+def setze_karte_auf_den_zeiger(self):
     #Die funktion wird immer ausgeführt.
-    if  feld.state== True:
-        eingabe = pygame.mouse.get_pos()
+    feld = self.current_card
+    if  feld and feld.picked_up== True:
+        eingabe = pygame.mouse.get_pos() # Es wird glaube ich ein Tupel zurückgegeben
         feld.x = eingabe[0]-feld.bild.get_width()/2 # setzt die Position der Karte zu der Mitter der Maus
         feld.y = eingabe[1]-feld.bild.get_height()/2
 
 
 def hebe_karte_auf(self, feld):
 
-    if feld == None:
-        return None
-
-    if feld.bewegbar == False:
+    if feld == None or feld.bewegbar == False:
         return None
 
     if pygame.mouse.get_pressed()[0]:
@@ -88,37 +88,36 @@ def hebe_karte_auf(self, feld):
             return None
         # delay damit der klick nicht mehrmals gezählt wird
         pygame.time.delay(250)
-        feld.state = True
+        feld.picked_up = True
         feld.highlighted= True
-        #print(feld.kard_reference.kartenwert, feld.kard_reference.kartentyp)
+        self.current_card = feld
 
 
-    # eingabe ist ein Tupel (x,y)
-
-def lege_karte_ab(self,feld)-> str:
+def lege_karte_ab(self)-> str:
+    feld = self.current_card
     if pygame.mouse.get_pressed()[0]:
-        #print("test")
         self.action_done=True
         pygame.time.delay(250) # delay dami2t der klick nicht mehrmals gezählt wird
-        if feld.state == True:
-            feld.state = False
+        if feld.picked_up == True:
+            feld.picked_up = False
             feld.highlighted= False
+            self.current_card = None
 
         #remove ist wichtig damit waehle karte die nächste karte nimmt und nicht die gleiche
         self.gamelist.remove(feld)
         temp = waehle_karteaus(self)
-        str1 = find_origin_list(self,feld)
-        str2 = find_origin_list(self,temp)
+        str1 = finde_die_ursprungsliste(self, feld)
+        str2 = finde_die_ursprungsliste(self, temp)
         ergebnis = (str1 or "")+(str2 or "")
         print(ergebnis)
         return ergebnis
 
     #def an_karte_legen(self,feld_active:MKarte,feld_passive:MKarte):
-def define_movable(self):
+def definiere_bewegbare_karten(self):
     #Es wird überprüft und gesetzt ob man eine karte bewegen kann
     jointlist = self.gamelist+self.centerlist
     for karte in jointlist:
-        if karte.state == True:
+        if karte.picked_up == True:
             karte.bewegbar= True
             #soll schauen ob eine Karte hochgehoben ist und wenn ja wird der define movable a
             #erst wenn die karte wieder runtergelegt wird kann eine nächste karte hochgehoben werden bzw.
@@ -133,10 +132,11 @@ def define_movable(self):
                 karte.bewegbar = True
                 #karte.highlighted = True
 
-def find_origin_list(self,feld:MKarte)->str:
+def finde_die_ursprungsliste(self, feld:MKarte)->str:
     # findet die urpsrungsliste der karte
-
-    map = {0: 2, 1: 1, 2: 0}
+    # geht durch alle liste durch und schaut ob die karte in einer der listen ist
+    # wenn ja wird der string zurückgegeben mit den Regeln passend zu aktionen in der Funktion Play() aus der Klasse Spiel
+    # wenn nicht wird die Funktion finde_die_adequate_liste aufgerufen um spezialfälle zu behandeln wie leere listen
     for sublist in self.game.platzliste:
         for kard in sublist:
             if kard == feld.kard_reference:
@@ -158,8 +158,8 @@ def find_origin_list(self,feld:MKarte)->str:
         for kard in sublist:
             if kard == feld.kard_reference:
                 return f"M{self.game.mittlereliste.index(sublist)+1}"
-    return given_card_find_appropriate_list(self,feld)
-def given_card_find_appropriate_list(self,feld:MKarte)->str:
+    return finde_die_adequate_liste(self, feld)
+def finde_die_adequate_liste(self, feld:MKarte)->str:
     #funktion die die liste von der karte findet wenn es keine karte in der list gibt
     #600 und #900 linke und rechte seite der platzlisten
     #700 und #800 Kripslisten

@@ -6,7 +6,7 @@ class KartenTyp(Enum):
     Karro = "Karro"
 
 class KartenWert(Enum):
-    Ass     = 1 #Ass muss 14 oder 1 sein noch nicht gelöst
+    Ass     = 1
     Zwei    = 2
     Drei    = 3
     Vier    = 4

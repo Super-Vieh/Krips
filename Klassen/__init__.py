@@ -1,8 +1,11 @@
 
 from .spieler import Spieler
 from Klassen.spiel import Spiel,Karten ,KartenWert, KartenTyp
+# Die Init Datei ist dazu da um die Klassen zu importieren und die Funktionen zu definieren
+# Ausßerdem hat es den Sin, Sachen für das Spiel selber(Spieler, Spiel) zu initialisieren.
 
-def initialize(game:Spiel,spielerimport1,spielerimport2): #Spiel wird für den Spieler initialisiert
+def initialize(game:Spiel,spielerimport1,spielerimport2):
+    #Spiel wird für den Spieler initialisiert
     spielerimport1.set_spiel(game)
     spielerimport2.set_spiel(game)
     spielerimport1.set_gegenspieler(spielerimport2)
@@ -10,6 +13,7 @@ def initialize(game:Spiel,spielerimport1,spielerimport2): #Spiel wird für den S
 
 
 def initialize_paechen(game:Spiel):
+    # initialisierung der Karten packchen
     game.spieler1listen.append(game.spieler1Paechen)
     game.spieler1listen.append(game.spieler1Haufen)
     game.spieler1listen.append(game.spieler1Dreizehner)
@@ -17,10 +21,12 @@ def initialize_paechen(game:Spiel):
     game.spieler2listen.append(game.spieler2Haufen)
     game.spieler2listen.append(game.spieler2Dreizehner)
 def play_init(game:Spiel):
+    # Eine Spiel Simmulation in der Konsole ohne Gui
     while game.gameon:
         if game.spieler1.anderreihe == True: game.current = game.spieler1
         elif game.spieler2.anderreihe == True: game.current = game.spieler2
         while game.current.anderreihe == True:
+            # print_top(game),print_bot(game) und print_sidesplus(game) sind Funktionen die die Karten auf der Konsole ausgeben
             print_top(game)
             print_sidesplus(game)
             print_bot(game)
@@ -28,10 +34,11 @@ def play_init(game:Spiel):
                     "\nWas soll gemacht werden?\n"
                     "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                    "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
+                    "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
             game.play(action)
 
 def seitenKarten(game:Spiel, momentanerspieler:Spieler):
+
     for liste in game.platzliste:
         for karte in liste:
             print(karte.kartentyp.value,"-", karte.kartenwert,"-",karte.farbe)

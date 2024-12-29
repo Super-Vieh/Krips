@@ -3,19 +3,14 @@ import pygame
 from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 from Pygame_Funktionen import MKarte
-from Pygame_Funktionen import create_sidelist,create_centerlist,create_player_packages,initate_cards,delete_kard_from_gamelist
-from Pygame_Funktionen import find_origin_list,sizeofkards,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,define_movable,set_card_at_center
+from Pygame_Funktionen import erstelle_sidelist,erstelle_centerlist,erstelle_spieler_packchen,initialisierung_der_bilder,loesche_alle_elemente
+from Pygame_Funktionen import finde_die_ursprungsliste,aendere_kartenformat,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,definiere_bewegbare_karten,setze_karte_auf_den_zeiger
 
 
-
-#Todo
-# schreibe eine Funktion welche die Spieler päckchen positioniert
-# schreibe eine Funktion die die karten dynamik des aufdeckens erlaubt / konflikt mit karte aufheben
-# schreibe eine funktion die die karten korrekt darstellt offen zu
-# kreire immaginäre felder 1/2 der x achse nach links oder nach rechts von der Letzen karte der liste
-# schreibe eine weitere funktion die die Karten nur auf diese immaginären felder legen lässt
-# Implementier die Spiel regeln
-
+# Die Klasse GUI ist das Graphical User Interface des Spieles. Das Ziel dieses ist keine Funktionen zum Spiel hinzufügen
+# sondern nur die Inputs des Nutzers an die Klasse Spiel und Spieler weiterzugeben.
+# Es gibt den Zustand des Spieles wieder und ist im Grunde eine Glorifizierte eingabe konsole.
+# Jede Aktion die hier getätig wird, wird in ein String kovertiert und in die Haupt logik eingespeist.
 
 
 class GUI:
@@ -31,100 +26,95 @@ class GUI:
         self.Kartentypen = []
         self.action_done = False
         self.placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')
-        self.placeholder_rueckseite = sizeofkards(self,self.placeholder_rueckseite)# ändert die größe zu einer vorherbestimmten größe
+        self.placeholder_rueckseite = aendere_kartenformat(self, self.placeholder_rueckseite)# ändert die größe zu einer vorherbestimmten größe
         self.plus = pygame.image.load('Bilder/Plus.png')
-        self.plus = sizeofkards(self,self.plus,50)
+        self.plus = aendere_kartenformat(self, self.plus, 50)
+        self.current_card = None
 
 
 
 
     def instance(self):
 
-        initate_cards(self)
-        destination = (100, 100)
-        destination2 = (200, 200)
+        initialisierung_der_bilder(self)
 
-        initate_cards(self)
         self.game.game_first_move()
 
-        create_centerlist(self, self.plus)
-        create_sidelist(self)
-        create_player_packages(self)
+        erstelle_centerlist(self, self.plus)
+        erstelle_sidelist(self)
+        erstelle_spieler_packchen(self)
         while self.run:
             self.screen.fill((30, 31, 34))  # Alles muss nach dem fill kommen sonst wird es nicht angezeigt
-            define_movable(self)
+
+            definiere_bewegbare_karten(self)
+
             if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
             elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
-            self.untilize_play()
+
+            #Utilize Play ist eine Funktion welche die Funktion Play der Klasse Spiel durchführt.
+            self.nutze_play()
+
             draw(self, self.gamelist)
             draw(self, self.centerlist)
-            krips_knoepfe = self.create_knopf()
+
+            krips_knoepfe = self.erstelle_knopf()
             for button in krips_knoepfe:
                 pygame.draw.rect(self.screen, (255, 0, 0), button)
 
 
-            # Get the current mouse position
             mouse_pos = pygame.mouse.get_pos()
-            # Draw a point at the mouse position
             pygame.draw.circle(self.screen, (255, 0, 0), mouse_pos, 5)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.run = False
-                self.krips(event, krips_knoepfe)
+                self.rufe_krips(event, krips_knoepfe)
             pygame.display.update()
 
 
 
 
-    def untilize_play(self):
-        #action: str = input(f"\nSpieler{self.game.current.spielernummer if self.game.current else "None"} ist drann.")
-                        # "\nWas soll gemacht werden?\n"
-                        # "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
-                        # "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                        # "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
+    def nutze_play(self):
+        #Hier wird die Funktion Play() der Klasse Spiel durchgeführt
 
-
-        # while (self.game.spieler1Paechen  or self.game.spieler2Paechen) and pygame.key.get_pressed()[pygame.K_RETURN]:
-        #     self.game.play("A0")
-        #     self.game.play("A0A1")
-        #     self.reset()
-        #     return None
         temp = waehle_karteaus(self)
-        if not temp: print("Keine Karte ausgewählt")
-        if temp.state == False:
+        if not temp: return None
+
+        if temp.picked_up == False:
             hebe_karte_auf(self, temp)
-            #print(find_origin_list(self,temp))
-        elif temp.state == True:
+
+        elif temp.picked_up == True:
             #print(temp.kard_reference.kartenwert, temp.kard_reference.kartentyp)
-            ergebniss_string =lege_karte_ab(self, temp)
+            ergebniss_string =lege_karte_ab(self)
             if ergebniss_string:
-                #print("test1")
                 self.game.play(ergebniss_string)
-        set_card_at_center(self, temp)
+        setze_karte_auf_den_zeiger(self)
         self.reset()
 
 
 
 
-        #self.game.play(action)
+
 
     def reset(self):
+        #Es löscht alle Elemente auf dem Bildschirm und erstellt neue nach dem gamestate.
         if self.action_done == True: #action_done hat keinen bezug zu dem hier in der funktion
-            delete_kard_from_gamelist(self)
-            create_player_packages(self)
-            create_sidelist(self)
-            create_centerlist(self,self.plus)
+            loesche_alle_elemente(self)
+            erstelle_spieler_packchen(self)
+            erstelle_sidelist(self)
+            erstelle_centerlist(self, self.plus)
             self.action_done=False
 
-    def create_knopf(self):
+    def erstelle_knopf(self):
+        #Der Krips Button wird erstellt
         button_color = (255, 0, 0)  # Red color
         button_rects = [
             pygame.Rect(400, 25, 100, 108),  # Button at (400, 25)
             pygame.Rect(1085, 655, 100, 108)  # Button at (400, 655)
         ]
         return button_rects
-    def krips(self,event,knoepfe_liste):
+    def rufe_krips(self, event, knoepfe_liste):
+        # Die interaktion mit dem Krips Button wird hier gesteuert
         if event.type == pygame.MOUSEBUTTONDOWN:
             for rect in knoepfe_liste:
                 if rect.collidepoint(event.pos):

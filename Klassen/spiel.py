@@ -1,14 +1,16 @@
 from .karten import Karten, KartenTyp, KartenWert
 from .spieler import Spieler
-
-
+# Die Klasse Spiel beinhaltet alle Daten, die das Spiel selber betreffen.
+# Die anfangsanktionen werden hier durchgeführt.(kartendeck erstellung, game_first_move)
+# Das Spiel wird hier gestartet und die Aktionen der Spieler werden hier durchgeführt nach dem Algorithmus der Funktion play().
 class Spiel:
     current: Spieler = None
     gameon = True
-    wouldbeKrips=False
+    wouldbeKrips = False
 
     spieler1: Spieler
     spieler2: Spieler
+    #Mitte listen
     pik1: list[Karten] = []
     pik2: list[Karten] = []
     coeur1: list[Karten] = []
@@ -18,7 +20,7 @@ class Spiel:
     karro1: list[Karten] = []
     karro2: list[Karten] = []
     mittlereliste = [pik1, pik2, coeur1, coeur2, treff1, treff2, karro1, karro2]
-
+    #Seitenlisten
     platzliste1: list[Karten] = []
     platzliste2: list[Karten] = []
     platzliste3: list[Karten] = []
@@ -29,7 +31,7 @@ class Spiel:
     platzliste8: list[Karten] = []
     platzliste = [platzliste1, platzliste2, platzliste3, platzliste4, platzliste5, platzliste6, platzliste7,
                   platzliste8]
-
+    #Spielerlisten
     spieler1Haufen: list[Karten] = []
     spieler1Paechen: list[Karten] = []
     spieler1Dreizehner: list[Karten] = []
@@ -51,6 +53,8 @@ class Spiel:
         return templist
 
     def game_first_move(self):
+        # Hier wird entschieden wer anfängt. Die Höchste karte auf dem Dreizehner päckchen gewinnt
+        # Wenn die karten gleich sind werden die ausgelegten nach unt
         objdrz1 = self.spieler1Dreizehner[
             len(self.spieler1Dreizehner) - 1]  #erstezt das lezte objekt des ersten Dreizehnerpaeckchen
         objdrz2 = self.spieler2Dreizehner[
@@ -85,40 +89,65 @@ class Spiel:
                         return None
 
     def play(self,action):
-        # karte kann von  den 3 spieler päckchen und 8 Seitenstreifen gelegt werden.
-        # karte kann auf die 8 Mittlerenpäckchen, die 8 Seitenstreifen und den gegner Haufen gelegt werden.
-        #action: str = input(f"\nSpieler{self.current.spielernummer} ist drann.")
-                # "\nWas soll gemacht werden?\n"
-                # "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
-                # "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                # "Runde Aufhören= P,Kartenhaufen umdrehen = R\n")
-        #action:str = input()
-        print(action)
-        #test sollte gelöscht werden
+        #Diese Funktion beinhaltet die Spielregeln und ist der ort an dem das Spielgeschehen stattfindet.
 
-        # bis hier
+        # action ist ein bis zu 4 stelliger string aus Buchsabe, Zahl, Buchtabe ,Zahl
+        # der erste buchstabe bestimmt die art der liste aus der die karte genommen wird oder eine bestimmte aktion
+        # der zweite buchstabe bestimmt die art der liste auf die die karte gelegt wird
+        # die erste zahl bestimmt die position der karte der Ursprungsliste, also die genaue liste. es wird immer die letzte karte einer Liste genommen.
+        # die zweite zahl macht genau das gleiche wie die erste nur für die Ziel liste.
+
+        # Es gibt 4 verschiedene Listenarten: A = Hauptliste, S = Seitenliste, M = Mittelliste, G = Gegnerliste
+
+        # Die Hauptliste ist die Liste der Karten die der Spieler auf der Hand hat. Diese ändert sich je nachdem welcher Spieler an der Reihe ist.
+        # Es gibt für jeden Spieler 3 eigene listen. Das Dreizehnerpäckchen, das Normale Packchen und der Haufen.
+
+        # Das Dreizehnerpäckchen ist die Liste der Karten die der Spieler zu beginn des Spiels bekommt. Es sind 13 Karten die nicht auf den Haufen gelegt werden können.
+
+        # Das Normale Packchen ist die Liste der Karten die der Spieler im laufe des Spiels bekommt. Diese Karten können auf den Haufen gelegt werden wenn man nicht mehr kann oder seinen Zug benden möchte.
+
+        # Der Haufen ist ein Päckchen welches alte karten beinhaltet. Die jeweils oberste Karte kann auf die Äußeren felder gelegt werden. Wenn das Packchen leer wird es aufgefüllt mit den Karten die auf dem haufen liegen.
+
+        # Die Seitenliste ist die Liste der Karten die auf den 8 Plätzen liegen.
+
+        # Die Mittelliste ist die Liste der Karten die in der Mitte liegen. Es sind 8 Felder und die ersten karten die darauf gelegt werden können sind Asse. 2 Pik-, 2 Coeur-, 2 Treff- und 2 Karro Asse.
+        # Diese werden von Ass zu Zwei bis König der gleichen Karten Art zusammengelegt.
+
+        # Die Gegnerliste hängt von dem Spieler ab welcher am Zug ist. Für Spieler 1 ist die Gegnerliste der Haufen des Spieler 2.
+        # Auf diese liste können karten abgelegt werden die von der gleicher Art sind aber von wert sich um 1 hoch oder runter unterscheiden. z.B. auf eine Herz 7 kann eine Herz 6 oder 8 gelegt werden.
+
+        # Zusatz aktionen sind P, K, und R
+        # P ist das bennden des zuges. K ist das Rufen des Krips und R ist das Umlegen des Haufens wenn das Normale Päckchen leer ist.
+
+        # Das Krips ist eine Aktion die der Gegenspieler ausführen kann währen der Spieler am zug ist. Diese Symbolisiert das der Spieler ein fehler gemacht hat.
+        # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
+        # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
 
         lenaction = len(action)
         print(f"{self.current.spielernummer} ist drann")
-        print(f"{self.current.ist_krips()} current is krips")
-        print(f"{self.wouldbeKrips} wouldbeKrips")
-        #print(self.wouldbeKrips)
-        #print(self.current.ist_krips(),"Hello")
-        if lenaction == 1 and action == "P": self.current.aufhoeren();return None
-        if lenaction == 1 and action == "R": self.current.resetHaufen();return None
-        if lenaction == 1 and action == "K":
-            if self.wouldbeKrips== True:
-                self.current.wegen_krips_aufhoeren()
-            return None
-        elif lenaction == 2 and action == "A0" or lenaction == 4 and action == "A0A0":
-            self.wouldbeKrips = self.current.ist_krips()
-            self.current.karte_aufdecken(0)
-            return None
-        elif lenaction == 2 and action == "A2" or lenaction == 4 and action == "A2A2":
-            self.wouldbeKrips = self.current.ist_krips()
-            self.current.karte_aufdecken(1)
+        #print(f"{self.current.ist_krips()} current is rufe_krips")
+        #print(f"{self.wouldbeKrips} wouldbeKrips")
 
-            return None  # Dreizehner
+        match lenaction, action:
+                case 1, "P":
+                    self.current.aufhoeren()
+                    return None
+                case 1, "R":
+                    self.current.resetHaufen()
+                    return None
+                case 1, "K":
+                    if self.wouldbeKrips:
+                        self.current.wegen_krips_aufhoeren()
+                    return None
+                case 2, "A0" | 4, "A0A0":
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.karte_aufdecken(0)
+                    return None
+                case 2, "A2" | 4, "A2A2":
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.karte_aufdecken(1)
+                    return None
+
         if action == "A1":
             if not self.spieler1Paechen and self.spieler1Haufen and self.current.spielernummer == 1:
                 self.wouldbeKrips = self.current.ist_krips()
@@ -130,7 +159,7 @@ class Spiel:
             self.current.resetHaufen()
 
 
-
+        # Hier wird sichergestellt das keine fehler entstehen wenn auf die Zeichen der Aktion zugegriffen wird.
         try: first = action[0]  #Herkunftslistentyp
         except IndexError:return None
         try: second = int(action[1])  #herkuftsliste
@@ -205,4 +234,4 @@ class Spiel:
                     self.current.wegen_krips_aufhoeren()
             case _:
                 print("Ungültige Aktion.")
-#
+
