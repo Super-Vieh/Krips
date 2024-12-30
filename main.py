@@ -35,7 +35,7 @@ def main():
 
     gui = GUI(game1)
     gui.instance()
-
+    print(len(game1.spieler1Paechen))
     #play_init(game1)
     #Das ist das Spiel in der Consolen ausgabe
 

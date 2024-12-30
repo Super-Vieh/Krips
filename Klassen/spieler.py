@@ -40,10 +40,10 @@ class Spieler:
         for i in range(1,5):
             if self.spielernummer == 1:
                 self.seiteHinlegen(i, self.owndeck)
-                self.owndeck.pop()
+                #self.owndeck.pop()
             elif self.spielernummer == 2:
                 self.seiteHinlegen(i + 4, self.owndeck)
-                self.owndeck.pop()
+                #self.owndeck.pop()
 
         if self.spielernummer == 1:
             self.game.spieler1Dreizehner[-1].karteOffen = True
