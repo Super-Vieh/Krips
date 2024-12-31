@@ -29,7 +29,7 @@ Wenn diese Regel nicht beachtet wird und der Gegner diesen Fehler bemerkt, wird 
 
 Außenrum gibt es 8 Felder. Rechtes und Links eine Vertikale reihe von 4 Feldern, die frei belegt werden können.Zu Beginn des Spiel sind diese Felder jeweils mit einer Karte Belegt. 
 Diese 8 Plätze können ähnlich wie bei Solitär belegt werden. Von der Wertung absteigend und Schwarz,Rot in der Reihenfolge. So kann ein Anfangszustand aussehen. Die 8 Mittleren Haufen sind hier noch leer.
-![Anfangskonstelarion](Bilder/Andere Bilder/img.png)
+![Anfangskonstelarion](Bilder/demonstrationsdaten/anfangszustand.png)
 
 Jeder Spieler hat 3 Haufen an Karten ein Päckchen, einen Ablagehaufen und ein dreizehner Päckchen.   
 Bezogen auf das Bild hier, ist der Linke Haufen das Normale Päckchen. Bei Zug beginn, wird dieser Aufgedeckt und wenn möglich irgendwo abgelegt. Dieser Prozess wird so lange wiederholt, bis man die Karte die man aufgedeckt hat nicht mehr hinlegen kann.
@@ -47,6 +47,6 @@ Das Spiel endet, wenn ein Spieler keine Karten mehr hat. Manchmal kann es auch p
 nicht ablegen kann. In diesem Fall, gewinnt der Spieler, der sein Dreizehner Päckchen abgelegt hat. Wenn beide Spieler ein Dreizehner Päckchen haben, wird das Spiel als Unentschieden gewertet.
 Zusätzlich dazu gibt es kleine zusatzregeln, die das Spiel interessanter machen. Welche jedoch nicht implementiert sind.
 
-
+![Mini Demo Video](Bilder/demonstrationsdaten/demo_video.mp4)
 
 
