@@ -22,14 +22,30 @@ Bis jetzt sind die Ersten zwei Punkte grob Beendet.
 ![Ein Bild zu einem Spielstand](https://upload.wikimedia.org/wikipedia/commons/c/c6/Russian_Bank%2C_Crapette%2C_Tunj_card_game.jpg)
 Allgemeine Spielregeln des Krips in Kurzform:  
   
-Die Zielprämisse des Spiels ist es wie im Solitär Sets  zusammen zu legen. Von Ass -> Zwei -> ... -> König von Pik zu Karro.  
-Dadurch ergeben sich 8 Felder in der Mitte in einer 4X2 Matrix.
-Wenn man kann, muss man die Karten zusammenlegen sonst, kann der Gegner diesen Fehler bemerken und der Spielzug wird an den Gegner übergeben.  
-Außenrum gibt es 8 Felder die frei belegt werden können, jedoch zu beginn mit jeweils einer Karte bedeckt sind. 4 von jedem Spieler.  
-Diese 8 Plätze können ähnlich wie  bei Solitär belegt werden. Von der Wertung absteigend und Schwarz,Rot in der Reihenfolge.  
-Jeder Spieler hat 3 Haufen an Karten einen Ablagehaufen auf dem Karten abgelegt werden, wenn man keine Karte mehr hinlegen kann. Einen Haufen bei dem die Karten, bei Beenden des Zuges, genommen werden und auf den ersten, Ablagehaufe gelegt werden und zuletzt eine Stationären Haufen, das Dreizehner Päckchen. Die oberste Karte bleibt bestehen solange sie nicht irgentwo abgelegt werden kann, konträr zum Normalen Packchen welches seine oberste Karten auf den Haufen legt.  Das Dreizehner Päckchen wird mit 13 Karten befüllt.   
-Wenn alle Karten von Normalen Päckchen abgespiel sind wird der Haufen umgedreht, also alle Karten auf dem Haufen werden auf das Normale Päckchen gelegt.
+Die Zielprämisse des Spiels ist es wie im Solitär Sets zusammen zu legen. Von Ass -> Zwei -> ... -> König.  
+Von diesen Sets bilden sich dann insgesammt 8. 2 Pik,2 Coeur usw. Dadurch ergeben sich 8 Felder in der Mitte in einer 4X2 Matrix.
+Diese 8 Felder in der Mitte haben absolute Priorität und müssen belegt werden, wenn möglich.  
+Wenn diese Regel nicht beachtet wird und der Gegner diesen Fehler bemerkt, wird der Spielzug an den Gegner übergeben.  
 
+Außenrum gibt es 8 Felder. Rechtes und Links eine Vertikale reihe von 4 Feldern, die frei belegt werden können.Zu Beginn des Spiel sind diese Felder jeweils mit einer Karte Belegt. 
+Diese 8 Plätze können ähnlich wie bei Solitär belegt werden. Von der Wertung absteigend und Schwarz,Rot in der Reihenfolge. So kann ein Anfangszustand aussehen. Die 8 Mittleren Haufen sind hier noch leer.
+![Anfangskonstelarion](Bilder/Andere Bilder/img.png)
+
+Jeder Spieler hat 3 Haufen an Karten ein Päckchen, einen Ablagehaufen und ein dreizehner Päckchen.   
+Bezogen auf das Bild hier, ist der Linke Haufen das Normale Päckchen. Bei Zug beginn, wird dieser Aufgedeckt und wenn möglich irgendwo abgelegt. Dieser Prozess wird so lange wiederholt, bis man die Karte die man aufgedeckt hat nicht mehr hinlegen kann.
+Dann legt man die Karte auf den Ablagehaufen(Mittleren Haufen). Und der Rechte Haufen ist das Dreizehner Päckchen.(13 Karten)
+
+Während man die Karten vom Päckchen aufdeckt, kann man die Karten von Dreizehner Päckchen aufdecken und hinlegen. Jedoch darf man die Karten von Dreizehner Päckchen nicht auf den Ablagehaufen legen.  
+Diese bleiben dann offen liegen.
+
+Nachdem man seine Karten vom Päckchen auf den Ablagehaufen gelegt. Ist der Gegner dran und kann auf die oberste Karte des Ablagehaufens Karten ablegen. Es muss die gleiche Art von Karte sein   
+und in der Wertung um 1 höher oder niedriger. Im oberen Bild könnte man auf die Pik 7 die Pik 6 geben.
+
+Wenn der Gegner sein Zug beendet hat, kann man die obersten Karten des Ablagehaufens irgendwo hinlegen.
+
+Das Spiel endet, wenn ein Spieler keine Karten mehr hat. Manchmal kann es auch passieren, dass man im Spiel nicht weiter kommt, da im Dreizehner Päckchen wichtige Karten liegen und man die oberste Karte  
+nicht ablegen kann. In diesem Fall, gewinnt der Spieler, der sein Dreizehner Päckchen abgelegt hat. Wenn beide Spieler ein Dreizehner Päckchen haben, wird das Spiel als Unentschieden gewertet.
+Zusätzlich dazu gibt es kleine zusatzregeln, die das Spiel interessanter machen. Welche jedoch nicht implementiert sind.
 
 
 
