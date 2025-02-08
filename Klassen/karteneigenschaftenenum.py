@@ -1,12 +1,12 @@
 from enum import Enum
 class KartenTyp(Enum):
-    Pik   = "Pik "
+    Pik   = "Pik"
     Coeur = "Coeur"
     Treff = "Treff"
     Karro = "Karro"
 
 class KartenWert(Enum):
-    Ass     = 14 #Ass muss 14 oder 1 sein noch nicht gelöst
+    Ass     = 1
     Zwei    = 2
     Drei    = 3
     Vier    = 4
