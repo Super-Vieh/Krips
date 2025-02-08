@@ -125,25 +125,26 @@ class Spiel:
 
         lenaction = len(action)
         print(f"{self.current.spielernummer} ist drann")
+        print(self.spieler1Haufen)
         #print(f"{self.current.ist_krips()} current is rufe_krips")
         #print(f"{self.wouldbeKrips} wouldbeKrips")
-
         match lenaction, action:
-                case 1, "P":
+                case (1, "P"):
                     self.current.aufhoeren()
                     return None
-                case 1, "R":
+                case (1, "R"):
                     self.current.resetHaufen()
                     return None
-                case 1, "K":
+                case (1, "K"):
                     if self.wouldbeKrips:
                         self.current.wegen_krips_aufhoeren()
                     return None
-                case 2, "A0" | 4, "A0A0":
+                case (2, "A0") | (4, "A0A0"):
+                    print("test")
                     self.wouldbeKrips = self.current.ist_krips()
                     self.current.karte_aufdecken(0)
                     return None
-                case 2, "A2" | 4, "A2A2":
+                case (2, "A2") | (4, "A2A2"):
                     self.wouldbeKrips = self.current.ist_krips()
                     self.current.karte_aufdecken(1)
                     return None

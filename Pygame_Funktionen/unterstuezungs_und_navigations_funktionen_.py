@@ -186,7 +186,7 @@ def finde_die_adequate_liste(self, feld:MKarte)->str:
                 if self.game.current.spielernummer == 1:
                     #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
                     if self.game.spieler1Haufen and not self.game.spieler1Paechen:
-                        return "R0"
+                        return "R"
                     return "A1"
                 if self.game.current.spielernummer == 2:
                     return "G0"
@@ -194,7 +194,7 @@ def finde_die_adequate_liste(self, feld:MKarte)->str:
                 if self.game.current.spielernummer == 2:
                     #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
                     if self.game.spieler2Haufen and not self.game.spieler2Paechen:
-                        return "R0"
+                        return "R"
                     return "A1"
                 if self.game.current.spielernummer == 1:
                     return "G0"

@@ -34,6 +34,7 @@ class GUI:
 
 
 
+
     def instance(self):
 
         initialisierung_der_bilder(self)
@@ -68,6 +69,7 @@ class GUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.run = False
+
                 self.rufe_krips(event, krips_knoepfe)
             pygame.display.update()
 

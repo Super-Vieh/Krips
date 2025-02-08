@@ -150,17 +150,19 @@ class Spieler:
        if self.spielernummer == 1:
             for i in self.game.spieler1Haufen:
                 i.karteOffen = False
-            for kard in self.game.spieler1Haufen[:]:
+            for kard in self.game.spieler1Haufen:
                 self.game.spieler1Paechen.append(kard)
-                self.game.spieler1Haufen.remove(kard)
             self.game.spieler1Haufen = []
+            for i in self.game.spieler1Haufen:
+                print(i.karteOffen)
        if self.spielernummer == 2:
             for i in self.game.spieler2Haufen:
                 i.karteOffen = False
-            for kard in self.game.spieler2Haufen[:]:
+            for kard in self.game.spieler2Haufen:
                 self.game.spieler2Paechen.append(kard)
-                self.game.spieler2Haufen.remove(kard)
             self.game.spieler2Haufen = []
+            for i in self.game.spieler2Haufen:
+                print(i.karteOffen)
     def aufhoeren(self):
         if self.spielernummer ==1 and self.game.spieler1Paechen and self.game.spieler1Paechen[-1].karteOffen == True:
             self.game.spieler1Haufen.append(self.game.spieler1Paechen.pop())
