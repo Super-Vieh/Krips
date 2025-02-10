@@ -128,7 +128,8 @@ class Spiel:
         print(self.spieler1Haufen)
         #print(f"{self.current.ist_krips()} current is rufe_krips")
         #print(f"{self.wouldbeKrips} wouldbeKrips")
-        match lenaction, action:
+        print(action)
+        match (lenaction, action):
                 case (1, "P"):
                     self.current.aufhoeren()
                     return None
@@ -236,3 +237,85 @@ class Spiel:
             case _:
                 print("Ungültige Aktion.")
 
+    def console_play(self,action):
+        if(action=="A0"):
+            self.wouldbeKrips = self.current.ist_krips()
+            self.current.karte_aufdecken(0)
+            return None
+        elif action=="A2":
+            self.wouldbSeKrips = self.current.ist_krips()
+            self.current.karte_aufdecken(1)
+            return None
+        try:
+            first = action[0]  # Herkunftslistentyp
+            print(action)
+            second = int(action[1])  # Herkunftsliste
+            third = action[2]  # Ziellistentyp
+            fourth = int(action[3])  # Zielliste
+        except (IndexError, ValueError):
+            return None
+
+
+
+        match (first, third):  # M = Mitte, S = Seite, G = Gegner, A=Haupt
+            case ("A","A"):
+                if second==0 and fourth == 1:
+                    self.current.aufhoeren()
+            case ("A", "M"):
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.mitteHinlegen(fourth, self.spieler1listen[second])
+                    self.current.krips_karte_gespielt(self.spieler1listen[second])
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.mitteHinlegen(fourth, self.spieler2listen[second])
+                    self.current.krips_karte_gespielt(self.spieler2listen[second])
+            case ("A", "S"):
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.seiteHinlegen(fourth, self.spieler1listen[second])
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.seiteHinlegen(fourth, self.spieler2listen[second])
+
+            case ("A", "G"):
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.gegener_geben(self.spieler1listen[second])
+
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.gegener_geben(self.spieler2listen[second])
+            case ("S", "M"):
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+                    self.current.krips_karte_gespielt(self.platzliste[second - 1])
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+                    self.current.krips_karte_gespielt(self.platzliste[second - 1])
+            case ("S", "S"):
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
+            case ("S", "G"):
+                print("test for S G")
+                if self.current.spielernummer == 1:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    print("test for S G player 1")
+                    self.current.gegener_geben(self.platzliste[second - 1])
+                if self.current.spielernummer == 2:
+                    self.wouldbeKrips = self.current.ist_krips()
+                    print("test for S G player 2")
+                    self.current.gegener_geben(self.platzliste[second - 1])
+            case _:
+                if first=="R":
+                    self.current.resetHaufen()
+                if first=="K":
+                    self.current.wegen_krips_aufhoeren()
+                if first!="K" and first!="R":
+                    print("Ungültige Aktion.")

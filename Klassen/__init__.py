@@ -36,6 +36,21 @@ def play_init(game:Spiel):
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
             game.play(action)
+def play_console(game:Spiel):
+    while game.gameon:
+        if game.spieler1.anderreihe == True: game.current = game.spieler1
+        elif game.spieler2.anderreihe == True: game.current = game.spieler2
+        while game.current.anderreihe == True:
+            # print_top(game),print_bot(game) und print_sidesplus(game) sind Funktionen die die Karten auf der Konsole ausgeben
+            print_top(game)
+            print_sidesplus(game)
+            print_bot(game)
+            action: str = input(f"\nSpieler{game.current.spielernummer} ist drann."
+                    "\nWas soll gemacht werden?\n"
+                    "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
+                    "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
+                    "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
+            game.console_play(action)
 
 def seitenKarten(game:Spiel, momentanerspieler:Spieler):
 

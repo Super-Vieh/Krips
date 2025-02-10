@@ -4,7 +4,7 @@ import random
 import pygame
 
 from Pygame import GUI, MKarte
-from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,initialize_paechen
+from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,play_console,initialize_paechen
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 def main():
     game1 = Spiel()
@@ -35,15 +35,13 @@ def main():
 
 
 
-    for i in range(0,int(len(game1.spieler1Paechen)-2)):
-        game1.spieler1Paechen.pop()
-        game1.spieler2Paechen.pop()
 
-    gui = GUI(game1)
-    gui.instance()
 
-    pygame.quit()
-    play_init(game1)
+    #gui = GUI(game1)
+    #gui.instance()
+    play_console(game1)
+    #pygame.quit()
+    #play_init(game1)
     #Das ist das Spiel in der Consolen ausgabe
 
 

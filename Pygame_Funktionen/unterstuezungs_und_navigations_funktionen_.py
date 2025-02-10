@@ -1,4 +1,6 @@
 # Funktionen die zu der Klasse GUI gehören
+from operator import truediv
+
 import pygame
 from .mk_karte import MKarte
 # Diese Datei beinhaltet Teile der Funktion der Klasse GUI und wurde erstellt um die Datei kürzer zu gestallten.
@@ -43,7 +45,6 @@ def waehle_karteaus(self)->MKarte:
 
 
     for i in jointlist: #Pythagoras länge der hypotenuse als werkzeug
-
         pytagoras_a_quadrat = (i.x+i.bild.get_width()/2 - maus[0])**2
         pytagoras_b_quadrat = (i.y+i.bild.get_height()/2- maus[1])**2
         pytagoras_c = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
@@ -53,6 +54,7 @@ def waehle_karteaus(self)->MKarte:
     indize = indize_waehle_karteaus(self,templiste)
     #if jointlist[indize].kard_reference != None:
         #print(finde_die_ursprungsliste(self,jointlist[indize]))
+    if jointlist[indize].bewegbar == False: print("bewegbar=false")
     return jointlist[indize]
 
 def indize_waehle_karteaus(self,templiste) -> int:
@@ -71,6 +73,7 @@ def indize_waehle_karteaus(self,templiste) -> int:
 def setze_karte_auf_den_zeiger(self):
     #Die funktion wird immer ausgeführt.
     feld = self.current_card
+
     if  feld and feld.picked_up== True:
         eingabe = pygame.mouse.get_pos() # Es wird glaube ich ein Tupel zurückgegeben
         feld.x = eingabe[0]-feld.bild.get_width()/2 # setzt die Position der Karte zu der Mitter der Maus
@@ -116,9 +119,15 @@ def lege_karte_ab(self)-> str:
 def definiere_bewegbare_karten(self):
     #Es wird überprüft und gesetzt ob man eine karte bewegen kann
     jointlist = self.gamelist+self.centerlist
+    #Hier werden listen deklariert die die erste karte vom Haufen speichern
+    haufen1_k = None
+    haufen2_k = None
+    if self.game.spieler1Haufen: haufen1_k = self.game.spieler1Haufen[0]
+    if self.game.spieler2Haufen: haufen2_k = self.game.spieler2Haufen[0]
+
     for karte in jointlist:
         if karte.picked_up == True:
-            karte.bewegbar= True
+            karte.bewegbar = False
             #soll schauen ob eine Karte hochgehoben ist und wenn ja wird der define movable a
             #erst wenn die karte wieder runtergelegt wird kann eine nächste karte hochgehoben werden bzw.
             #ist noch nicht kontroliert ob es wirklich funktioniert
@@ -128,9 +137,14 @@ def definiere_bewegbare_karten(self):
             #alle karten in den platzlisten werden überprüft
             if not liste:
                 continue
+
             if karte.kard_reference is liste[-1]:
                 karte.bewegbar = True
                 #karte.highlighted = True
+            if haufen1_k and karte.kard_reference is haufen1_k and self.game.current.spielernummer == 1:
+                karte.bewegbar = True
+            if haufen2_k and karte.kard_reference is haufen2_k and self.game.current.spielernummer == 2:
+                karte.bewegbar = True
 
 def finde_die_ursprungsliste(self, feld:MKarte)->str:
     # findet die urpsrungsliste der karte
@@ -185,6 +199,7 @@ def finde_die_adequate_liste(self, feld:MKarte)->str:
             if feld.y ==25:
                 if self.game.current.spielernummer == 1:
                     #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
+                    print("Spieler 1 Haufen", self.game.spieler1Haufen, "Spieler 1 Paechen", self.game.spieler1Paechen)
                     if self.game.spieler1Haufen and not self.game.spieler1Paechen:
                         return "R"
                     return "A1"

@@ -1,4 +1,4 @@
-from msilib.schema import Property
+
 
 from .karteneigenschaftenenum import KartenTyp,KartenWert
 # Die Kartenklasse ist eine Einzelne Karte auf der die meisten Operation durchgeführt werden.

@@ -81,7 +81,6 @@ class GUI:
 
         temp = waehle_karteaus(self)
         if not temp: return None
-
         if temp.picked_up == False:
             hebe_karte_auf(self, temp)
 

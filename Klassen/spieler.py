@@ -150,7 +150,7 @@ class Spieler:
        if self.spielernummer == 1:
             for i in self.game.spieler1Haufen:
                 i.karteOffen = False
-            for kard in self.game.spieler1Haufen:
+            for kard in reversed(self.game.spieler1Haufen):
                 self.game.spieler1Paechen.append(kard)
             self.game.spieler1Haufen = []
             for i in self.game.spieler1Haufen:
@@ -158,7 +158,7 @@ class Spieler:
        if self.spielernummer == 2:
             for i in self.game.spieler2Haufen:
                 i.karteOffen = False
-            for kard in self.game.spieler2Haufen:
+            for kard in reversed(self.game.spieler2Haufen):
                 self.game.spieler2Paechen.append(kard)
             self.game.spieler2Haufen = []
             for i in self.game.spieler2Haufen:
