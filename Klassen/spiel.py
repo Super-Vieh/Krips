@@ -319,3 +319,6 @@ class Spiel:
                     self.current.wegen_krips_aufhoeren()
                 if first!="K" and first!="R":
                     print("Ungültige Aktion.")
+
+
+

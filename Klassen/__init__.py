@@ -36,8 +36,16 @@ def play_init(game:Spiel):
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
             game.play(action)
-def play_console(game:Spiel):
+def play_console(game:Spiel,db:'Datenbank'):
+    zugwechsel_ID =0
+    db.erstelle_neuen_spieldatensatz()
+    db.erstelle_kartendatensatz()
+    ergtuple = convertiere_spielkartenstand(game)
+    db.erstelle_ein_kartendatensatz(ergtuple[0],ergtuple[1],ergtuple[2],ergtuple[3],ergtuple[4],ergtuple[5])
     while game.gameon:
+
+        alle_actions:str = ""
+        zugwechsel_ID+=1
         if game.spieler1.anderreihe == True: game.current = game.spieler1
         elif game.spieler2.anderreihe == True: game.current = game.spieler2
         while game.current.anderreihe == True:
@@ -49,11 +57,112 @@ def play_console(game:Spiel):
                     "\nWas soll gemacht werden?\n"
                     "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
-                    "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
+                    "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n"
+                    "Stop =M\n")
+            if action=="M": return None
+            game.console_play(action)
+            alle_actions= alle_actions+","+action
+
+        if game.current== game.spieler1: lezterspieler=1
+        else:lezterspieler=2
+        db.erstelle_ein_spieldatensatz(zugwechsel_ID, alle_actions, lezterspieler)
+def play_from_db(game:Spiel, db:'Datenbank',whatgamenr:int):
+    actions = db.extrahiere_spiel(whatgamenr)
+    while game.gameon:
+
+        if game.spieler1.anderreihe == True:
+            game.current = game.spieler1
+        elif game.spieler2.anderreihe == True:
+            game.current = game.spieler2
+        while game.current.anderreihe == True:
+            print_top(game)
+            print_sidesplus(game)
+            print_bot(game)
+            action= take_first_action(actions)[0]
+            actions=take_first_action(actions)[1]
+            print(action)
             game.console_play(action)
 
-def seitenKarten(game:Spiel, momentanerspieler:Spieler):
 
+
+def take_first_action(actions:str)-> tuple[str,str]:
+    print(actions)
+    action=""
+    try: actions[0]
+    except ValueError: return("M","")
+    if actions[0]==",": actions= actions[1::]
+    for buchstabe in actions[:]:
+        if buchstabe==",":
+            print(action)
+            return (action,actions)
+        action+=buchstabe
+        actions= actions[1::]#stringsslicing
+
+def convertiere_spielkartenstand(game:Spiel):
+    sp1_paeckchen =""
+    for karte in game.spieler1Paechen:
+        sp1_paeckchen+= str(karte.kartenwert.value)
+        sp1_paeckchen+= karte.kartentyp.value
+        sp1_paeckchen+=","
+    sp1_dreizehner=""
+    for karte in game.spieler1Dreizehner:
+        sp1_dreizehner += str(karte.kartenwert.value)
+        sp1_dreizehner += karte.kartentyp.value
+        sp1_dreizehner += ","
+    sp2_paeckchen=""
+    for karte in game.spieler2Paechen:
+        sp2_paeckchen += str(karte.kartenwert.value)
+        sp2_paeckchen += karte.kartentyp.value
+        sp2_paeckchen += ","
+    sp2_dreizehner=""
+    for karte in game.spieler2Dreizehner:
+        sp2_dreizehner += str(karte.kartenwert.value)
+        sp2_dreizehner += karte.kartentyp.value
+        sp2_dreizehner += ","
+    sp1_4karten=""
+    sp2_4karten=""
+    for liste in range(0,8):
+        if liste<= 3:
+            sp1_4karten+= str(game.platzliste[liste][0].kartenwert.value)
+            sp1_4karten+= game.platzliste[liste][0].kartentyp.value
+            sp1_4karten+=","
+        else:
+            sp2_4karten += str(game.platzliste[liste][0].kartenwert.value)
+            sp2_4karten += game.platzliste[liste][0].kartentyp.value
+            sp2_4karten += ","
+    return (sp1_paeckchen,sp2_paeckchen,sp1_dreizehner,sp2_dreizehner,sp1_4karten,sp2_4karten)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def seitenKarten(game:Spiel, momentanerspieler:Spieler):
     for liste in game.platzliste:
         for karte in liste:
             print(karte.kartentyp.value,"-", karte.kartenwert,"-",karte.farbe)
@@ -134,14 +243,6 @@ def print_bot(game:Spiel):
             print(sp1dl.kartenwert.value,end="-")
             print(sp1dl.kartentyp.value,end="   ")
         else:print("Closed",end="")
-
-
-
-
-
-
-
-
 
 def print_middle(game:Spiel,i :int):
     if(i == 0):
