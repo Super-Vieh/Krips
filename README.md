@@ -11,13 +11,12 @@ Dieses Projekt ist ein Teil eines größeren Reinforcement-Learning Projektes zu
 Die momentane Zielsetzung ist: (X)= Beendet
 - Erstelle ein Spiel, welches in der Konsole spielbar ist.                                        X
 - Erstelle eine Graphical User Interface, welches die Konsole in der Ein- und Ausgabe ersetzt.    X
-- Erstelle eine Datenhaltung, welche die Spielzüge in einer Schach änhlichen Notation speichert.
-- Lernen des Umgangs mit Datenanalyse und datendarstellungs Tools.
-- Design einer ML-Architektur evtl. Deep Q Networks oder sogar Deep Dueling Q Networks.
-- Umsetzung des Designs und Training des Modells mit Pytorch.
-- Vielleicht weitere Spielereien.
+- Erstelle eine Datenhaltung, welche die Spielzüge in einer Schach änhlichen Notation speichert.  X
+- Erstelle ein Reeinforcement Dualing-Q Agenten
+- Interpretation der Ergebnisse
+- Erstelle eine Dokumentation                                                                     ~
 
-Bis jetzt sind die Ersten zwei Punkte grob Beendet.
+Bis jetzt sind die Ersten drei Punkte grob Beendet.
 
 ![Ein Bild zu einem Spielstand](https://upload.wikimedia.org/wikipedia/commons/c/c6/Russian_Bank%2C_Crapette%2C_Tunj_card_game.jpg)
 Allgemeine Spielregeln zum Spiel Krips in Kurzform:  
