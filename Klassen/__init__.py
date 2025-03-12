@@ -35,6 +35,7 @@ def play_init(game:Spiel):
                     "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
+            if action=="M": return None
             game.play(action)
 def play_console(game:Spiel,db:'Datenbank'):
     zugwechsel_ID =0
@@ -67,6 +68,10 @@ def play_console(game:Spiel,db:'Datenbank'):
         else:lezterspieler=2
         db.erstelle_ein_spieldatensatz(zugwechsel_ID, alle_actions, lezterspieler)
 def play_from_db(game:Spiel, db:'Datenbank',whatgamenr:int):
+    clear_game_lists(game)
+    #hier wird der Anfangskartenstand aus der Datenbank geladen
+    convertiere_spielkartenstand_aus_db(db.extrahiere_spielkarten(whatgamenr),game)
+
     actions = db.extrahiere_spiel(whatgamenr)
     while game.gameon:
 
@@ -78,26 +83,33 @@ def play_from_db(game:Spiel, db:'Datenbank',whatgamenr:int):
             print_top(game)
             print_sidesplus(game)
             print_bot(game)
-            action= take_first_action(actions)[0]
-            actions=take_first_action(actions)[1]
+            (action, actions)= take_first_action(actions)
+
             print(action)
             game.console_play(action)
+            if actions== "" or None:
+                #die ausgabe wird ein letztes mall noch ausgegeben
+                print_top(game)
+                print_sidesplus(game)
+                print_bot(game)
+                print("Game Complete")
+                return None
 
 
 
 def take_first_action(actions:str)-> tuple[str,str]:
-    print(actions)
     action=""
     try: actions[0]
-    except ValueError: return("M","")
-    if actions[0]==",": actions= actions[1::]
+    except IndexError:
+        return("M","")
+    if actions[0]==",": actions= actions[1:]
     for buchstabe in actions[:]:
         if buchstabe==",":
-            print(action)
-            return (action,actions)
+            actions= actions[1:]
+            return action,actions
         action+=buchstabe
-        actions= actions[1::]#stringsslicing
-
+        actions= actions[1:]#stringsslicing
+    return action,""
 def convertiere_spielkartenstand(game:Spiel):
     sp1_paeckchen =""
     for karte in game.spieler1Paechen:
@@ -132,12 +144,86 @@ def convertiere_spielkartenstand(game:Spiel):
             sp2_4karten += ","
     return (sp1_paeckchen,sp2_paeckchen,sp1_dreizehner,sp2_dreizehner,sp1_4karten,sp2_4karten)
 
+def convertiere_spielkartenstand_aus_db(allekarten:tuple[tuple[int,str,str,str]],game:Spiel):
+    for zeile in allekarten:
+        (aktion,rest)=("",zeile[1])
+        while (aktion,rest)!=("M",""):
+            aktion,rest=take_first_action(rest)
+            if aktion=="M": break
+            fuege_karte_zueiner_liste_hinzu(stringzukarte(aktion),zeile[0],"Paeckchen",game)
+        (aktion,rest)=("",zeile[2])
+        while (aktion,rest)!=("M",""):
+            (aktion,rest)=take_first_action(rest)#kann "M" zurückgeben
+            if aktion=="M": break
+            fuege_karte_zueiner_liste_hinzu(stringzukarte(aktion),zeile[0],"Dreizehner",game)
+        (aktion,rest)=("",zeile[3])
+        while (aktion,rest)!=("M",""):
+            (aktion,rest)=take_first_action(rest)#kann "M" zurückgeben
+            if aktion=="M": break
+            fuege_karte_zueiner_liste_hinzu(stringzukarte(aktion),zeile[0],"4Karten",game)
+    game.spieler1Dreizehner[-1].karteOffen=True
+    game.spieler2Dreizehner[-1].karteOffen=True
 
 
+#Achtung wie die reihnfolge ist des eingebens. Es kann passieren das die karten verkehrtherumm eingesetzt werden
+def fuege_karte_zueiner_liste_hinzu(karte:Karten,spieler:int,liste:str,game:Spiel):
+    if spieler==1:
+        match(liste):
+            case("Paeckchen"):
+                game.spieler1Paechen.insert(0, karte)
+            case("Dreizehner"):
+                game.spieler1Dreizehner.append( karte)
+            case("4Karten"):
+                for i in range(0,4):
+                    if game.platzliste[i] == []:
+                        game.platzliste[i].append(karte)
+                        return  None
+            case _:
+                    print("Fehler bei fuege_karte_zueiner_liste_hinzu")
+    if spieler==2:
+        match(liste):
+            case("Paeckchen"):
+                game.spieler2Paechen.insert(0, karte)
+            case("Dreizehner"):
+                game.spieler2Dreizehner.append( karte)
+            case("4Karten"):
+                for i in range(4,8):
+                    if game.platzliste[i] == []:
+                        game.platzliste[i].append(karte)
+                        return None
+            case _:
+                print("Fehler bei fuege_karte_zueiner_liste_hinzu")
 
 
+def stringzukarte(kartenstr:str)->Karten:
+    typ=kartenstr
+    wert = kartenstr[0]
+    #Der erste buchstabe ist immer eine Zahl, der zweite kann
+    try :
+        #kontrolle ob die zweite zahl zu int konvertierbar ist
+        int(typ[1])
+        wert+=typ[1]
+    except (IndexError,ValueError):
+        pass
+    wert = int(wert)
+    if wert<=9:
+        typ=typ[1:]
+    else:
+        typ=typ[2:]
+
+    wert=KartenWert(wert)
+    typ=KartenTyp[typ]
 
 
+    return Karten(typ,wert)
+
+def clear_game_lists(game:Spiel):
+    for list in game.platzliste:
+        list.clear()
+    for list in game.spieler1listen:
+        list.clear()
+    for list in game.spieler2listen:
+        list.clear()
 
 
 

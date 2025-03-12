@@ -7,7 +7,7 @@ class Spiel:
     current: Spieler = None
     gameon = True
     wouldbeKrips = False
-
+    winner = 0 #
     spieler1: Spieler
     spieler2: Spieler
     #Mitte listen
@@ -42,6 +42,8 @@ class Spiel:
     spieler2Dreizehner: list[Karten] = []
     spieler2listen = []
 
+    stalemate_counter=0
+    last_playerpackages_length=[]
     def kartenDeckErstellung(self) -> list[Karten]:
         templist = []  # Speichert die Karten
         kartentyp = list(KartenTyp)
@@ -321,4 +323,36 @@ class Spiel:
                     print("Ungültige Aktion.")
 
 
+   # die funktion current_playerpackage_length() überprüft die länge aller spielerlisten. wenn die länger aller spielerlisten gleich ist dann wird der stalemate_counter um 1 erhöht
+    def current_playerpackage_length(self):
+        current_len = [len(self.spieler1Haufen),len(self.spieler1Paechen),len(self.spieler1Dreizehner),len(self.spieler2Haufen),len(self.spieler2Paechen),len(self.spieler2Dreizehner)]
+        if current_len == self.last_playerpackages_length:
+            self.stalemate_counter+=1
+        else:
+            self.stalemate_counter=0
+        self.last_playerpackages_length=current_len
+    def is_stalemate(self)->bool: # wenn der stalemate_counter 30 erreicht hat wird die funktion True zurückgeben
+        self.current_playerpackage_length()
+        if self.stalemate_counter>=30:
+            if len(self.spieler1Dreizehner)!=0:
+                self.winner=1
+            elif len(self.spieler2Dreizehner)!=0:
+                self.winner=2
+            else:
+                self.winner=0
+            return True
+        else:return False
 
+
+    def game_ended(self):
+        if not self.spieler1Haufen and not self.spieler1Paechen and not self.spieler1Dreizehner:
+            self.winner = 1
+            self.gameon = False
+        if not self.spieler2Haufen and not self.spieler2Paechen and not self.spieler2Dreizehner:
+            self.winner = 2
+            self.gameon = False
+        if self.is_stalemate():
+            self.gameon = False
+    def return_state(self):
+        spieler1listen = [self.spieler1Paechen,self.spieler1Haufen,self.spieler1Dreizehner]
+        spieler2listen = [self.spieler2Paechen,self.spieler2Haufen,self.spieler2Dreizehner]

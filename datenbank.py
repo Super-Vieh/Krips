@@ -1,9 +1,9 @@
 from numbers import Number
 from operator import index
-from tkinter.constants import INSERT
 
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 import cx_Oracle
+from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+
 class Datenbank:
     game:Spiel = None
     hostname = "StudiDB.GM.TH-Koeln.de"
@@ -55,12 +55,12 @@ class Datenbank:
         self.sql_statement_ausfuehren(sql)
 
     def erstelle_kartendatensatz(self):
-        id= self.hoechster_spielname() +1
+        id= self.hoechster_spielname()
         sql=(f"CREATE TABLE Spielkarten_{id}("
             "Spielernr Number,"
             "Paeckchen VARCHAR2(400),"
-            "Dreizehner Varchar(250),"
-            "erste4karten Varchar(90))")
+            "Dreizehner Varchar2(250),"
+            "erste4karten Varchar2(90))")
         self.sql_statement_ausfuehren(sql)
 
     def loesche_alle_spiele(self):
@@ -138,6 +138,17 @@ class Datenbank:
                 spielzuege = self.cursor.execute(sql)
                 zuege =spielzuege.fetchall()
                 return self.extrahiere_spielzuege(zuege)
+
+    def extrahiere_spielkarten(self,tabellennr:int)->tuple[tuple[int,str,str,str]]:
+        cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIELKARTEN_%'")
+        rows = cur.fetchall()
+
+        for row in rows:
+            if self.extrahiere_spielnummer(row)== tabellennr:
+                sql = f"SELECT Spielernr,Paeckchen, Dreizehner, erste4karten FROM SPIELKARTEN_{tabellennr}"
+                karten = self.cursor.execute(sql)
+                return karten
+
 
 
 
