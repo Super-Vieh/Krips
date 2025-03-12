@@ -1,6 +1,6 @@
 from enum import Enum
 import random
-from dualing_q_learning import *
+
 import pygame
 #from datenbank import Datenbank
 
@@ -35,8 +35,7 @@ def main():
     game1.game_first_move()
     initialize_paechen(game1)
 
-    storage = Storage(game1)
-    storage.initialize_states(game1)
+
 
 
     #play_from_db(game1,db,6)

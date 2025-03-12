@@ -356,3 +356,4 @@ class Spiel:
     def return_state(self):
         spieler1listen = [self.spieler1Paechen,self.spieler1Haufen,self.spieler1Dreizehner]
         spieler2listen = [self.spieler2Paechen,self.spieler2Haufen,self.spieler2Dreizehner]
+        return (spieler1listen,spieler2listen,self.platzliste,self.mittlereliste)
