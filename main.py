@@ -39,8 +39,8 @@ def main():
 
 
     #play_from_db(game1,db,6)
-    #gui = GUI(game1)
-    #gui.instance()
+    gui = GUI(game1)
+    gui.instance()
     #play_init(game1)
     #play_console(game1,db)
     #pygame.quit()

@@ -59,28 +59,36 @@ class DualingQNetwork(nn.Module):
         return valueoutput, (advantagefullyconnectedoutput, advantageoutput)
 
 
-    def combine_value_advantage(self, value,advantage1, advantage2):
-        # This is a non standard way of combining the value and advantage streams
-        # it seams that this function is very inefficient and maybe not very good because it does not opperate on the gpu or rather the tensors
+    def combine_value_advantage(self,value, advantage1, advantage2):
+        # the unsequeeze function adds a dimension to the tensor it makes it a list of lists with only one list containig all elements
+        # for the opperations to work on  the tensors,they need to be a centain shape
+        # here the unsqueeze 1 makes the adv1 tensor in the shape of (N,1) the 0 makes adv2 in the shape of (1,M)
+        adv1 = advantage1.unsqueeze(1)
+        adv2 = advantage2.unsqueeze(0)
 
-        # it takes all posible pairs of advantage1 and advantage2.
-        # then i takes the mean of the sum of each pair o find the best advantage pair with.
-        # then if takes the mean of all posible pairs and subracts it from the advantage
-        # and adds it to the value to get the q value
-        advatage1list = advantage1.tolist()
-        advatage2list = advantage2.tolist()
-        mean_of_the_sum=[]
-        for  first_e in advatage1list:
-            for  second_e in advatage2list:
-                mean_of_the_sum.append((first_e+second_e)/2)
-        advantage = max(mean_of_the_sum)
-        mean_of_mean= 0
-        for each in mean_of_the_sum:
-            mean_of_mean+=each
-        mean_of_mean=mean_of_mean/len(mean_of_the_sum)
+        # the pair_mean is also now a list of list.
+        # it is like a nested for loop where the first element of adv1 is seperatly added to all elements of adv2 creating a 1d list
+        # then the second element of adv1 is seperatly added to all elements of adv2 creating a 1d and so on
+        #these 1d list are as long as there are elements in adv2 and as many as there are elements in adv1
+        # pair_mean = [N][M]
+        pair_mean = (adv1 + adv2) / 2
 
-        q_value = value + advantage - mean_of_mean
-        return q_value
+        # the overall_mean is the scalar of all pairs of N and M
+        # it takes the mean of MxN pairs
+        overall_mean = pair_mean.mean()
+
+        # the q_values are the standart value v(s) and the advantage of an action (a)
+        # the advantage is calculated by how good the pair values are compared to the average values
+        # and the value is the value of the state so it is always present
+        q_values = value + pair_mean - overall_mean
+        # P.S. this is a heavily simplified version done by a LLM.
+        # my version was python algorith based and not tensor based thus extremly slow the idea was the same though
+        return q_values
+
+
+
+
+    # i have to get back to this and unterstand how to save the model
     def save_savestate(self):
         print('... saving model ...')
         T.save(self.state_dict(), self.savestate_file)

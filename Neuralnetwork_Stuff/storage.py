@@ -56,12 +56,14 @@ class Storage:
             return 1
     def initialize_actions(self)->T.tensor:
         actions_firstoutputlayer=[
-            0,1,2,3,4,5,6,7,8,9,10,11,12,13
+            0,1,2,3,4,5,6,7,8,9,10,11,
         ]
+        # K->0 , S1-S8 ->1-8,A0->9 A1->10 A2->11 = in total 12 states for the first action
 
         actions_secondoutputlayer=[
-            0,1,2,3,4,5,6,7,8,9,10,11,12,13
+            0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
         ]
+        # K->0 ,S1-S8 ->1-8,M1-M8->9-16,A0->18 A1->19 A2->20, G0->21 = intotal 22 states for the second action
         actions_firstoutputlayer_t=T.tensor(actions_firstoutputlayer, dtype=T.float32)
         actions_secondoutputlayer_t=T.tensor(actions_secondoutputlayer, dtype=T.float32)
         return actions_firstoutputlayer_t, actions_secondoutputlayer_t
