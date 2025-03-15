@@ -7,20 +7,20 @@ import torch.optim as optim
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 
 class DualingQNetwork(nn.Module):
-    def __init__(self,states,learning_rate,savestate_file_name):
+    def __init__(self,learning_rate,savestate_file_name):
         super().__init__()
         self.savestate_dir = 'Savestates'
         self.savestate_file = os.path.join(self.savestate_dir, savestate_file_name)
         self.learning_rate = learning_rate
-        self.states:T.Tensor =states
+        #self.states:T.Tensor = None
         self.inputlayer=nn.Linear(1144,700)
         self.linearlayer2=nn.Linear(700,200)
         self.linearlayer3=nn.Linear(200,128)
         self.valuelayer1=nn.Linear(128,64)
         self.valueoutputlayer=nn.Linear(64,1)
         self.advantagelayer1=nn.Linear(128,64)
-        self.advantage_fullyconnected_outputlayer=nn.Linear(64,5)
-        self.advantageoutputlayer=nn.Linear(5,5)
+        self.advantage_fullyconnected_outputlayer=nn.Linear(64,12)
+        self.advantageoutputlayer=nn.Linear(12,21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss = nn.MSELoss()
@@ -56,7 +56,7 @@ class DualingQNetwork(nn.Module):
 
         advantageoutput = self.advantageoutputlayer(advantagefullyconnectedoutput)
 
-        return valueoutput, (advantagefullyconnectedoutput, advantageoutput)
+        return valueoutput, advantagefullyconnectedoutput, advantageoutput
 
 
     def combine_value_advantage(self,value, advantage1, advantage2):

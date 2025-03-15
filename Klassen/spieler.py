@@ -63,7 +63,8 @@ class Spieler:
         spp2= self.game.spieler2Paechen
         if   packchen == 1:
             #Päckchen 1 ist das Dreizehner Päckchen
-            if   self.spielernummer == 1 and spp1: drz1[-1].karteOffen = True
+            if   self.spielernummer == 1 and spp1:
+                drz1[-1].karteOffen = True
             elif self.spielernummer == 2 and spp2: drz2[-1].karteOffen = True
         elif packchen == 0:
             #Päckchen 0 ist das Normale Päckchen

@@ -266,28 +266,34 @@ class Spiel:
             case ("A", "M"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.mitteHinlegen(fourth, self.spieler1listen[second])
+                    if self.spieler1listen[second].karteOffen == True:
+                        self.current.mitteHinlegen(fourth, self.spieler1listen[second])
                     self.current.krips_karte_gespielt(self.spieler1listen[second])
                 if self.current.spielernummer == 2:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.mitteHinlegen(fourth, self.spieler2listen[second])
+                    if self.spieler2listen[second].karteOffen == True:
+                        self.current.mitteHinlegen(fourth, self.spieler2listen[second])
                     self.current.krips_karte_gespielt(self.spieler2listen[second])
             case ("A", "S"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.seiteHinlegen(fourth, self.spieler1listen[second])
+                    if self.spieler1listen[second].karteOffen== True:
+                        self.current.seiteHinlegen(fourth, self.spieler1listen[second])
                 if self.current.spielernummer == 2:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.seiteHinlegen(fourth, self.spieler2listen[second])
+                    if self.spieler2listen[second].karteOffen== True:
+                        self.current.seiteHinlegen(fourth, self.spieler2listen[second])
 
             case ("A", "G"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.gegener_geben(self.spieler1listen[second])
+                    if self.spieler1listen[second].karteOffen== True:
+                        self.current.gegener_geben(self.spieler1listen[second])
 
                 if self.current.spielernummer == 2:
                     self.wouldbeKrips = self.current.ist_krips()
-                    self.current.gegener_geben(self.spieler2listen[second])
+                    if self.spieler2listen[second].karteOffen== True:
+                        self.current.gegener_geben(self.spieler2listen[second])
             case ("S", "M"):
                 if self.current.spielernummer == 1:
                     self.wouldbeKrips = self.current.ist_krips()
@@ -321,6 +327,38 @@ class Spiel:
                     self.current.wegen_krips_aufhoeren()
                 if first!="K" and first!="R":
                     print("Ungültige Aktion.")
+    def play_nn(self,action):
+        if len(action)!=4:
+            print("actionlength is smaller than 4")
+            return None
+        first = action[0]  # Herkunftslistentyp
+        second = int(action[1])  # Herkunftsliste
+        third = action[2]  # Ziellistentyp
+        fourth = int(action[3])  # Zielliste
+        match (first, third):
+            case ("A", "A"):
+                if second==0 and fourth == 1:
+                    self.current.aufhoeren()
+                elif second == fourth:
+                    self.current.karte_aufdecken(second)
+                else:
+                    return None
+            case ("A", "S"):
+
+                pass
+            case ("A", "M"):
+                pass
+            case ("A", "G"):
+                pass
+            case ("S", "S"):
+                pass
+            case ("S", "M"):
+                pass
+            case ("S", "G"):
+                pass
+            case ("K", "K"):
+                pass
+
 
 
    # die funktion current_playerpackage_length() überprüft die länge aller spielerlisten. wenn die länger aller spielerlisten gleich ist dann wird der stalemate_counter um 1 erhöht

@@ -34,7 +34,17 @@ class GUI:
 
 
 
+    def image(self):
+        initialisierung_der_bilder(self)
+        erstelle_centerlist(self, self.plus)
+        erstelle_sidelist(self)
+        erstelle_spieler_packchen(self)
 
+        self.screen.fill((30, 31, 34))
+        draw(self, self.gamelist)
+        draw(self, self.centerlist)
+        self.reset()
+        pygame.display.update()
     def instance(self):
 
         initialisierung_der_bilder(self)
