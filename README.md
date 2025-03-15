@@ -47,5 +47,18 @@ nicht ablegen kann. In diesem Fall, gewinnt der Spieler, der sein Dreizehner Pä
 Zusätzlich dazu gibt es kleine zusatzregeln, die das Spiel interessanter machen. Welche jedoch nicht implementiert sind.
 
 ![Demo Video] (https://github.com/Super-Vieh/Krips/blob/main/Bilder/demonstrationsdaten/demo_video.mp4)
-Ein kleines 3 Minuten Demo Video, wie das Spiel gespielt wird finden im Repository unter dem Pfad: Bilder/demonstrationsdaten/demo.mp4
+Ein kleines 3 Minuten Demo Video, wie das Spiel gespielt wird finden im Repository unter dem Pfad: Bilder/demonstrationsdaten/demo.
+
+
+
+
+
+![Neuronale Netzwerk Architektur](Bilder/demonstrationsdaten/Krips_Neuralnetwork.drawio.png)
+Die KI welche das Spiel Krips spielt, basiert auf der Deep Dualing Q-Learning Architektur welche in vielen anderen Spielen genutzt wird.
+Eine besondere Eigeschaft des Dualing Q-Learning ist dass, das Neuronale Netzwerk die Aktionen und den Zustand seperat bewertet.
+
+In der Abbildung sieht man zuerst 3 voll-vernetzte Neuronen Schichten. Dannach spaltet sich das Netzwerk in zwei Teile. Das este(obere),schätzt den
+Wert des Zustandes und hat somit nur ein Output Neuron. Das zweite Netz schätzt die Qualität der Aktionen.
+Hier kommt eine unkonventionelle Architekur ins Spiel. Anstatt eine Reihe von 11*21 Output Neuron, gibt es zwei Reihen.
+Die erste Reihe hat 11 Neuronen die zweite hat 21 Neuronen. Die Kodierung sieht wie folgt aus. 
 
