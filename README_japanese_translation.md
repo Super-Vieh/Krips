@@ -1,72 +1,81 @@
-                                                        Das Spiel des Krips
+                                                        クリプスゲーム
 
-Das Spiel Krips ist eine Patience bei der zwei Spieler gegeneinander spielen. Die bekanntesten Bezeichnungen sind: Zank-Patience(deutsch), Russian Bank(amerikanisch) und Crapette(französisch).
-Es ist ein eher unbekanntes Spiel, welches jedoch in meiner Familie seit mind. über einem Jahrhundert gespielt wird.
+Kripsゲームは、2人のプレーヤー間でプレイ忍耐ゲームです。最も一般的な名称は以下の通り： Zank-Patience（ドイツ語）、Russian Bank（アメリカ語）、Crapette（フランス語）。 
+これはあまり知られていないゲームだが、私の家系では少なくとも1世紀はプレイされてきた。
 
-[Zur Wikipedia Seite zu Krips](https://de.wikipedia.org/wiki/Zank-Patience)
+[クリプスのウィキペディアページへ](https://de.wikipedia.org/wiki/Zank-Patience)
 
-Dieses Repository dient als Darstellung meiner Fähigkeit, die ich in den Informatik-Modulen des ersten und zweiten Semesters des Wirtschaftsinformatik Studiums der TH-Koeln, erlangt habe.
-Dieses Projekt ist ein Teil eines größeren Reinforcement-Learning Projektes zur Analyse einer optimalen Spielstrategie. 
+このリポジトリは、私がTH-KölnでWirtschaftsinformatik（経済情報学）の学位を取得した前期と後期の学生であったことの証である。 
+これは、最適なゲーム戦略を分析するための、より大きな強化学習プロジェクトの一部です。
 
-Die momentane Zielsetzung ist: (X)= Beendet
-- Erstelle ein Spiel, welches in der Konsole spielbar ist.                                        X
-- Erstelle eine Graphical User Interface, welches die Konsole in der Ein- und Ausgabe ersetzt.    X
-- Erstelle eine Datenhaltung, welche die Spielzüge in einer Schach änhlichen Notation speichert.  X
-- Erstelle ein Reeinforcement Dualing-Q Agenten
-- Interpretation der Ergebnisse
-- Erstelle eine Dokumentation                                                                     ~
+現在の目標は次のとおり。
+- ゲーム機で遊べるゲームを作る。                                       X
+- コンソールの入出力を置き換えるグラフィカル・ユーザー・インターフェイスを作成する。   X
+- チェスのような記譜法を作り、ゲームの手順をデータベースに記録する。 X
+- 強化デュアルQエージェントの作成 X
+- 結果の解釈
+- ドキュメンテーションを作成する。
 
-Bis jetzt sind die Ersten drei Punkte grob Beendet.
 
-![Ein Bild zu einem Spielstand](https://upload.wikimedia.org/wikipedia/commons/c/c6/Russian_Bank%2C_Crapette%2C_Tunj_card_game.jpg)
-Allgemeine Spielregeln zum Spiel Krips in Kurzform:  
+
+![ゲームの概要](https://upload.wikimedia.org/wikipedia/commons/c/c6/Russian_Bank%2C_Crapette%2C_Tunj_card_game.jpg)  
+クリプスゲームの一般ルール(概要):.  
   
-Das Ziel des Spiels ist es wie im Solitär Sets zusammenzulegen. Von Ass -> Zwei -> ... -> König.  
-Von diesen Sets bilden sich dann insgesamt 8. 2 Pik,2 Coeur usw. Dadurch ergeben sich 8 Felder in der Mitte in einer 4X2 Matrix.
-Diese 8 Felder in der Mitte haben absolute Priorität und müssen belegt werden, wenn möglich.  
-Wenn diese Regel nicht beachtet wird und der Gegner diesen Fehler bemerkt, wird der Spielzug an den Gegner übergeben.  
+ゲームの目的は、ソリティアのようにセットを組み合わせることである。 
+エース→2→...→キング。 
+  
+これらのセットから合計8つのセットが形成される：2ピク、2クールなど。 
+これにより、4X2のマトリックスとして中央に8つのフィールドができる。 
+この中央の8つのフィールドには絶対的な優先順位があり、できるだけ埋めなければならない。 
+このルールが守られず、相手がミスに気づいた場合、そのターンは相手に回ってくる。 
 
-Außenrum gibt es 8 Felder. Rechtes und Links eine Vertikale reihe von 4 Feldern, die frei belegt werden können.Zu Beginn des Spiels sind diese Felder jeweils mit einer Karte belegt. 
-Diese 8 Plätze können ähnlich wie bei Solitär belegt werden. Von der Wertung absteigend und Schwarz, Rot in der Reihenfolge. So kann ein Anfangszustand aussehen. Die 8 mittleren Haufen sind hier noch leer.
+外側には8つのフィールドがある。左右には縦に並んだ4つのマスがあり、空きがあれば自由に埋めることができる。 
+ゲーム開始時には、これらの場はそれぞれカードで埋められている。 
+この8つの場は、ソリティアのように数字の降順と黒、赤の順に埋めることができる。 
+これは初期状態の例である。中央の8つの山はここではn[...]である。 
+
 ![Anfangskonstelarion](Bilder/demonstrationsdaten/anfangszustand.png)
 
-Jeder Spieler hat 3 Haufen an Karten ein Päckchen, einen Ablagehaufen und ein dreizehner Päckchen.   
-Bezogen auf das Bild hier, ist der Linke Haufen das Normale Päckchen. Bei Zug beginn, wird dieser Aufgedeckt und wenn möglich irgendwo abgelegt. Dieser Prozess wird so lange wiederholt, bis man die Karte, die man aufgedeckt hat, nicht mehr hinlegen kann.
-Dann legt man die Karte auf den Ablagehaufen (mittleren Haufen). Und der rechte Haufen ist das Dreizehner Päckchen.(13 Karten)
+各プレイヤーは3つのカードの山を持っている：通常のノーマルパッケージ、テイクオフパッケージ、13パッケージ（13枚のカードを持っているから）。 
+図の左側の山が通常のパッケージです。ターンの始めに、このカードは表向きにされ、可能な場所に置かれる。 
+この作業を，移動が不可能になるまで繰り返す．
+その後、カードはテイクオフ・パッケージ(中央の パッケージ)の上に置かれる。 
+右側の山が 13 パッケージとなる。(13 カルテン）
 
-Während man die Karten vom Päckchen aufdeckt, kann man die Karten von Dreizehner Päckchen aufdecken und hinlegen. Jedoch darf man die Karten von Dreizehner Päckchen nicht auf den Ablagehaufen legen.  
-Diese bleiben dann offen liegen.
+パケットチェンのカードは表向きにされ、13 パッケージのカードも表向きにされる。
+しかし，「13 パッケージ」のカードは，「13 パッケージ」の上に置くことはできない[...]． 
+オープン状態のままである．
 
-Nachdem man seine Karten vom Päckchen auf den Ablagehaufen gelegt. Ist der Gegner dran, und kann auf die oberste Karte des Ablagehaufens Karten ablegen. Es muss die gleiche Art von Karte sein   
-und in der Wertung um 1 höher oder niedriger. Im oberen Bild könnte man auf die Pik 7 die Pik 6 geben.
+ノーマルパッケージのカードをテイクオフパッケージの上に置 いた後、対戦相手のターンとなり、対戦相手はテイクオフパッケージの上 のカードの上にカードを置くことができます。 
+その場合、そのカードは同じ種類で、1 つ高いか低いカードでなければな りません。 
+上の図では、ピック 7 の上にピック 6 を置くことが可能である。
 
-Wenn der Gegner sein Zug beendet hat, kann man die obersten Karten des Ablagehaufens irgendwo hinlegen.
+相手が手番を終えたら、テイクオフ・パッケージの一番上のカードを任意の場所に置くことができます。
 
-Das Spiel endet, wenn ein Spieler keine Karten mehr hat. Manchmal kann es auch passieren, dass man im Spiel nicht weiter kommt, da im Dreizehner Päckchen wichtige Karten liegen und man die oberste Karte  
-nicht ablegen kann. In diesem Fall, gewinnt der Spieler, der sein Dreizehner Päckchen abgelegt hat. Wenn beide Spieler ein Dreizehner Päckchen haben, wird das Spiel als Unentschieden gewertet.
-Zusätzlich dazu gibt es kleine zusatzregeln, die das Spiel interessanter machen. Welche jedoch nicht implementiert sind.
+どちらかのプレイヤーの手札がなくなるか、ド ライズナー・ペッヘンに重要なカードがなくなり、一番上のカード を置くことができなくなったとき、ゲームは終了する。 
+その場合、13Packageを置いたプレイヤーの勝ちとなる。 
+両方のプレイヤーが13Packageを持っている場合、ゲームは引き分けとなる。 
+さらに、ゲームを面白くするための小さな追加ルールがありますが、これらは実装されていません。
 
 ![Demo Video] (https://github.com/Super-Vieh/Krips/blob/main/Bilder/demonstrationsdaten/demo_video.mp4)
-Ein kleines 3 Minuten Demo Video, wie das Spiel gespielt wird finden im Repository unter dem Pfad: Bilder/demonstrationsdaten/demo.
-
-
-
-
+リポジトリには、以下のパスにゲームの遊び方を紹介する約3分のデモビデオがあります： Bilder/demonstrationsdaten/demo.
 
 ![Neuronale Netzwerk Architektur](Bilder/demonstrationsdaten/Krips_Neuralnetwork.drawio.png)
+KripsゲームをプレイするAIは、他の多くのゲームで使われているDeep Dualing Q-Learning Architekturに基づいています。 
+Dualing Q-Learningの特徴の一つは、Neuronale NetzwerkがAktionenとZustandを別々に評価することである。
 
+図では、まず3つの完全連結ニューロン層が示されている。 
+入力として約1144個の入力ニューロンがある。 
+各リストには52個あり、22 x 52 = 1144である。 
+3層（特徴抽出層）の後、ネットワークは2つに分割される。 
+上側（este）は状態値を推定し、出力ニューロンは1つだけである。 
+下側のネットワークは、取るべきアクショネンの質を推定する。
 
-Die KI welche das Spiel Krips spielt, basiert auf der Deep Dualing Q-Learning Architektur welche in vielen anderen Spielen genutzt wird.
-Eine besondere Eigeschaft des Dualing Q-Learning ist dass, das Neuronale Netzwerk die Aktionen und den Zustand seperat bewertet.
+ここで、従来とは異なるArchitekurが登場する。 
+12×22の出力ニューロンの代わりに、2つの列に分かれている。 
+最初の列には11個のニューロンがあり、2番目の列には21個のニューロンがある。 
+アクションのエンコーディングは以下の通り。 
+出力1。k -> 0 , s1-s8 -> 1-8, a0 -> 9, a1 -> 10, a2 -> 11  
+出力2. k -> 0 , s1-s8 -> 1-8, m1-m8 -> 9-16, a0 -> 18, a1 -> 19, a2 -> 20, g0 -> 21
 
-In der Abbildung sieht man zuerst 3 voll-vernetzte Neuronen Schichten. Als Eingabe gibt es ca. 1144 Input Neuronen. 
-52 für jede Liste. 22*52= 1144. Nach den 3 Schichten(feature extraction layers) spaltet sich das Netzwerk in zwei Teile. 
-Das este(obere),schätzt den Wert des Zustandes und hat somit nur ein Output Neuron.
-Das zweite Netz, schätzt die Qualität der Aktionen die mann nehmen kann.
-
-Hier kommt eine unkonventionelle Architekur ins Spiel. Anstatt eine Reihe von 12*22 Output Neuron, gibt es zwei Reihen.
-Die erste Reihe hat 11 Neuronen die zweite hat 21 Neuronen. Die Kodierung sieht wie folgt aus. 
-Output1.  K->0 , S1-S8 ->1-8,A0->9 A1->10 A2->11
-Output2.  K->0 ,S1-S8 ->1-8,M1-M8->9-16,A0->18 A1->19 A2->20, G0->21
-
-Am Ende wird für jede Aktion(in diesem Fall für jedes Aktionspaar) in einem Zustand geschätzt wie gut sie ist.
+最後に、各アクション（この場合は各アクションペア）について、その状態での良さを推定する。
