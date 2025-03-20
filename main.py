@@ -14,7 +14,7 @@ def main():
     nn.load_savestate()
     agent = Agent(nn)
 
-    agent.training_loop(nn.optimizer,1,0.9,1)
+    agent.training_loop(nn.optimizer,   2,0.9,1)
 
 
 

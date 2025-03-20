@@ -56,7 +56,7 @@ class Storage:
     def did_an_action_do_something(self):
 
         if self.all_states and len(self.all_states)>=2 and T.equal(self.all_states[-1] ,self.all_states[-2]):
-                return -20
+                return -1000
         else:
                 return 10
     def punish_back_and_forth(self):

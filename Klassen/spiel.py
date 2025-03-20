@@ -127,9 +127,8 @@ class Spiel:
 
         lenaction = len(action)
         print(f"{self.current.spielernummer} ist drann")
-        print(self.spieler1Haufen)
-        #print(f"{self.current.ist_krips()} current is rufe_krips")
-        #print(f"{self.wouldbeKrips} wouldbeKrips")
+
+
         print(action)
         match (lenaction, action):
                 case (1, "P"):
@@ -337,7 +336,7 @@ class Spiel:
         fourth = int(action[3])  # Zielliste
         match (first, third):
             case ("A", "A"):
-                if second==0 and fourth == 1:
+                if second==0 and fourth == 1
                     self.current.aufhoeren()
                 elif second == fourth:
                     self.current.karte_aufdecken(second)
