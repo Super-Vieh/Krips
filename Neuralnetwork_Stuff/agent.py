@@ -42,7 +42,7 @@ class Agent():
                 # makes states into a tensor
 
                 action = self.select_action(epsilon,states)
-                self.game.play(action)
+                self.game.play_nn(action)
                 next_state = self.storage.initialize_states(self.game)
                 reward = self.storage.reward()
                 if reward> 0: gui.image()
@@ -131,7 +131,7 @@ class Agent():
         all_q_values =self.nn.combine_value_advantage(value, advantage1, advantage2)# ist eine NxM distribution
 
         #action1 and action2 are int values so you can just plug them in
-        print(all_q_values)
+        #print(all_q_values)
         estimated_q_value= all_q_values[action1][action2]
         return estimated_q_value
     def update_network(q_network, optimizer, loss):

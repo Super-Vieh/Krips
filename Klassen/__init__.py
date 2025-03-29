@@ -36,7 +36,7 @@ def play_init(game:Spiel):
                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
             if action=="M": return None
-            game.play(action)
+            game.play_nn(action)
 def play_console(game:Spiel,db:'Datenbank'):
     zugwechsel_ID =0
     db.erstelle_neuen_spieldatensatz()

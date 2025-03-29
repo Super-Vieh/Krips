@@ -44,21 +44,27 @@ class Storage:
         current_state= self.initialize_states(self.game)
         self.all_states.append(current_state)
         reward+=self.did_an_action_do_something()
-        if reward== 10:
+        reward+= self.punish_back_and_forth()
+        reward+= self.put_card_in_the_middel()
+        print(f"the reward is {reward}")
+        if reward> 0:
+            print_top(self.game)
             print_sidesplus(self.game)
             print_bot(self.game)
-        reward+= self.punish_back_and_forth()
-        print(reward)
         return reward
 
 
     #first only this function to test if the nn can atleast do leagal moves
     def did_an_action_do_something(self):
+        a_card_opened_or_closed = False
 
         if self.all_states and len(self.all_states)>=2 and T.equal(self.all_states[-1] ,self.all_states[-2]):
-                return -1000
+                return -10
+
         else:
+                print("action did something")
                 return 10
+
     def punish_back_and_forth(self):
         # if the state is the same after 2 moves it means that the agent just shifted the cards
         # something similar might happen after 4 moves
@@ -69,6 +75,15 @@ class Storage:
             if T.equal(self.all_states[-1],self.all_states[-5]):
                 return -10
         return 1
+    def put_card_in_the_middel(self)->int:
+        # the middel list are supposed to be the last 8 list in the state tensor
+        if self.all_states and len(self.all_states)>=2:
+            if not T.equal(self.all_states[-1][728:1144], self.all_states[-2][728:1144]):
+                return 10
+
+        return 0
+    def card_fromplayer_toboard(self):
+        pass
 
     def initialize_actions(self)->T.tensor:
         actions_firstoutputlayer=[

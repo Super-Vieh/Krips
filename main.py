@@ -22,18 +22,18 @@ def main():
 
 
 
-        #game1 = Spiel()
-        #db = Datenbank()
-        #newdeck1 = game1.kartenDeckErstellung()
-        #newdeck2 = game1.kartenDeckErstellung()
+    #game1 = Spiel()
+    #db = Datenbank()
+    #newdeck1 = game1.kartenDeckErstellung()
+    #newdeck2 = game1.kartenDeckErstellung()
 
-        #random.shuffle(newdeck1)
-        #random.shuffle(newdeck2)
+    #random.shuffle(newdeck1)
+    #random.shuffle(newdeck2)
 
-        #spieler1 = Spieler(1, newdeck1)
-        #spieler2 = Spieler(2, newdeck2)
-        #game1.spieler1 = spieler1
-        #game1.spieler2 = spieler2
+    #spieler1 = Spieler(1, newdeck1)
+    #spieler2 = Spieler(2, newdeck2)
+    #game1.spieler1 = spieler1
+    #game1.spieler2 = spieler2
 
     #db.game=game1
 
@@ -41,28 +41,26 @@ def main():
 
     # Mega wichtig initialisiert das Spiel in Spieler sind zwei funktionen. Problem wegen circular import
     # wird über eine quasi setter funktion in der _init_ gemacht
-        #initialize(game1, spieler1, spieler2)
+    #initialize(game1, spieler1, spieler2)
 
 
-        #spieler1.ersteAktion()
-        #spieler2.ersteAktion()
-        #game1.game_first_move()
-        #initialize_paechen(game1)
+    #spieler1.ersteAktion()
+    #spieler2.ersteAktion()
+    #game1.game_first_move()
+    #initialize_paechen(game1)
 
 
 
-
-    #play_from_db(game1,db,6)
-    #gui = GUI(game1)
-    #gui.instance()
+        #play_from_db(game1,db,6)
+        #gui = GUI(game1)
+        #gui.instance()
     #play_init(game1)
-    #play_console(game1,db)
-    #pygame.quit()
+        #play_console(game1,db)
+        #pygame.quit()
 
 
 
-
-#db.verbindung_schliessen()
+        #db.verbindung_schliessen()
 
 
 

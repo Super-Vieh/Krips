@@ -63,27 +63,30 @@ class Spieler:
         spp2= self.game.spieler2Paechen
         if   packchen == 1:
             #Päckchen 1 ist das Dreizehner Päckchen
-            if   self.spielernummer == 1 and spp1:
+            if   self.spielernummer == 1 and drz1:
                 drz1[-1].karteOffen = True
-            elif self.spielernummer == 2 and spp2: drz2[-1].karteOffen = True
+            elif self.spielernummer == 2 and drz2:
+                drz2[-1].karteOffen = True
+            else:return None
         elif packchen == 0:
             #Päckchen 0 ist das Normale Päckchen
             if   self.spielernummer == 1 and spp1: spp1[-1].karteOffen = True
             elif self.spielernummer == 2 and spp2: spp2[-1].karteOffen = True
-
+            else:return None
 
     def mitteHinlegen(self,stelle:int,origin:list[Karten]):
         midliste = self.game.mittlereliste[stelle-1]#Es wird die liste ausgesucht aus den listen also stelle 1 ist [0]
         #Nur wenn das Ass gelegt wird
         if origin and origin[-1].kartenwert.value==1:
             #Wenn als erste Karte das Ass gelegt wird muss sichergegangen werden dass, das Ass zum Feld passt
-            if stelle in [1,2] and origin[-1].kartentyp.value == "Pik":
+            #Und es wird überprüftt das das ass nicht 2 mal auf das gleiche feld gelegt werden kann
+            if stelle in [1,2] and origin[-1].kartentyp.value == "Pik" and len(midliste) == 0:
                 midliste.append(origin.pop())
-            elif stelle in [3,4] and origin[-1].kartentyp.value == "Coeur":
+            elif stelle in [3,4] and origin[-1].kartentyp.value == "Coeur" and len(midliste) == 0:
                 midliste.append(origin.pop())
-            elif stelle in [5,6] and origin[-1].kartentyp.value == "Treff":
+            elif stelle in [5,6] and origin[-1].kartentyp.value == "Treff" and len(midliste) == 0:
                 midliste.append(origin.pop())
-            elif stelle in [7,8] and origin[-1].kartentyp.value == "Karro":
+            elif stelle in [7,8] and origin[-1].kartentyp.value == "Karro" and len(midliste) == 0:
                 midliste.append(origin.pop())
         #Normale bedingung
         elif origin and self.kannMitteHinlegen(origin[len(origin)-1], stelle):

@@ -326,37 +326,113 @@ class Spiel:
                     self.current.wegen_krips_aufhoeren()
                 if first!="K" and first!="R":
                     print("Ungültige Aktion.")
+    def case_aa(self,second:int,fourth:int):
+        try:
+            if second==0 and fourth == 1 and self.current.spielernummer == 1 and self.spieler1Paechen[-1].karteOffen == True:
+                #if the card comes from the normal package and goes to the haufen it is checked if the last card is open and to which list it belongs to
+                self.current.aufhoeren()
+            if second == 0 and fourth == 1 and self.current.spielernummer == 2 and self.spieler2Paechen[-1].karteOffen == True:
+                self.current.aufhoeren()
+        except IndexError:
+            self.current.resetHaufen()
+        if second == fourth and second == 0:
+            self.current.karte_aufdecken(0)
+        elif second == fourth and second ==2:
+            self.current.karte_aufdecken(1)
+        self.wouldbeKrips = self.current.ist_krips()
+
+
+    def case_as(self,second:int,fourth:int):
+        spieler1liste_lastcard_exists = self.spieler1listen[second] and self.spieler1listen[second][-1] and self.spieler1listen[second][-1].karteOffen== True
+        spieler2liste_lastcard_exists = self.spieler2listen[second] and self.spieler2listen[second][-1] and self.spieler2listen[second][-1].karteOffen== True
+        if self.current.spielernummer == 1 and spieler1liste_lastcard_exists:
+           self.current.seiteHinlegen(fourth, self.spieler1listen[second])
+        if self.current.spielernummer == 2 and spieler2liste_lastcard_exists:
+           self.current.seiteHinlegen(fourth, self.spieler2listen[second])
+        self.wouldbeKrips = self.current.ist_krips()
+    def case_am(self,second:int,fourth:int):
+        spieler1liste_lastcard_exists = self.spieler1listen[second] and self.spieler1listen[second][-1] and self.spieler1listen[second][-1].karteOffen== True
+        spieler2liste_lastcard_exists = self.spieler2listen[second] and self.spieler2listen[second][-1] and self.spieler2listen[second][-1].karteOffen== True
+        if self.current.spielernummer == 1 and spieler1liste_lastcard_exists:
+            self.current.mitteHinlegen(fourth, self.spieler1listen[second])
+        if self.current.spielernummer == 2 and spieler2liste_lastcard_exists:
+            self.current.mitteHinlegen(fourth, self.spieler2listen[second])
+        self.wouldbeKrips = self.current.ist_krips()
+
+        if self.current.spielernummer == 1:
+            self.current.krips_karte_gespielt(self.spieler1listen[second])
+        if self.current.spielernummer == 2:
+            self.current.krips_karte_gespielt(self.spieler2listen[second])
+    def case_ag(self,second:int):
+        spieler1liste_lastcard_exists = self.spieler1listen[second] and self.spieler1listen[second][-1] and self.spieler1listen[second][-1].karteOffen== True
+        spieler2liste_lastcard_exists = self.spieler2listen[second] and self.spieler2listen[second][-1] and self.spieler2listen[second][-1].karteOffen== True
+        if self.current.spielernummer == 1 and spieler1liste_lastcard_exists and self.spieler2listen[1] and self.spieler2listen[1][-1]:
+            self.current.gegener_geben(self.spieler1listen[second])
+        if self.current.spielernummer == 2 and spieler2liste_lastcard_exists and self.spieler1listen[1] and self.spieler1listen[1][-1]:
+            self.current.gegener_geben(self.spieler2listen[second])
+        self.wouldbeKrips = self.current.ist_krips()
+    def case_ss(self,second:int,fourth:int):
+        origin_list_exists = self.platzliste[second - 1] and self.platzliste[second - 1][-1] and self.platzliste[second - 1][-1].karteOffen== True
+        if self.current.spielernummer == 1 and origin_list_exists:
+            self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
+        if self.current.spielernummer == 2 and origin_list_exists:
+            self.current.seiteHinlegen(fourth, self.platzliste[second - 1])
+        self.wouldbeKrips = self.current.ist_krips()
+    def case_sm(self,second:int,fourth:int):
+        origin_list_exists = self.platzliste[second - 1] and self.platzliste[second - 1][-1] and self.platzliste[second - 1][-1].karteOffen== True
+
+        if self.current.spielernummer== 1 and origin_list_exists:
+            self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+        if self.current.spielernummer==2 and origin_list_exists:
+            self.current.mitteHinlegen(fourth, self.platzliste[second - 1])
+        self.wouldbeKrips = self.current.ist_krips()
+
+
+        if self.current.spielernummer == 1:
+            self.current.krips_karte_gespielt(self.platzliste[second-1])
+        if self.current.spielernummer == 2:
+            self.current.krips_karte_gespielt(self.platzliste[second-1])
+    def case_sg(self,second:int):
+        spieler1liste_lastcard_exists = self.spieler1Haufen and self.spieler1Haufen[-1] and self.platzliste and self.platzliste[second-1] and self.platzliste[second-1][-1]
+        spieler2liste_lastcard_exists = self.spieler2Haufen and self.spieler2Haufen[-1] and self.platzliste and self.platzliste[second-1] and self.platzliste[second-1][-1]
+        if self.current.spielernummer == 1 and spieler1liste_lastcard_exists:
+            self.current.gegener_geben(self.platzliste[second-1])
+        if self.current.spielernummer == 2 and spieler2liste_lastcard_exists:
+            self.current.gegener_geben(self.platzliste[second-1])
+        self.wouldbeKrips = self.current.ist_krips()
+
+    def case_kk(self):
+        if self.wouldbeKrips == True:
+            self.current.wegen_krips_aufhoeren()
+
+
+
+
     def play_nn(self,action):
-        if len(action)!=4:
-            print("actionlength is smaller than 4")
-            return None
+        print(action)
+
         first = action[0]  # Herkunftslistentyp
         second = int(action[1])  # Herkunftsliste
         third = action[2]  # Ziellistentyp
         fourth = int(action[3])  # Zielliste
         match (first, third):
             case ("A", "A"):
-                if second==0 and fourth == 1
-                    self.current.aufhoeren()
-                elif second == fourth:
-                    self.current.karte_aufdecken(second)
-                else:
-                    return None
+                self.case_aa(second,fourth)
             case ("A", "S"):
-
-                pass
+                self.case_as(second,fourth)
             case ("A", "M"):
-                pass
+                self.case_am(second,fourth)
             case ("A", "G"):
-                pass
+                self.case_ag(second)
             case ("S", "S"):
-                pass
+                self.case_ss(second,fourth)
             case ("S", "M"):
-                pass
+                self.case_sm(second, fourth)
             case ("S", "G"):
-                pass
+                self.case_sg(second)
             case ("K", "K"):
-                pass
+                self.case_kk()
+            #krips funtionalität muss noch implementiert werden
 
 
 
