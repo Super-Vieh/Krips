@@ -70,3 +70,7 @@ Output1.  K->0 , S1-S8 ->1-8,A0->9 A1->10 A2->11
 Output2.  K->0 ,S1-S8 ->1-8,M1-M8->9-16,A0->18 A1->19 A2->20, G0->21
 
 Am Ende wird für jede Aktion(in diesem Fall für jedes Aktionspaar) in einem Zustand geschätzt wie gut sie ist.
+
+
+Stand 32.03.2025 
+2500 Lines of Code | 160 Stunden Arbeit
