@@ -1,8 +1,9 @@
 # Funktionen die zu der Klasse GUI gehören - Responsive Version
 import pygame
+import Pygame_responsive
 from Pygame_Funktionen.mk_karte import MKarte
 from Klassen import Karten, KartenWert, KartenTyp
-from Pygame_Funktionen.unterstuezungs_und_navigations_funktionen_ import draw, waehle_karteaus, lege_karte_ab, hebe_karte_auf
+from Pygame_Funktionen.unterstuezungs_und_navigations_funktionen_ import draw, waehle_karteaus, indize_waehle_karteaus, lege_karte_ab, hebe_karte_auf
 
 
 def aendere_kartenformat(self, placeholder_bild, neue_breite=None) -> any:
@@ -222,27 +223,6 @@ def initialisierung_der_bilder(self):
 
 def definiere_bewegbare_karten(self):
     """Definiert welche Karten bewegbar sind"""
-    # Es wird überprüft und gesetzt ob man eine karte bewegen kann
-    jointlist = self.gamelist + self.centerlist
-    # Hier werden listen deklariert die die erste karte vom Haufen speichern
-    haufen1_k = None
-    haufen2_k = None
-    if self.game.spieler1Haufen: haufen1_k = self.game.spieler1Haufen[0]
-    if self.game.spieler2Haufen: haufen2_k = self.game.spieler2Haufen[0]
-
-    for karte in jointlist:
-        if karte.picked_up == True:
-            karte.bewegbar = False
-        # alle karten in der liste von den dargestellten karten
-        joint_list_fuer_paeckchen = self.game.platzliste + self.game.spieler1listen + self.game.spieler2listen
-        for liste in joint_list_fuer_paeckchen:
-            # alle karten in den platzlisten werden überprüft
-            if not liste:
-                continue
-
-            if karte.kard_reference is liste[-1]:
-                karte.bewegbar = True
-            if haufen1_k and karte.kard_reference is haufen1_k and self.game.current.spielernummer == 1:
-                karte.bewegbar = True
-            if haufen2_k and karte.kard_reference is haufen2_k and self.game.current.spielernummer == 2:
-                karte.bewegbar = True
+    # This function is defined in the navigation functions file
+    # Import it there if needed
+    pass
