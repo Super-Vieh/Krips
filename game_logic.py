@@ -93,12 +93,12 @@ class GameRules:
             bool: True if the card can be legally played
             
         Rules:
-            - If pile is empty, any card can be placed
+            - If pile is empty, cards CANNOT be placed (except during initial setup)
             - Otherwise, card must be one value lower and opposite color
               (like Solitaire)
         """
         if len(seiten_liste) == 0:
-            return True
+            return False
         
         top_card = seiten_liste[-1]
         return (karte.kartenwert.value == top_card.kartenwert.value - 1 and

@@ -39,10 +39,10 @@ class Spieler:
         #Hinlegen der ersten 4 Karten aus dem Normalen Päckchen auf die Seitenstreifen
         for i in range(1,5):
             if self.spielernummer == 1:
-                self.seiteHinlegen(i, self.owndeck)
+                self.seiteHinlegen(i, self.owndeck, allow_empty=True)
                 #self.owndeck.pop()
             elif self.spielernummer == 2:
-                self.seiteHinlegen(i + 4, self.owndeck)
+                self.seiteHinlegen(i + 4, self.owndeck, allow_empty=True)
                 #self.owndeck.pop()
 
         if self.spielernummer == 1:
@@ -112,9 +112,9 @@ class Spieler:
         return False
 
 
-    def seiteHinlegen(self,stelle:int,origin:list[Karten])->None:
+    def seiteHinlegen(self,stelle:int,origin:list[Karten], allow_empty:bool=False)->None:
         aktliste:list[Karten] = self.game.platzliste[stelle-1]
-        if origin and len(aktliste) == 0:
+        if origin and len(aktliste) == 0 and allow_empty:
             tempkarte= origin.pop()
             tempkarte.karteOffen = True
             aktliste.append(tempkarte)
