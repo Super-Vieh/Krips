@@ -107,6 +107,8 @@ class Spieler:
 
     def kannSeiteHinlegen(self, karte: Karten, stelle: int) -> bool:
         aktliste = self.game.platzliste[stelle-1]
+        if not aktliste:
+            return False
         if (aktliste[-1].kartenwert.value == karte.kartenwert.value + 1 and aktliste[-1].farbe != karte.farbe):
             return True
         return False
