@@ -7,16 +7,20 @@ import pygame
 from Pygame import GUI, MKarte
 from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init,play_console,initialize_paechen, play_from_db
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
-from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage
+from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 def main():
 
-    nn = DualingQNetwork(0.001,'scratch.txt')
-    nn.load_savestate()
-    agent = Agent(nn)
+    #nn = DualingQNetwork(0.01,'scratch.txt')
+    #try:
+        #nn.load_savestate()
+    #except:
+        #print("No savestate found, starting from scratch")
+    #agent = Agent(nn)
 
-    agent.training_loop(nn.optimizer,   2,0.9,1)
+    #agent.training_loop(nn.optimizer,   2,0.9,1)
 
-
+    trainer = AgentTrainer()
+    trainer.train_agents(15,0.9,0.9,0.9999)
 
 
 

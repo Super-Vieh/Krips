@@ -172,22 +172,26 @@ class Spieler:
             self.game.spieler1Haufen.append(self.game.spieler1Paechen.pop())
             self.anderreihe= False
             self.gegenspieler.anderreihe = True
+            self.game.current = self.game.spieler2
         if self.spielernummer ==2 and self.game.spieler2Paechen and self.game.spieler2Paechen[-1].karteOffen == True:
             self.game.spieler2Haufen.append(self.game.spieler2Paechen.pop())
             self.anderreihe= False
             self.gegenspieler.anderreihe= True
+            self.game.current = self.game.spieler1
     def wegen_krips_aufhoeren(self):
         if self.spielernummer == 1:
             if self.game.spieler1Paechen[-1].karteOffen == True: self.aufhoeren()
             else:
-                self.anderreihe== False
-                self.gegenspieler.anderreihe==True
+                self.anderreihe= False
+                self.gegenspieler.anderreihe=True
+                self.game.current = self.game.spieler2
             self.game.wouldbeKrips = False
         if self.spielernummer == 2:
             if self.game.spieler2Paechen[-1].karteOffen == True: self.aufhoeren()
             else:
-                self.anderreihe== False
-                self.gegenspieler.anderreihe==True
+                self.anderreihe= False
+                self.gegenspieler.anderreihe=True
+                self.game.current = self.game.spieler1
             self.game.wouldbeKrips = False
     def ist_krips(self )-> bool:
         # Kontroliert ob ein Krips gelegt werden kann. Die funktion wird in play() aufgerufen

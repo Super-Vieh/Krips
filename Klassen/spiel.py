@@ -409,7 +409,7 @@ class Spiel:
 
 
     def play_nn(self,action):
-        print(action)
+        #print(action)
 
         first = action[0]  # Herkunftslistentyp
         second = int(action[1])  # Herkunftsliste
