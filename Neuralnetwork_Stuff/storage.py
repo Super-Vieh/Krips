@@ -46,7 +46,7 @@ class Storage:
         reward+=self.did_an_action_do_something()
         reward+= self.punish_back_and_forth()
         reward+= self.put_card_in_the_middel()
-        print(f"the reward is {reward}")
+        #print(f"the reward is {reward}")
         if reward> 0:
             print_top(self.game)
             print_sidesplus(self.game)
@@ -59,28 +59,26 @@ class Storage:
         a_card_opened_or_closed = False
 
         if self.all_states and len(self.all_states)>=2 and T.equal(self.all_states[-1] ,self.all_states[-2]):
-                return -10
+                return -1
 
         else:
-                print("action did something")
-                return 10
+                return 2
 
     def punish_back_and_forth(self):
         # if the state is the same after 2 moves it means that the agent just shifted the cards
         # something similar might happen after 4 moves
         if self.all_states and len(self.all_states)==3:
             if T.equal(self.all_states[-1] , self.all_states[-3]):
-                return -10
+                return -2
         if  len(self.all_states) ==5:
             if T.equal(self.all_states[-1],self.all_states[-5]):
-                return -10
-        return 1
+                return -2
+        return 0
     def put_card_in_the_middel(self)->int:
         # the middel list are supposed to be the last 8 list in the state tensor
         if self.all_states and len(self.all_states)>=2:
             if not T.equal(self.all_states[-1][728:1144], self.all_states[-2][728:1144]):
-                return 10
-
+                return 3
         return 0
     def card_fromplayer_toboard(self):
         pass
@@ -99,6 +97,7 @@ class Storage:
         actions_secondoutputlayer_t=T.tensor(actions_secondoutputlayer, dtype=T.float32)
         return actions_firstoutputlayer_t, actions_secondoutputlayer_t
     def initialize_states(self,game:Spiel)->T.tensor:
+
         states:list=[]
         spieler_listen = []
         #spielerfeld listen is a list of all list that are on the playing field.

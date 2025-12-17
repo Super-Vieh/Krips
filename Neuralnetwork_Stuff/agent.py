@@ -14,20 +14,20 @@ class Agent():
     def __init__(self,nn:DualingQNetwork):
         self.storage = None
         self.nn = nn
-        self.game = None
-        self.spieler1 = None
-        self.spieler2 = None
+        self.game= None
+        self.spieler = None
+
 
 
     def training_loop(self,optimizer,nr_episodes,start_epsilon,discount_factor):
-        gui = GUI(self.game)
+        #gui = GUI(self.game)
 
         epsilon = start_epsilon # random rate
         for i in range(0,nr_episodes):# the number of episodes of training
             if self.game:
                 self.delete_game()
             self.initialize_game()
-            gui.game = self.game
+            #gui.game = self.game
             self.storage = Storage(self.game)
 
             done = False
@@ -44,15 +44,18 @@ class Agent():
                 action = self.select_action(epsilon,states)
                 self.game.play_nn(action)
                 next_state = self.storage.initialize_states(self.game)
+                # rewards are computed in the storageclass
                 reward = self.storage.reward()
-                if reward> 0: gui.image()
+                #if reward> 0: gui.image()
                 done = self.storage.done()
                 action1,action2 = self.decode_action(action)
                 loss = self.compute_loss(states,action1,action2,reward,next_state,done,discount_factor)
                 self.update_network(optimizer,loss)
                 states = next_state
                 if epsilon > 0.01:
-                    epsilon = epsilon*0.9999
+                    epsilon = epsilon*0.99995 # decay epsilon
+                print(f"Epsilon is now {epsilon}")
+
             self.nn.save_savestate()
 
 
@@ -68,8 +71,8 @@ class Agent():
             0:"K0",1:"S1",2:"S2",3:"S3",4:"S4",5:"S5",6:"S6",7:"S7",8:"S8",9:"M1",10:"M2",11:"M3",12:"M4",13:"M5",14:"M6",15:"M7",16:"M8",17:"A0",18:"A1",19:"A2",20:"G0"
         }
         if epsilon > np.random.random() :
-            n = np.random.randint(0,12) # returns a random integer from 0 to 11 excluding 12
-            m = np.random.randint(0,21)
+            n = np.random.randint(1,12) # returns a random integer from 0 to 11 excluding 12
+            m = np.random.randint(1,21)
             s_n = dict_action1[n]
             s_m = dict_action2[m]
             action =  s_n +s_m
@@ -79,9 +82,11 @@ class Agent():
 
         value,advantage1,advantage2=self.nn.forward(state)
         all_q_values = self.nn.combine_value_advantage(value,advantage1,advantage2)
+        all_q_values[0][0]= -np.inf  #K0K0 wird rausgenommen
         best_q_value= all_q_values.max()
+
+
         (n,m) = self.find_index_of_best_q_value(all_q_values,best_q_value)
-        print(f"indexes of best q-value: n={n} m={m}")
 
         s_n = dict_action1[n]
         s_m = dict_action2[m]
@@ -97,7 +102,7 @@ class Agent():
         }
         # first 2 letters are stringspliced and then the strings are fed ito the dict to get the int values
         action1,action2 = swapped_dict_action1[action[0:2]] , swapped_dict_action2[action[2:4]]
-        print(f"decode action: {action1} {action2}")
+        #print(f"decode action: {action1} {action2}")
         return (action1,action2)
     def find_index_of_best_q_value(self,all_q_values,target_value):
         # the goal is to find the index of the best q-value in the list
@@ -139,31 +144,38 @@ class Agent():
         loss.backward()
         optimizer.step()
 
+    def train_one_turn(self, epsilon, discount_factor, epsilon_decay=0.9995)->tuple[int,float]:
+        made_moves = 0
+        valid_moves = 0
+        total_reward = 0
+        total_loss = 0
+        while self.game.current == self.spieler and self.game.gameon:
+            # could create a bug, not sure if the game.current can be equal to the player. 
+            # Does the player object change after a move in the game?
+            made_moves += 1
+            states = self.storage.initialize_states(self.game)
+            # makes states into a tensor
 
-    def initialize_game(self):
-        self.game = Spiel()
-        newdeck1 =  self.game.kartenDeckErstellung()
-        newdeck2 =  self.game.kartenDeckErstellung()
+            action = self.select_action(epsilon, states)
 
-        random.shuffle(newdeck1)
-        random.shuffle(newdeck2)
+            self.game.play_nn(action)
+            next_state = self.storage.initialize_states(self.game)
 
-        spieler1 = Spieler(1, newdeck1)
-        spieler2 = Spieler(2, newdeck2)
-        self.game.spieler1 = spieler1
-        self.game.spieler2 = spieler2
+            if not T.equal(states, next_state):
+                valid_moves+=1
+            # rewards are computed in the storageclass
+            reward = self.storage.reward()
+            if reward > 0:
+                print(action)
+            done = self.storage.done()
+            action1, action2 = self.decode_action(action)
+            loss = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
+            self.update_network(self.nn.optimizer, loss)
+            states = next_state
+            if epsilon > 0.1:
+                epsilon = epsilon * epsilon_decay # decay epsilon
+            total_reward += reward
+            total_loss += loss.item()
 
-        self.spieler1 = spieler1
-        self.spieler2 = spieler2
+        return made_moves,valid_moves, epsilon, total_reward, total_loss
 
-        initialize( self.game, spieler1, spieler2)
-
-        spieler1.ersteAktion()
-        spieler2.ersteAktion()
-        self.game.game_first_move()
-        initialize_paechen( self.game)
-
-    def delete_game(self):
-        del self.game
-        del self.spieler1
-        del self.spieler2
