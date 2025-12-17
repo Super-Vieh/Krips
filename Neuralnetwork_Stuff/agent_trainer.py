@@ -1,6 +1,7 @@
 
 from Klassen import Spiel, Spieler, initialize_paechen, initialize
-from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage
+from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, TensorMetricBoard
+
 import random
 
 class AgentTrainer:
@@ -10,6 +11,7 @@ class AgentTrainer:
         self.initialize_agents('Agent2.txt', 'Agent1.txt')
         self.game = None
         self.current_playing_agent:Agent = None
+        self.tensorboard = TensorMetricBoard()
 
 
 
@@ -33,23 +35,34 @@ class AgentTrainer:
             nn2 = DualingQNetwork(0.005, file_Path2)
             self.agent2 = Agent(nn2)
 
-    def train_agents(self,nr_episodes,start_epsilon= 0.9,discount_factor=0.9,epsilon_decay=0.99995):
-        max_number_of_moves = 1000
+    def train_agents(self,nr_episodes,steps,start_epsilon= 0.9,discount_factor=0.9,epsilon_decay=0.99995):
+        max_number_of_moves = steps
         current_epsilon = start_epsilon
+        current_move = 0
         for episode in range(nr_episodes):
-
-            if self.game:
-                self.delete_game()
-            self.initialize_game()
             move = 0
+            self.initialize_game()
+            print("New Episode started")
             while move < max_number_of_moves and self.game.gameon:
-                made_moves,current_epsilon= self.current_playing_agent.train_one_turn(current_epsilon, discount_factor, epsilon_decay)
-                move += made_moves
                 self.check_current_agent()
+                made_moves,valid_moves, epsilon, total_reward, total_loss= self.current_playing_agent.train_one_turn(current_epsilon, discount_factor, epsilon_decay)
+                current_epsilon = epsilon
+                print(epsilon)
+                move += made_moves
+                current_move +=1
+                if total_loss != 0:
+                    reward_loss_ratio = total_reward / (-total_loss)
+                else:
+                    reward_loss_ratio = 0
+                if made_moves != 0:
+                    valid_moves_ratio = valid_moves / made_moves
+                else:
+                    valid_moves_ratio = 0
 
+                self.tensorboard.log_turn(current_move,made_moves,valid_moves, epsilon, total_reward, total_loss, reward_loss_ratio, valid_moves_ratio)
         self.agent1.nn.save_savestate()
         self.agent2.nn.save_savestate()
-
+        self.tensorboard.close()
 
 
 
@@ -95,8 +108,12 @@ class AgentTrainer:
 
         if self.agent1.spieler.anderreihe:
             self.current_playing_agent = self.agent1
+            print("der Momentane agent 1 ist "  + str(self.current_playing_agent.spieler.anderreihe)+" anderreihe")
+
+
         else:
             self.current_playing_agent = self.agent2
+            print("der Momentane agent 2 ist "  + str(self.current_playing_agent.spieler.anderreihe)+" anderreihe")
 
 
 

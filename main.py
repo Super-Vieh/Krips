@@ -20,7 +20,7 @@ def main():
     #agent.training_loop(nn.optimizer,   2,0.9,1)
 
     trainer = AgentTrainer()
-    trainer.train_agents(15,0.9,0.9,0.9999)
+    trainer.train_agents(50,1000,0.9,0.9,0.9999)
 
 
 

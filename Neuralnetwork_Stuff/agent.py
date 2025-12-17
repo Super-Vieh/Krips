@@ -146,6 +146,9 @@ class Agent():
 
     def train_one_turn(self, epsilon, discount_factor, epsilon_decay=0.9995)->tuple[int,float]:
         made_moves = 0
+        valid_moves = 0
+        total_reward = 0
+        total_loss = 0
         while self.game.current == self.spieler and self.game.gameon:
             # could create a bug, not sure if the game.current can be equal to the player. 
             # Does the player object change after a move in the game?
@@ -154,8 +157,12 @@ class Agent():
             # makes states into a tensor
 
             action = self.select_action(epsilon, states)
+
             self.game.play_nn(action)
             next_state = self.storage.initialize_states(self.game)
+
+            if not T.equal(states, next_state):
+                valid_moves+=1
             # rewards are computed in the storageclass
             reward = self.storage.reward()
             if reward > 0:
@@ -167,5 +174,8 @@ class Agent():
             states = next_state
             if epsilon > 0.1:
                 epsilon = epsilon * epsilon_decay # decay epsilon
+            total_reward += reward
+            total_loss += loss.item()
 
-        return made_moves, epsilon
+        return made_moves,valid_moves, epsilon, total_reward, total_loss
+

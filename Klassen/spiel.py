@@ -82,12 +82,12 @@ class Spiel:
                 for karte in range(4):  #geht durch die ersten 4 plätze auf jeder seite durch und vergleich sie
 
                     if (self.platzliste[karte][0].kartenwert.value > self.platzliste[karte + 4][0].kartenwert.value):
-                        self.spieler1.anderreihe = True
                         print("Schleife engaged Spieler1 ist drann?", self.spieler1.anderreihe)
+                        self.current= self.spieler1
                         return None
                     elif (self.platzliste[karte][0].kartenwert.value < self.platzliste[karte + 4][0].kartenwert.value):
-                        self.spieler2.anderreihe = True
                         print("Schleife engaged Spieler2 ist drann?", self.spieler2.anderreihe)
+                        self.current = self.spieler2
                         return None
 
     def play(self,action):
