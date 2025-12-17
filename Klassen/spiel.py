@@ -4,46 +4,50 @@ from .spieler import Spieler
 # Die anfangsanktionen werden hier durchgeführt.(kartendeck erstellung, game_first_move)
 # Das Spiel wird hier gestartet und die Aktionen der Spieler werden hier durchgeführt nach dem Algorithmus der Funktion play().
 class Spiel:
-    current: Spieler = None
-    gameon = True
-    wouldbeKrips = False
-    winner = 0 #
-    spieler1: Spieler
-    spieler2: Spieler
-    #Mitte listen
-    pik1: list[Karten] = []
-    pik2: list[Karten] = []
-    coeur1: list[Karten] = []
-    coeur2: list[Karten] = []
-    treff1: list[Karten] = []
-    treff2: list[Karten] = []
-    karro1: list[Karten] = []
-    karro2: list[Karten] = []
-    mittlereliste = [pik1, pik2, coeur1, coeur2, treff1, treff2, karro1, karro2]
-    #Seitenlisten
-    platzliste1: list[Karten] = []
-    platzliste2: list[Karten] = []
-    platzliste3: list[Karten] = []
-    platzliste4: list[Karten] = []
-    platzliste5: list[Karten] = []
-    platzliste6: list[Karten] = []
-    platzliste7: list[Karten] = []
-    platzliste8: list[Karten] = []
-    platzliste = [platzliste1, platzliste2, platzliste3, platzliste4, platzliste5, platzliste6, platzliste7,
-                  platzliste8]
-    #Spielerlisten
-    spieler1Haufen: list[Karten] = []
-    spieler1Paechen: list[Karten] = []
-    spieler1Dreizehner: list[Karten] = []
-    spieler1listen = []
 
-    spieler2Haufen: list[Karten] = []
-    spieler2Paechen: list[Karten] = []
-    spieler2Dreizehner: list[Karten] = []
-    spieler2listen = []
+    def __init__(self):
+        self.current: Spieler = None
+        self.gameon = True
+        self.wouldbeKrips = False
+        self.winner = 0 #
+        self.spieler1: Spieler = None
+        self.spieler2: Spieler = None
+        #Mitte listen
+        self.pik1: list[Karten] = []
+        self.pik2: list[Karten] = []
+        self.coeur1: list[Karten] = []
+        self.coeur2: list[Karten] = []
+        self.treff1: list[Karten] = []
+        self.treff2: list[Karten] = []
+        self.karro1: list[Karten] = []
+        self.karro2: list[Karten] = []
+        self.mittlereliste = [self.pik1, self.pik2, self.coeur1, self.coeur2, self.treff1, self.treff2, self.karro1, self.karro2]
+        #Seitenlisten
+        self.platzliste1: list[Karten] = []
+        self.platzliste2: list[Karten] = []
+        self.platzliste3: list[Karten] = []
+        self.platzliste4: list[Karten] = []
+        self.platzliste5: list[Karten] = []
+        self.platzliste6: list[Karten] = []
+        self.platzliste7: list[Karten] = []
+        self.platzliste8: list[Karten] = []
+        self.platzliste = [self.platzliste1, self.platzliste2, self.platzliste3, self.platzliste4, self.platzliste5, self.platzliste6, self.platzliste7,
+                      self.platzliste8]
+        #Spielerlisten
+        self.spieler1Haufen: list[Karten] = []
+        self.spieler1Paechen: list[Karten] = []
+        self.spieler1Dreizehner: list[Karten] = []
+        self.spieler1listen = []
 
-    stalemate_counter=0
-    last_playerpackages_length=[]
+        self.spieler2Haufen: list[Karten] = []
+        self.spieler2Paechen: list[Karten] = []
+        self.spieler2Dreizehner: list[Karten] = []
+        self.spieler2listen = []
+
+        self.stalemate_counter=0
+        self.last_playerpackages_length=[]
+
+
     def kartenDeckErstellung(self) -> list[Karten]:
         templist = []  # Speichert die Karten
         kartentyp = list(KartenTyp)
