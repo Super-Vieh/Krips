@@ -42,6 +42,8 @@ class AgentTrainer:
         for episode in range(nr_episodes):
             move = 0
             self.initialize_game()
+            self.set_game_for_agent(self.agent1)
+            self.set_game_for_agent(self.agent2)
             print("New Episode started")
             while move < max_number_of_moves and self.game.gameon:
                 self.check_current_agent()
@@ -102,7 +104,7 @@ class AgentTrainer:
         spieler2.ersteAktion()
         self.game.game_first_move()
         initialize_paechen(self.game)
-
+        print("Die länge "+ str(len(self.game.spieler1Paechen)))
         self.agent1.storage = Storage(self.game)
         self.agent2.storage = Storage(self.game)
 
@@ -131,3 +133,5 @@ class AgentTrainer:
                 self.current_playing_agent = self.agent2
             else:
                 self.current_playing_agent = self.agent1
+    def set_game_for_agent(self,agent:Agent):
+        agent.game = self.game
