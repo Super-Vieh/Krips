@@ -4,6 +4,9 @@ from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, TensorMetricBoa
 
 import random
 
+from Neuralnetwork_Stuff.reward_engine import RewardEngine
+
+
 class AgentTrainer:
     def __init__(self):
         self.agent1:Agent = None
@@ -12,6 +15,7 @@ class AgentTrainer:
         self.game = None
         self.current_playing_agent:Agent = None
         self.tensorboard = TensorMetricBoard()
+
 
 
 
@@ -104,18 +108,19 @@ class AgentTrainer:
         spieler2.ersteAktion()
         self.game.game_first_move()
         initialize_paechen(self.game)
-        print("Die länge "+ str(len(self.game.spieler1Paechen)))
+
         self.agent1.storage = Storage(self.game)
         self.agent2.storage = Storage(self.game)
-
+        self.agent1.reward_engine = RewardEngine(self.game,self.agent1.storage)
+        self.agent2.reward_engine = RewardEngine(self.game,self.agent2.storage)
         if self.agent1.spieler.anderreihe:
             self.current_playing_agent = self.agent1
-            print("der Momentane agent 1 ist "  + str(self.current_playing_agent.spieler.anderreihe)+" anderreihe")
+
 
 
         else:
             self.current_playing_agent = self.agent2
-            print("der Momentane agent 2 ist "  + str(self.current_playing_agent.spieler.anderreihe)+" anderreihe")
+
 
 
 

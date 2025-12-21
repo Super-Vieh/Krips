@@ -36,53 +36,6 @@ class Storage:
         else:
             return False
 
-    def reward(self):
-        reward = 0
-        #[0] and [1] if current state are list with the cards of player1 and player2
-        #[2] and [3] are the lists of the playing field 3 is the list with the sidelists and 4 is the list with the centerlists
-        #every ellement in the tuple is a list of lists
-        current_state= self.initialize_states(self.game)
-        self.all_states.append(current_state)
-        reward+=self.did_an_action_do_something()
-        reward+= self.punish_back_and_forth()
-        reward+= self.put_card_in_the_middel()
-        #print(f"the reward is {reward}")
-        if reward> 0:
-            print_top(self.game)
-            print_sidesplus(self.game)
-            print_bot(self.game)
-        return reward
-
-
-    #first only this function to test if the nn can atleast do leagal moves
-    def did_an_action_do_something(self):
-        a_card_opened_or_closed = False
-
-        if self.all_states and len(self.all_states)>=2 and T.equal(self.all_states[-1] ,self.all_states[-2]):
-                return -1
-
-        else:
-                return 2
-
-    def punish_back_and_forth(self):
-        # if the state is the same after 2 moves it means that the agent just shifted the cards
-        # something similar might happen after 4 moves
-        if self.all_states and len(self.all_states)==3:
-            if T.equal(self.all_states[-1] , self.all_states[-3]):
-                return -2
-        if  len(self.all_states) ==5:
-            if T.equal(self.all_states[-1],self.all_states[-5]):
-                return -2
-        return 0
-    def put_card_in_the_middel(self)->int:
-        # the middel list are supposed to be the last 8 list in the state tensor
-        if self.all_states and len(self.all_states)>=2:
-            if not T.equal(self.all_states[-1][728:1144], self.all_states[-2][728:1144]):
-                return 3
-        return 0
-    def card_fromplayer_toboard(self):
-        pass
-
     def initialize_actions(self)->T.tensor:
         actions_firstoutputlayer=[
             0,1,2,3,4,5,6,7,8,9,10,11,
@@ -96,7 +49,28 @@ class Storage:
         actions_firstoutputlayer_t=T.tensor(actions_firstoutputlayer, dtype=T.float32)
         actions_secondoutputlayer_t=T.tensor(actions_secondoutputlayer, dtype=T.float32)
         return actions_firstoutputlayer_t, actions_secondoutputlayer_t
+
+
     def initialize_states(self,game:Spiel)->T.tensor:
+        """
+        SPIELER 1:
+        [0:52]     -> Spieler 1 Päckchen (Handkarten)
+        [52:104]   -> Spieler 1 Haufen (Ablagestapel)
+        [104:156]  -> Spieler 1 Dreizehner
+
+        SPIELER 2:
+        [156:208]  -> Spieler 2 Päckchen (Handkarten)
+        [208:260]  -> Spieler 2 Haufen (Ablagestapel)
+        [260:312]  -> Spieler 2 Dreizehner
+
+        SPIELFELD Seitenplätze:
+        [312:728]  -> Platzliste 8 Listen * 52
+        (z.B. Platz 1 ist 312:364, Platz 2 ist 364:416, ...)
+
+        SPIELFELD Mitte:
+        [728:1144] -> Mittelliste 8 Listen * 52
+        """
+
 
         states:list=[]
         spieler_listen = []
@@ -105,13 +79,13 @@ class Storage:
         spielfeld_listen = game.platzliste+game.mittlereliste
 
         #spieler listen is a list of all lists that belong to the players the list itself is also a list of list
-        # but the game.spieler1 and game.spieler2 list are only sipmle lists
-        spieler_listen.append(game.spieler1Haufen)
+        # but the game.spieler1 and game.spieler2 list are only simple lists
         spieler_listen.append(game.spieler1Paechen)
+        spieler_listen.append(game.spieler1Haufen)
         spieler_listen.append(game.spieler1Dreizehner)
 
-        spieler_listen.append(game.spieler2Haufen)
         spieler_listen.append(game.spieler2Paechen)
+        spieler_listen.append(game.spieler2Haufen)
         spieler_listen.append(game.spieler2Dreizehner)
 
 

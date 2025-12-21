@@ -5,6 +5,8 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
+from Neuralnetwork_Stuff.reward_engine import RewardEngine
 from Neuralnetwork_Stuff.storage import Storage
 from Neuralnetwork_Stuff.qualing_q_learning import DualingQNetwork
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert,initialize_paechen,initialize
@@ -16,6 +18,7 @@ class Agent():
         self.nn = nn
         self.game= None
         self.spieler = None
+        self.reward_engine = None
 
 
 
@@ -57,7 +60,6 @@ class Agent():
                 print(f"Epsilon is now {epsilon}")
 
             self.nn.save_savestate()
-
 
 
 
@@ -164,7 +166,7 @@ class Agent():
             if not T.equal(states, next_state):
                 valid_moves+=1
             # rewards are computed in the storageclass
-            reward = self.storage.reward()
+            reward = self.reward_engine.reward()
             if reward > 0:
                 print(action)
             done = self.storage.done()
@@ -172,7 +174,7 @@ class Agent():
             loss = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
             self.update_network(self.nn.optimizer, loss)
             states = next_state
-            if epsilon > 0.1:
+            if epsilon > 0.5:
                 epsilon = epsilon * epsilon_decay # decay epsilon
             total_reward += reward
             total_loss += loss.item()
