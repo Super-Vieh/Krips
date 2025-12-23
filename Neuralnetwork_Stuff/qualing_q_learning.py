@@ -13,9 +13,9 @@ class DualingQNetwork(nn.Module):
         self.savestate_file = os.path.join(self.savestate_dir, savestate_file_name)
         self.learning_rate = learning_rate
         #self.states:T.Tensor = None
-        self.inputlayer=nn.Linear(1144,700)
-        self.linearlayer2=nn.Linear(700,200)
-        self.linearlayer3=nn.Linear(200,128)
+        self.inputlayer=nn.Linear(1144,2000)
+        self.linearlayer2=nn.Linear(2000,500)
+        self.linearlayer3=nn.Linear(500,128)
         self.valuelayer1=nn.Linear(128,64)
         self.valueoutputlayer=nn.Linear(64,1)
         self.advantagelayer1=nn.Linear(128,64)

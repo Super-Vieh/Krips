@@ -14,12 +14,12 @@ class RewardEngine():
         #every ellement in the tuple is a list of lists
         current_state= self.storage.initialize_states(self.game)
         self.storage.all_states.append(current_state)
-        if self.did_an_action_do_something(): reward+=0.1#; print("action did something")
+        if not self.did_an_action_do_something():reward-=0.1#; print("action did something")
         if self.punish_back_and_forth(): reward-=0.2#; print("back and forth punished")
         if self.put_card_in_the_middel(): reward+=0.3 #; print("card in the middel")
         if self.card_fromplayer_toboard(): reward+=0.1 #; print("card from player to board")
-        if self.did_end_move(): reward-=0.2#; print("did end move")
-        if self.count_additional_spaces(): reward += self.count_additional_spaces()*0.1#;print("created space")
+        if self.did_end_move(): reward=0.01#; print("did end move")
+        if self.count_additional_spaces(): reward += self.count_additional_spaces()*0.15#;print("created space")
         #print(f"the reward is {reward}")
         #if reward> 0:
         #    print_top(self.game)

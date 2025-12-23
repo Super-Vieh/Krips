@@ -133,7 +133,7 @@ class Spiel:
         print(f"{self.current.spielernummer} ist drann")
 
 
-        print(action)
+        #print(action)
         match (lenaction, action):
                 case (1, "P"):
                     self.current.aufhoeren()

@@ -19,8 +19,9 @@ def main():
 
     #agent.training_loop(nn.optimizer,   2,0.9,1)
 
-    trainer = AgentTrainer()
-    trainer.train_agents(15,1000,0.9,0.9,0.9999)
+    for i in range(0,40):
+        trainer = AgentTrainer()
+        trainer.train_agents(5,2000,0.9,0.9,0.9999)
 
 
 

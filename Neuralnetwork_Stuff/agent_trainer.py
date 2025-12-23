@@ -22,21 +22,21 @@ class AgentTrainer:
     def initialize_agents(self, file_Path1, file_Path2):
 
         try:
-            nn1 = DualingQNetwork(0.005, file_Path1)
+            nn1 = DualingQNetwork(0.05, file_Path1)
             nn1.load_savestate()
             self.agent1 =Agent(nn1)
         except:
             print("No savestate found for agent 1, starting from scratch")
-            nn1 = DualingQNetwork(0.005, file_Path1)
+            nn1 = DualingQNetwork(0.05, file_Path1)
             self.agent1 = Agent(nn1)
 
         try:
-            nn2 = DualingQNetwork(0.005, file_Path2)
+            nn2 = DualingQNetwork(0.05, file_Path2)
             nn2.load_savestate()
             self.agent2 =Agent(nn2)
         except:
             print("No savestate found for agent 2, starting from scratch")
-            nn2 = DualingQNetwork(0.005, file_Path2)
+            nn2 = DualingQNetwork(0.05, file_Path2)
             self.agent2 = Agent(nn2)
 
     def train_agents(self,nr_episodes,steps,start_epsilon= 0.9,discount_factor=0.9,epsilon_decay=0.99995):
@@ -68,7 +68,6 @@ class AgentTrainer:
                 self.tensorboard.log_turn(current_move,made_moves,valid_moves, epsilon, total_reward, total_loss, reward_loss_ratio, valid_moves_ratio)
         self.agent1.nn.save_savestate()
         self.agent2.nn.save_savestate()
-        self.tensorboard.close()
 
 
 

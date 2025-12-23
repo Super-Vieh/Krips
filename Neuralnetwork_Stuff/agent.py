@@ -37,7 +37,7 @@ class Agent():
             max_number_of_moves = 10000
             while not done and  max_number_of_moves > 0:
                 max_number_of_moves -= 1
-                print(max_number_of_moves)
+
                 if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
                 elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
 
@@ -57,7 +57,7 @@ class Agent():
                 states = next_state
                 if epsilon > 0.01:
                     epsilon = epsilon*0.99995 # decay epsilon
-                print(f"Epsilon is now {epsilon}")
+                #print(f"Epsilon is now {epsilon}")
 
             self.nn.save_savestate()
 
@@ -167,8 +167,9 @@ class Agent():
                 valid_moves+=1
             # rewards are computed in the storageclass
             reward = self.reward_engine.reward()
+
             if reward > 0:
-                print(action)
+                reward*made_moves*0.999 # gives more reward for finishing slower
             done = self.storage.done()
             action1, action2 = self.decode_action(action)
             loss = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
