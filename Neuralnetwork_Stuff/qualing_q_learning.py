@@ -24,8 +24,8 @@ class DualingQNetwork(nn.Module):
         self.valuelayer1=nn.Linear(256,64)
         self.valueoutputlayer=nn.Linear(64,1)
         self.advantagelayer1=nn.Linear(1024,256)
-        self.advantage_fullyconnected_outputlayer=nn.Linear(256,12)
-        self.advantageoutputlayer=nn.Linear(12,21)
+        self.advantageOuput1=nn.Linear(256,12)
+        self.advantageOuput2=nn.Linear(256,21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss = nn.MSELoss()
@@ -62,11 +62,12 @@ class DualingQNetwork(nn.Module):
         advantageinput = self.advantagelayer1(thirdlayer)
         advantageinput = F.relu(advantageinput)
         # no activation fuction for the output
-        advantagefullyconnectedoutput = self.advantage_fullyconnected_outputlayer(advantageinput)
+        #12 actions
+        avantage1 = self.advantageOuput1(advantageinput)
+        #21 actions
+        avantage2 = self.advantageOuput2(advantageinput)
 
-        advantageoutput = self.advantageoutputlayer(advantagefullyconnectedoutput)
-
-        return valueoutput, advantagefullyconnectedoutput, advantageoutput
+        return valueoutput, avantage1, avantage2
 
 
     def combine_value_advantage(self,value, advantage1, advantage2):
