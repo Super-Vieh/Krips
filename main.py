@@ -21,7 +21,7 @@ def main():
 
     for i in range(0,40):
         trainer = AgentTrainer()
-        trainer.train_agents(5,2000,0.9,0.9,0.9999)
+        trainer.train_agents(1,2000,0.9,0.9,0.9999)
 
 
 

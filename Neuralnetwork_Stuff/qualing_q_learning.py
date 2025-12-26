@@ -13,13 +13,18 @@ class DualingQNetwork(nn.Module):
         self.savestate_file = os.path.join(self.savestate_dir, savestate_file_name)
         self.learning_rate = learning_rate
         #self.states:T.Tensor = None
-        self.inputlayer=nn.Linear(1144,2000)
-        self.linearlayer2=nn.Linear(2000,500)
-        self.linearlayer3=nn.Linear(500,128)
-        self.valuelayer1=nn.Linear(128,64)
+        # input ist 22 *52 = 1144
+
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3,padding=1)
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=16, kernel_size=3,padding=1)
+
+        self.linearlayer=nn.Linear(16*52*22,1024)
+
+        self.valuelayer0=nn.Linear(1024,256)
+        self.valuelayer1=nn.Linear(256,64)
         self.valueoutputlayer=nn.Linear(64,1)
-        self.advantagelayer1=nn.Linear(128,64)
-        self.advantage_fullyconnected_outputlayer=nn.Linear(64,12)
+        self.advantagelayer1=nn.Linear(1024,256)
+        self.advantage_fullyconnected_outputlayer=nn.Linear(256,12)
         self.advantageoutputlayer=nn.Linear(12,21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -30,22 +35,27 @@ class DualingQNetwork(nn.Module):
 
 
     def forward(self,states):
-
+        states = states.view(1,1,22,52)
+        # konversion der inputdaten in ein 4d tensor
         states = states.to(self.device)
         #here are the first 3 layers
         # die inputdaten(states(als tensor)) werden in die erste lineare schicht gegeben und die ergebnisse der gewichtug wird gespeichert
-        input = self.inputlayer(states)
+        input = self.conv1(states)
         input = F.relu(input) # das ergebniss der gewichte wird durch die relu funktion gegeben und gespeichert.
-        secondlayer = self.linearlayer2(input)
+        secondlayer = self.conv2(input)
         secondlayer = F.relu(secondlayer)
-        thirdlayer = self.linearlayer3(secondlayer)
+        secondlayer = T.flatten(secondlayer, 1)
+        #flatten function 16 channels of 22x52 size to one vector
+        thirdlayer = self.linearlayer(secondlayer)
         thirdlayer = F.relu(thirdlayer)
         #here is the dualing part
         # the value stream
-        valueinput = self.valuelayer1(thirdlayer)
+        valueinput = self.valuelayer0(thirdlayer)
         valueinput = F.relu(valueinput)
+        value1 = self.valuelayer1(valueinput)
+        value1 = F.relu(value1)
         # no activation fuction for the output
-        valueoutput = self.valueoutputlayer(valueinput)
+        valueoutput = self.valueoutputlayer(value1)
 
 
         # the advantage stream
@@ -63,15 +73,18 @@ class DualingQNetwork(nn.Module):
         # the unsequeeze function adds a dimension to the tensor it makes it a list of lists with only one list containig all elements
         # for the opperations to work on  the tensors,they need to be a centain shape
         # here the unsqueeze 1 makes the adv1 tensor in the shape of (N,1) the 0 makes adv2 in the shape of (1,M)
-        adv1 = advantage1.unsqueeze(1)
-        adv2 = advantage2.unsqueeze(0)
+        adv1 = advantage2.unsqueeze(1)
+        adv2 = advantage1.unsqueeze(2)
 
         # the pair_mean is also now a list of list.
         # it is like a nested for loop where the first element of adv1 is seperatly added to all elements of adv2 creating a 1d list
         # then the second element of adv1 is seperatly added to all elements of adv2 creating a 1d and so on
         #these 1d list are as long as there are elements in adv2 and as many as there are elements in adv1
         # pair_mean = [N][M]
-        pair_mean = (adv1 + adv2) / 2
+        #print(adv1)
+        #print(adv2)
+        pair_mean = (adv2+adv1) / 2
+
 
         # the overall_mean is the scalar of all pairs of N and M
         # it takes the mean of MxN pairs
@@ -81,9 +94,12 @@ class DualingQNetwork(nn.Module):
         # the advantage is calculated by how good the pair values are compared to the average values
         # and the value is the value of the state so it is always present
         q_values = value + pair_mean - overall_mean
+
         # P.S. this is a heavily simplified version done by a LLM.
         # my version was python algorith based and not tensor based thus extremly slow the idea was the same though
-        return q_values
+        return q_values.squeeze(0)
+
+
 
 
 
