@@ -11,7 +11,7 @@ class AgentTrainer:
     def __init__(self):
         self.agent1:Agent = None
         self.agent2:Agent = None
-        self.initialize_agents('Agent2.txt', 'Agent1.txt')
+        self.initialize_agents()
         self.game = None
         self.current_playing_agent:Agent = None
         self.tensorboard = TensorMetricBoard()
