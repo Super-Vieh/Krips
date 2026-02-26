@@ -14,18 +14,21 @@ class DualingQNetwork(nn.Module):
         self.learning_rate = learning_rate
         #self.states:T.Tensor = None
         self.inputlayer=nn.Linear(1144,2000)
-        self.linearlayer2=nn.Linear(2000,500)
-        self.linearlayer3=nn.Linear(500,128)
-        self.valuelayer1=nn.Linear(128,64)
+        self.linearlayer2=nn.Linear(2000,1000)
+        self.linearlayer3=nn.Linear(1000,512)
+        self.valuelayer0=nn.Linear(512,256)
+        self.valuelayer1=nn.Linear(256,64)
         self.valueoutputlayer=nn.Linear(64,1)
-        self.advantagelayer1=nn.Linear(128,64)
-        self.advantage_fullyconnected_outputlayer=nn.Linear(64,12)
-        self.advantageoutputlayer=nn.Linear(12,21)
+        self.advantagelayer1=nn.Linear(512,256)
+        self.advantageOutput1=nn.Linear(256, 12)
+        #the first advantage layer is added to the second layer so it has knowledge of the second.
+        self.advantageOutput2=nn.Linear(268, 21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss = nn.MSELoss()
         self.device = T.device('cuda:0' if T.cuda.is_available() else 'cpu')
         self.to(self.device)
+
 
 
 
@@ -42,21 +45,28 @@ class DualingQNetwork(nn.Module):
         thirdlayer = F.relu(thirdlayer)
         #here is the dualing part
         # the value stream
-        valueinput = self.valuelayer1(thirdlayer)
-        valueinput = F.relu(valueinput)
+        valueinput1 = self.valuelayer0(thirdlayer)
+        valueinput1 = F.relu(valueinput1)
+        valueinput2 = self.valuelayer1(valueinput1)
+        valueinput2 = F.relu(valueinput2)
+
         # no activation fuction for the output
-        valueoutput = self.valueoutputlayer(valueinput)
+        valueoutput = self.valueoutputlayer(valueinput2)
 
 
         # the advantage stream
-        advantageinput = self.advantagelayer1(thirdlayer)
-        advantageinput = F.relu(advantageinput)
+        advantageinput1 = self.advantagelayer1(thirdlayer)
+        advantageinput1 = F.relu(advantageinput1)
+
         # no activation fuction for the output
-        advantagefullyconnectedoutput = self.advantage_fullyconnected_outputlayer(advantageinput)
+        #12 actions
+        avantage1 = self.advantageOutput1(advantageinput1)
+        advantageinput2 = T.cat((avantage1,advantageinput1),dim=0)
+        #21 actions
+        avantage2 = self.advantageOutput2(advantageinput2)
 
-        advantageoutput = self.advantageoutputlayer(advantagefullyconnectedoutput)
+        return valueoutput, avantage1, avantage2
 
-        return valueoutput, advantagefullyconnectedoutput, advantageoutput
 
 
     def combine_value_advantage(self,value, advantage1, advantage2):
@@ -83,7 +93,7 @@ class DualingQNetwork(nn.Module):
         q_values = value + pair_mean - overall_mean
         # P.S. this is a heavily simplified version done by a LLM.
         # my version was python algorith based and not tensor based thus extremly slow the idea was the same though
-        return q_values
+        return q_values.squeeze(0)
 
 
 
