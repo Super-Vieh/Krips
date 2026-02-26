@@ -15,8 +15,8 @@ class DualingQNetwork(nn.Module):
         #self.states:T.Tensor = None
         # input ist 22 *52 = 1144
 
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3,padding=1)
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=16, kernel_size=3,padding=1)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channnels=32, kernel_size=3,padding=1)
+        self.conv2 = nn.Conv2d(in_channels=32, out_chanels=16, kernel_size=3,padding=1)
 
         self.linearlayer=nn.Linear(16*52*22,1024)
 
@@ -25,7 +25,8 @@ class DualingQNetwork(nn.Module):
         self.valueoutputlayer=nn.Linear(64,1)
         self.advantagelayer1=nn.Linear(1024,256)
         self.advantageOuput1=nn.Linear(256,12)
-        self.advantageOuput2=nn.Linear(256,21)
+        #the first advantage layer is added to the second layer so it has knowledge of the second.
+        self.advantageOuput2=nn.Linear(268,21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss = nn.MSELoss()
@@ -59,13 +60,16 @@ class DualingQNetwork(nn.Module):
 
 
         # the advantage stream
-        advantageinput = self.advantagelayer1(thirdlayer)
-        advantageinput = F.relu(advantageinput)
+        advantageinput1 = self.advantagelayer1(thirdlayer)
+        advantageinput1 = F.relu(advantageinput1)
+
         # no activation fuction for the output
         #12 actions
-        avantage1 = self.advantageOuput1(advantageinput)
+        avantage1 = self.advantageOuput1(advantageinput1)
+        advantageinput2 = T.cat((avantage1,advantageinput1),dim=1)
+
         #21 actions
-        avantage2 = self.advantageOuput2(advantageinput)
+        avantage2 = self.advantageOuput2(advantageinput2)
 
         return valueoutput, avantage1, avantage2
 
