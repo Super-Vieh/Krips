@@ -13,20 +13,14 @@ class DualingQNetwork(nn.Module):
         self.savestate_file = os.path.join(self.savestate_dir, savestate_file_name)
         self.learning_rate = learning_rate
         #self.states:T.Tensor = None
-        # input ist 22 *52 = 1144
-
-        self.conv1 = nn.Conv2d(in_channels=1, out_channnels=32, kernel_size=3,padding=1)
-        self.conv2 = nn.Conv2d(in_channels=32, out_chanels=16, kernel_size=3,padding=1)
-
-        self.linearlayer=nn.Linear(16*52*22,1024)
-
-        self.valuelayer0=nn.Linear(1024,256)
-        self.valuelayer1=nn.Linear(256,64)
+        self.inputlayer=nn.Linear(1144,2000)
+        self.linearlayer2=nn.Linear(2000,500)
+        self.linearlayer3=nn.Linear(500,128)
+        self.valuelayer1=nn.Linear(128,64)
         self.valueoutputlayer=nn.Linear(64,1)
-        self.advantagelayer1=nn.Linear(1024,256)
-        self.advantageOuput1=nn.Linear(256,12)
-        #the first advantage layer is added to the second layer so it has knowledge of the second.
-        self.advantageOuput2=nn.Linear(268,21)
+        self.advantagelayer1=nn.Linear(128,64)
+        self.advantage_fullyconnected_outputlayer=nn.Linear(64,12)
+        self.advantageoutputlayer=nn.Linear(12,21)
 
         self.optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss = nn.MSELoss()
@@ -36,60 +30,48 @@ class DualingQNetwork(nn.Module):
 
 
     def forward(self,states):
-        states = states.view(1,1,22,52)
-        # konversion der inputdaten in ein 4d tensor
+
         states = states.to(self.device)
         #here are the first 3 layers
         # die inputdaten(states(als tensor)) werden in die erste lineare schicht gegeben und die ergebnisse der gewichtug wird gespeichert
-        input = self.conv1(states)
+        input = self.inputlayer(states)
         input = F.relu(input) # das ergebniss der gewichte wird durch die relu funktion gegeben und gespeichert.
-        secondlayer = self.conv2(input)
+        secondlayer = self.linearlayer2(input)
         secondlayer = F.relu(secondlayer)
-        secondlayer = T.flatten(secondlayer, 1)
-        #flatten function 16 channels of 22x52 size to one vector
-        thirdlayer = self.linearlayer(secondlayer)
+        thirdlayer = self.linearlayer3(secondlayer)
         thirdlayer = F.relu(thirdlayer)
         #here is the dualing part
         # the value stream
-        valueinput = self.valuelayer0(thirdlayer)
+        valueinput = self.valuelayer1(thirdlayer)
         valueinput = F.relu(valueinput)
-        value1 = self.valuelayer1(valueinput)
-        value1 = F.relu(value1)
         # no activation fuction for the output
-        valueoutput = self.valueoutputlayer(value1)
+        valueoutput = self.valueoutputlayer(valueinput)
 
 
         # the advantage stream
-        advantageinput1 = self.advantagelayer1(thirdlayer)
-        advantageinput1 = F.relu(advantageinput1)
-
+        advantageinput = self.advantagelayer1(thirdlayer)
+        advantageinput = F.relu(advantageinput)
         # no activation fuction for the output
-        #12 actions
-        avantage1 = self.advantageOuput1(advantageinput1)
-        advantageinput2 = T.cat((avantage1,advantageinput1),dim=1)
+        advantagefullyconnectedoutput = self.advantage_fullyconnected_outputlayer(advantageinput)
 
-        #21 actions
-        avantage2 = self.advantageOuput2(advantageinput2)
+        advantageoutput = self.advantageoutputlayer(advantagefullyconnectedoutput)
 
-        return valueoutput, avantage1, avantage2
+        return valueoutput, advantagefullyconnectedoutput, advantageoutput
 
 
     def combine_value_advantage(self,value, advantage1, advantage2):
         # the unsequeeze function adds a dimension to the tensor it makes it a list of lists with only one list containig all elements
         # for the opperations to work on  the tensors,they need to be a centain shape
         # here the unsqueeze 1 makes the adv1 tensor in the shape of (N,1) the 0 makes adv2 in the shape of (1,M)
-        adv1 = advantage2.unsqueeze(1)
-        adv2 = advantage1.unsqueeze(2)
+        adv1 = advantage1.unsqueeze(1)
+        adv2 = advantage2.unsqueeze(0)
 
         # the pair_mean is also now a list of list.
         # it is like a nested for loop where the first element of adv1 is seperatly added to all elements of adv2 creating a 1d list
         # then the second element of adv1 is seperatly added to all elements of adv2 creating a 1d and so on
         #these 1d list are as long as there are elements in adv2 and as many as there are elements in adv1
         # pair_mean = [N][M]
-        #print(adv1)
-        #print(adv2)
-        pair_mean = (adv2+adv1) / 2
-
+        pair_mean = (adv1 + adv2) / 2
 
         # the overall_mean is the scalar of all pairs of N and M
         # it takes the mean of MxN pairs
@@ -99,12 +81,9 @@ class DualingQNetwork(nn.Module):
         # the advantage is calculated by how good the pair values are compared to the average values
         # and the value is the value of the state so it is always present
         q_values = value + pair_mean - overall_mean
-
         # P.S. this is a heavily simplified version done by a LLM.
         # my version was python algorith based and not tensor based thus extremly slow the idea was the same though
-        return q_values.squeeze(0)
-
-
+        return q_values
 
 
 
