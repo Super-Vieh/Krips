@@ -21,8 +21,8 @@ def main():
 
     for i in range(0,40):
         trainer = AgentTrainer()
-        trainer.initialize_agents("Savestates/Agent1.txt","Savestates/Agent2.txt")
-        trainer.train_agents(5,2000,0.9,0.9,0.9999)
+        trainer.initialize_agents("Agent1.txt","Agent2.txt")
+        trainer.train_agents(1,2000,0.9,0.9,0.9999)
 
 
 
