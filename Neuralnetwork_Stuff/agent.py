@@ -9,7 +9,8 @@ import torch.optim as optim
 from Neuralnetwork_Stuff.reward_engine import RewardEngine
 from Neuralnetwork_Stuff.storage import Storage
 from Neuralnetwork_Stuff.qualing_q_learning import DualingQNetwork
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert,initialize_paechen,initialize
+from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+#,initialize_paechen,initialize_oponents)
 from Pygame import GUI, MKarte
 
 class Agent():

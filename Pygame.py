@@ -1,6 +1,6 @@
 import pygame
 
-from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize,print_top, print_bot,play_init
+#from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize_oponents,print_top, print_bot,play_init
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
 from Pygame_Funktionen import MKarte
 from Pygame_Funktionen import erstelle_sidelist,erstelle_centerlist,erstelle_spieler_packchen,initialisierung_der_bilder,loesche_alle_elemente

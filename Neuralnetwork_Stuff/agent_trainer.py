@@ -1,5 +1,6 @@
 
-from Klassen import Spiel, Spieler, initialize_paechen, initialize
+from Klassen import Spiel, Spieler
+#, initialize_paechen, initialize_oponents)
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, TensorMetricBoard
 
 import random
@@ -101,7 +102,7 @@ class AgentTrainer:
         self.agent1.spieler = spieler1
         self.agent2.spieler = spieler2
 
-        initialize( self.game, spieler1, spieler2)
+        initialize_oponents(self.game, spieler1, spieler2)
 
         spieler1.ersteAktion()
         spieler2.ersteAktion()

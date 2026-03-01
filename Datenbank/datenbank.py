@@ -1,10 +1,19 @@
 from numbers import Number
 from operator import index
 
-import cx_Oracle
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from numpy import integer
+from sympy.codegen.ast import Raise
 
+from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+import duckdb
 class Datenbank:
+    def __init__(self,dbfilepath):
+        self.connection = duckdb.connect(dbfilepath)
+
+
+
+
+    '''
     game:Spiel = None
     hostname = "StudiDB.GM.TH-Koeln.de"
     port = 1521
@@ -16,57 +25,99 @@ class Datenbank:
     connection = None
     cursor = None
     menge_an_spielen = 0 # mit einer Funktion die anzahl der einzelnen Spiele in einer Datenbank zählt, berrechnen
+    '''
+    # Interface Funktionen
+    def get_game_moves(self, id:int)->list[str]:
+        pass
+    def get_starting_cards(self,id:int):
+        pass
+    def save_starting_cards(self,game:Spiel):
+        if not self._check_if_table_exists("StartingCards"):
+            self._create_starting_cards_table()
+        if not self._check_if_table_exists("Moves"):
+            self.create_moves_table()
+
+        if self.get_max_id("StartingCards")== self.get_max_id("Moves"):
+            self.store_starting_cards(self.get_max_id("Moves"),game)
+        else:
+            raise Exception("Die Moves und StartingCards Tabellen haben einen Fehler, sie es gibt irgedwo extra einträge")
+    def save_game_moves(self,game:Spiel,zuege:list[str],id:int):
+        pass
+    def reset(self):
+        pass
+
+    #Hauptfunktionen
 
 
-    def verbindung_aufbauen(self):
-        try:
-            # Verbindung herstellen
-            self.connection = cx_Oracle.connect(f"{self.username}/{self.password}@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=StudiDB.GM.TH-Koeln.de)(PORT=1521))(CONNECT_DATA=(SID=vlesung)))")
-            self.cursor = self.connection.cursor()
-        except cx_Oracle.Error as error:
-            print(f"Fehler beim Verbindungsaufbau {error}")
+    def _check_if_table_exists(self,table_name:str)->bool:
+        sql = f"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?"
+        result = self.connection.execute(sql,[table_name]).fetchone()
+        # Ergebnis ist so aus (0,) oder (1,)
+        if result[0] > 0:
+            return True
+        else:
+            return False
 
-    def sql_statement_ausfuehren(self,sql:str):
-        # bei SQL-Anweisungen wird das Semikolon am Ende hinzugefügt,
-        # desswegen schreibt man das statement ohne Semikolon
-        try:
-            print("SQL-Anweisung wird ausgeführt")
-            self.cursor.execute(sql)
-            self.connection.commit()
+    def _create_starting_cards_table(self):
+        sql = ("""CREATE TABLE IF NOT EXISTS StartingCards (
+            GAME_ID INTEGER PRIMARY KEY,
+            SPIELER1HAUFEN VARCHAR[],
+            SPIELER1PAECKCHEN VARCHAR[],
+            SPIELER1DREIZEHNER VARCHAR[],
+            SPIELER2HAUFEN VARCHAR[],
+            SPIELER2PAECKCHEN VARCHAR[],
+            SPIELER2DREIZEHNER VARCHAR[]
+                )""")
+        self.connection.execute(sql)
 
-        except cx_Oracle.Error as error:
-            print(f"Fehler bei der Ausführung einer SQL-Anweisung{error}")
+    def create_moves_table(self):
+        sql = ("""CREATE TABLE IF NOT EXISTS Moves (
+            GAME_ID INTEGER PRIMARY KEY,
+            MOVES VARCHAR[]
+                )""")
+        self.connection.execute(sql)
 
-    def verbindung_schliessen(self):
-        if self.connection:
-            self.cursor.close()
-            self.connection.close()
-            print("Verbindung geschlossen")
+    def store_moves(self,id:int,zuege:list[str]):
+        sql = "INSERT INTO Moves VALUES (?, ?)"
+        self.connection.execute(sql, (id, zuege))
 
-    def erstelle_neuen_spieldatensatz(self):
-        id = self.hoechster_spielname() + 1
-        print(f"id ist{id}")
-        sql = (f"CREATE TABLE Spiel_{id} ("
-               f"Zugwechsel_ID NUMBER PRIMARY KEY,"
-               f"Spielzuege VARCHAR2(3950),"
-               f"Spielernummer NUMBER,"
-               f"Metadaten VARCHAR2(50))")
-        print(sql)
-        self.sql_statement_ausfuehren(sql)
 
-    def erstelle_kartendatensatz(self):
-        id= self.hoechster_spielname()
-        sql=(f"CREATE TABLE Spielkarten_{id}("
-            "Spielernr Number,"
-            "Paeckchen VARCHAR2(400),"
-            "Dreizehner Varchar2(250),"
-            "erste4karten Varchar2(90))")
-        self.sql_statement_ausfuehren(sql)
+    def store_starting_cards(self,id:int,game:Spiel):
+        spieler1haufen = self.convert_listofcard_in_json(game.spieler1Haufen)
+        spieler1paeckchen = self.convert_listofcard_in_json(game.spieler1Dreizehner)
+        spieler1dreizehner = self.convert_listofcard_in_json(game.spieler1Dreizehner)
+        spieler2haufen = self.convert_listofcard_in_json(game.spieler2Haufen)
+        spieler2paeckchen = self.convert_listofcard_in_json(game.spieler1Haufen)
+        spieler2dreizehner = self.convert_listofcard_in_json(game.spieler2Dreizehner)
+
+
+        sql = "INSERT INTO StartingCards VALUES (?, ?, ?, ?, ?, ?, ?)"
+        self.connection.execute(sql, (id,spieler1haufen,spieler1paeckchen,spieler1dreizehner,spieler2haufen,spieler2paeckchen,spieler2dreizehner ))
+
+
+    def convert_listofcard_in_json(self, cards:list[Karten]):
+        list_jsonobjects = []
+        for card in cards:
+            card_json = {
+                "wert": card.kartenwert.value,
+                "typ": card.kartentyp.value,
+                "offen": card.karteOffen
+            }
+            list_jsonobjects.append(card_json)
+        return list_jsonobjects
+
+    def get_max_id(self,table_name:str):
+        sql = f"SELECT MAX(GAME_ID) FROM {table_name}"
+        result = self.connection.execute(sql).fetchone()
+        if result[0] is not None:
+            return result[0]
+        else:
+            return 0
 
     def loesche_alle_spiele(self):
         for i in range(0, self.hoechster_spielname() + 1):
             sql = f"DROP TABLE SPIEL_{i}"
-            self.sql_statement_ausfuehren(sql)
+            self._commit_sql_querry(sql)
 
     def erstelle_ein_spieldatensatz(self, zugwechsel:int, alle_actionen:str, spielernummer:int):
         #wird bei dem Spiel Ablauf bei Klassen init ausgeführt

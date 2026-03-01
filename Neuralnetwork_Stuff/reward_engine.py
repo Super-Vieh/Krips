@@ -1,4 +1,5 @@
-from Klassen import Spiel, print_bot, print_sidesplus, print_top
+from Klassen import Spiel
+#print_bot, print_sidesplus, print_top
 from Neuralnetwork_Stuff.storage import Storage
 import torch as T
 

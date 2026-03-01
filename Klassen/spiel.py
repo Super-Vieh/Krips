@@ -1,3 +1,6 @@
+import random
+
+
 from .karten import Karten, KartenTyp, KartenWert
 from .spieler import Spieler
 # Die Klasse Spiel beinhaltet alle Daten, die das Spiel selber betreffen.

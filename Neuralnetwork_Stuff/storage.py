@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
-from Klassen import print_top,print_sidesplus,print_bot
+#from Klassen import print_top,print_sidesplus,print_bot
 class Storage:
     def __init__(self,game:Spiel):
         self.game = game
