@@ -11,20 +11,12 @@ from Pygame import GUI, MKarte
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert, SpielInitialisierer
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 def main():
-    #db = Datenbank("Datenbank/krips_replay_store.duckdb")
-    #game = SpielInitialisierer.initialize_agenttrainer(db)
-    #SpielInitialisierer.play_init(game)
-
-
-
-
 
     for i in range(0,40):
         trainer = AgentTrainer()
-        trainer.initialize_agents("Agent1.txt","Agent2.txt")
-        trainer.train_agents_and_store(1, 2000, 0.9, 0.9, 0.9999)
-
-
+        trainer.load_nn("Agent1.txt", "Agent2.txt")
+        #trainer.train_agents_and_store(1, 2000, 0.9, 0.9, 0.9999)
+        trainer.train_agents_and_replay(20, 2000, 0.9, 0.9, 0.9999)
 
         #play_from_db(game1,db,6)
         #gui = GUI(game1)

@@ -132,7 +132,7 @@ class Datenbank:
         if moves is None:
             return []
         else:
-            return loads(moves[0])
+            return moves[0]
     def _extract_game_starting_cards(self, id:int):
         sql = "SELECT SPIELER1OWNDECK, SPIELER2OWNDECK FROM StartingCards WHERE GAME_ID = ?"
         result = self.connection.execute(sql, (id,)).fetchone()

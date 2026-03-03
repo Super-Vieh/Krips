@@ -88,6 +88,7 @@ class SpielInitialisierer:
     @staticmethod
     def play_init(game: Spiel):
         # Eine Spiel Simmulation in der Konsole ohne Gui
+        list_of_recordedactions = []
         while game.gameon:
             if game.spieler1.anderreihe == True:
                 game.current = game.spieler1
@@ -103,7 +104,8 @@ class SpielInitialisierer:
                                     "Karte aufdecken = A0 oder A2\n"  # Aufgedeckt werden können nur Päckchen und Dreizehner
                                     "Karte hilegen = (A0-2,S1-8,)M1-8*S1-8*G0\n"
                                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
-                if action == "M": return None
+                if action == "M": return list_of_recordedactions
+                list_of_recordedactions.append(action)
                 game.play_nn(action)
 
 

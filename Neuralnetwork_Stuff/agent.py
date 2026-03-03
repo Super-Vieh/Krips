@@ -20,6 +20,7 @@ class Agent():
         self.game= None
         self.spieler = None
         self.reward_engine = None
+        self.replay_moves = []
 
 
     '''
@@ -147,7 +148,7 @@ class Agent():
         loss.backward()
         optimizer.step()
 
-    def train_one_turn(self, epsilon, discount_factor, epsilon_edcay=0.9995):
+    def train_one_turn_storage(self, epsilon, discount_factor, epsilon_decay=0.9995):
         made_moves = 0
         valid_moves = 0
         total_reward = 0
@@ -185,3 +186,38 @@ class Agent():
 
         return made_moves,valid_moves, epsilon, total_reward, total_loss, list_of_valid_moves
 
+    def train_one_turn_replay(self, epsilon, discount_factor, epsilon_decay=0.9995):
+        made_moves = 0
+        valid_moves = 0
+        total_reward = 0
+        total_loss = 0
+        while self.game.current == self.spieler and self.game.gameon:
+            # could create a bug, not sure if the game.current can be equal to the player.
+            # Does the player object change after a move in the game?
+            made_moves += 1
+            states = self.storage.initialize_states(self.game)
+            # makes states into a tensor
+            if  len(self.replay_moves)==0:
+                self.game.gameon = False
+                break
+
+            action = self.replay_moves.pop(0)
+            print(action)
+            self.game.play_nn(action)
+            next_state = self.storage.initialize_states(self.game)
+            # rewards are computed in the storageclass
+            reward = self.reward_engine.reward()
+
+            if reward > 0:
+                reward*made_moves*0.999 # gives more reward for finishing slower
+            done = self.storage.done()
+            action1, action2 = self.decode_action(action)
+            loss = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
+            self.update_network(self.nn.optimizer, loss)
+            states = next_state
+            if epsilon > 0.5:
+                epsilon = epsilon * epsilon_decay # decay epsilon
+            total_reward += reward
+            total_loss += loss.item()
+
+        return made_moves,valid_moves, epsilon, total_reward, total_loss
