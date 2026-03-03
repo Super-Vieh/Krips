@@ -1,6 +1,9 @@
+from json import dumps, loads
 from numbers import Number
 from operator import index
+import json
 
+import setuptools
 from numpy import integer
 from sympy.codegen.ast import Raise
 
@@ -27,26 +30,44 @@ class Datenbank:
     menge_an_spielen = 0 # mit einer Funktion die anzahl der einzelnen Spiele in einer Datenbank zählt, berrechnen
     '''
     # Interface Funktionen
-    def get_game_moves(self, id:int)->list[str]:
-        pass
-    def get_starting_cards(self,id:int):
-        pass
-    def save_starting_cards(self,game:Spiel):
+    def load_game_moves(self, id:int)->list[str]:
+        if not self._check_if_table_exists("Moves"):
+            return []
+        return self._extrakt_game_moves(id)
+    def load_starting_cards(self, id:int):
+        if not self._check_if_table_exists("StartingCards"):
+            raise Exception("Es gibt keine StartingCards Tabelle, es wurden noch keine Spiele gespeichert")
+        return self._extract_game_starting_cards(id)
+    def save_starting_cards(self,game:Spiel,id:int):
         if not self._check_if_table_exists("StartingCards"):
             self._create_starting_cards_table()
         if not self._check_if_table_exists("Moves"):
-            self.create_moves_table()
-
-        if self.get_max_id("StartingCards")== self.get_max_id("Moves"):
-            self.store_starting_cards(self.get_max_id("Moves"),game)
+            self._create_moves_table()
+        self._store_starting_cards(id, game)
+        '''
+        if self._get_max_id("StartingCards")== self._get_max_id("Moves"):
+            self._store_starting_cards(self._get_max_id("Moves")+1,game)
+            print(self._get_max_id("StartingCards"))
         else:
             raise Exception("Die Moves und StartingCards Tabellen haben einen Fehler, sie es gibt irgedwo extra einträge")
-    def save_game_moves(self,game:Spiel,zuege:list[str],id:int):
-        pass
-    def reset(self):
-        pass
+        '''
+    def save_game_moves(self,zuege:list[str],id:int):
+        self._store_moves(id, zuege)
 
-    #Hauptfunktionen
+    def reset_table(self, table_name: str):
+        sql = f"TRUNCATE TABLE {table_name}"
+        self.connection.execute(sql)
+
+    def delete_table(self, table_name: str):
+        sql = f"DROP TABLE {table_name}"
+        self.connection.execute(sql)
+    #Wenn es keine Tabellen gibt, dann wird die ID 1 sein
+    def get_next_game_id(self) -> int:
+        if not self._check_if_table_exists("StartingCards"):
+            return 1
+        id = self._get_max_id("StartingCards") + 1
+        return id
+    #Funktionen für die Datenbank
 
 
     def _check_if_table_exists(self,table_name:str)->bool:
@@ -57,45 +78,35 @@ class Datenbank:
             return True
         else:
             return False
-
     def _create_starting_cards_table(self):
         sql = ("""CREATE TABLE IF NOT EXISTS StartingCards (
             GAME_ID INTEGER PRIMARY KEY,
-            SPIELER1HAUFEN VARCHAR[],
-            SPIELER1PAECKCHEN VARCHAR[],
-            SPIELER1DREIZEHNER VARCHAR[],
-            SPIELER2HAUFEN VARCHAR[],
-            SPIELER2PAECKCHEN VARCHAR[],
-            SPIELER2DREIZEHNER VARCHAR[]
+            SPIELER1OWNDECK VARCHAR,
+            SPIELER2OWNDECK VARCHAR
                 )""")
         self.connection.execute(sql)
 
-    def create_moves_table(self):
+    def _create_moves_table(self):
         sql = ("""CREATE TABLE IF NOT EXISTS Moves (
             GAME_ID INTEGER PRIMARY KEY,
             MOVES VARCHAR[]
                 )""")
         self.connection.execute(sql)
 
-    def store_moves(self,id:int,zuege:list[str]):
+    def _store_moves(self, id:int, zuege:list[str]):
         sql = "INSERT INTO Moves VALUES (?, ?)"
         self.connection.execute(sql, (id, zuege))
 
 
-    def store_starting_cards(self,id:int,game:Spiel):
-        spieler1haufen = self.convert_listofcard_in_json(game.spieler1Haufen)
-        spieler1paeckchen = self.convert_listofcard_in_json(game.spieler1Dreizehner)
-        spieler1dreizehner = self.convert_listofcard_in_json(game.spieler1Dreizehner)
-        spieler2haufen = self.convert_listofcard_in_json(game.spieler2Haufen)
-        spieler2paeckchen = self.convert_listofcard_in_json(game.spieler1Haufen)
-        spieler2dreizehner = self.convert_listofcard_in_json(game.spieler2Dreizehner)
+    def _store_starting_cards(self, id:int, game:Spiel):
+        spieler1owndeck = dumps(self._convert_listofcard_in_json(game.spieler1.owndeck))
+        spieler2owndeck = dumps(self._convert_listofcard_in_json(game.spieler2.owndeck))
 
 
-        sql = "INSERT INTO StartingCards VALUES (?, ?, ?, ?, ?, ?, ?)"
-        self.connection.execute(sql, (id,spieler1haufen,spieler1paeckchen,spieler1dreizehner,spieler2haufen,spieler2paeckchen,spieler2dreizehner ))
+        sql = "INSERT INTO StartingCards VALUES (?, ?, ?)"
+        self.connection.execute(sql, (id,spieler1owndeck,spieler2owndeck))
 
-
-    def convert_listofcard_in_json(self, cards:list[Karten]):
+    def _convert_listofcard_in_json(self, cards:list[Karten]):
         list_jsonobjects = []
         for card in cards:
             card_json = {
@@ -106,7 +117,7 @@ class Datenbank:
             list_jsonobjects.append(card_json)
         return list_jsonobjects
 
-    def get_max_id(self,table_name:str):
+    def _get_max_id(self, table_name:str):
         sql = f"SELECT MAX(GAME_ID) FROM {table_name}"
         result = self.connection.execute(sql).fetchone()
         if result[0] is not None:
@@ -114,108 +125,33 @@ class Datenbank:
         else:
             return 0
 
-    def loesche_alle_spiele(self):
-        for i in range(0, self.hoechster_spielname() + 1):
-            sql = f"DROP TABLE SPIEL_{i}"
-            self._commit_sql_querry(sql)
+    def _extrakt_game_moves(self, id:int)->list[str]:
+        sql = "SELECT MOVES FROM MOVES WHERE GAME_ID = ?"
+        moves = self.connection.execute(sql, (id,)).fetchone()
+        print(moves)
+        if moves is None:
+            return []
+        else:
+            return loads(moves[0])
+    def _extract_game_starting_cards(self, id:int):
+        sql = "SELECT SPIELER1OWNDECK, SPIELER2OWNDECK FROM StartingCards WHERE GAME_ID = ?"
+        result = self.connection.execute(sql, (id,)).fetchone()
+        if result is None:
+            raise Exception("Es gibt keine Startkarten für diese ID")
+        print(result)
+        spieler1_own_deck = self._read_starting_cards_from_json_list(result[0])
+        spieler2_own_deck =self._read_starting_cards_from_json_list(result[1])
+        return spieler1_own_deck, spieler2_own_deck
 
-    def erstelle_ein_spieldatensatz(self, zugwechsel:int, alle_actionen:str, spielernummer:int):
-        #wird bei dem Spiel Ablauf bei Klassen init ausgeführt
-        cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIEL\_%' ESCAPE '\\'")
-        rows = cur.fetchall()
-
-        #keine ahnung warum f"{}" für die variablen nicht funktioniert
-        sql = f"INSERT INTO {rows[-1][-1]} (Zugwechsel_ID, Spielzuege, Spielernummer, Metadaten) VALUES (:1, :2, :3, :4)"
-        print(sql)
-        self.cursor.execute(sql, (zugwechsel, alle_actionen, spielernummer, None))
-        self.connection.commit()
-
-    def erstelle_ein_kartendatensatz(self, sp1_paeckchen, sp2_paeckchen, sp1_dreizehner, sp2_dreizehner, sp1_4karten, sp2_4karten):
-            cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIELKARTEN_%'")
-            rows = cur.fetchall()
-
-            sql = f"INSERT INTO {rows[-1][-1]} (Spielernr, Paeckchen, Dreizehner, erste4Karten) VALUES (:1, :2, :3, :4)"
-            self.cursor.execute(sql, (1, sp1_paeckchen, sp1_dreizehner, sp1_4karten))
-            self.cursor.execute(sql, (2, sp2_paeckchen, sp2_dreizehner, sp2_4karten))
-            self.connection.commit()
-
-
-
-
-
-
-
-    #Das ist eine relevante funktion für das Erstellen einer neuen Tabelle. Damit man keine Dublikate hat.
-    def hoechster_spielname(self):
-        cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIEL\_%' ESCAPE '\\'")
-        rows= cur.fetchall()
-        #hier wird die höchste zahl rausgesucht
-        highest = 0
-        for row in rows:
-            temp = self.extrahiere_spielnummer(row)
-            if temp >highest: highest=temp
-        return highest
-
-    def extrahiere_spielnummer(self,spieltext:tuple[str])->int:
-        #spieltext ist ein Tupel welcher auf der erstenstelle den namen der Tabelle hat
-        start_indize =0
-        indize =0
-        ergebniss:int =0
-        tabellenname:str = spieltext[0]
-        for char in tabellenname:
-            if char == '_': start_indize = indize
-            indize+=1
-
-        nummer_als_text=""
-        for i in range(start_indize+1,indize):
-            nummer_als_text+=tabellenname[i]# hier werden die buchstaben bzw. zahlen extrahiert.
-        try :
-            ergebniss=int(nummer_als_text)
-        except ValueError:
-            return 0
-            print("In der Spielernummer kann kein String sein")
-        return ergebniss
-
-
-
-
-    def extrahiere_spiel(self,tabellennr:int):
-        cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIEL\_%' ESCAPE '\\'")
-        rows = cur.fetchall()
-        for row in rows :
-            #Wenn das spiel gleich der Spielnummer ist
-            if self.extrahiere_spielnummer(row)== tabellennr:
-                sql = f"SELECT Spielzuege FROM Spiel_{tabellennr}"
-                spielzuege = self.cursor.execute(sql)
-                zuege =spielzuege.fetchall()
-                return self.extrahiere_spielzuege(zuege)
-
-    def extrahiere_spielkarten(self,tabellennr:int)->tuple[tuple[int,str,str,str]]:
-        cur = self.cursor.execute("SELECT table_name FROM user_tables WHERE table_name LIKE 'SPIELKARTEN_%'")
-        rows = cur.fetchall()
-
-        for row in rows:
-            if self.extrahiere_spielnummer(row)== tabellennr:
-                sql = f"SELECT Spielernr,Paeckchen, Dreizehner, erste4karten FROM SPIELKARTEN_{tabellennr}"
-                karten = self.cursor.execute(sql)
-                return karten
-
-
-
-
-    #kriegt ein tupel mit alle spielzuegen eines Spieles und convertiert das in einen einzelnen string
-    def extrahiere_spielzuege(self,zuege):
-        alle_spielzuege=""
-        for zug in zuege:
-            alle_spielzuege+=self.saubere_spielzug(zug[0])
-        return alle_spielzuege
-
-    #kriegt ein string und entfernt alle doppelten kommas
-    def saubere_spielzug(self,zug:str):
-        ergebniss=""
-        last_buchtabe=""
-        for buchstabe in zug:
-            if( buchstabe== "," and last_buchtabe!=",")or(buchstabe!=","):
-                ergebniss+=buchstabe
-            last_buchtabe=buchstabe
-        return ergebniss
+    def _read_starting_cards_from_json_list(self, json_list):
+        card_list = []
+        print(json_list)
+        json_list = loads(json_list)
+        for card_json in json_list:
+            wert = card_json["wert"]
+            typ = card_json["typ"]
+            offen = card_json["offen"]
+            karte = Karten(KartenTyp(typ),KartenWert(wert))
+            karte.karteOffen = offen
+            card_list.append(karte)
+        return card_list

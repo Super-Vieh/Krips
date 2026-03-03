@@ -2,16 +2,30 @@ import random
 
 from networkx.classes import non_edges
 
+
 from .spiel import Spiel
 from .spieler import Spieler
 from .karten import Karten, KartenTyp, KartenWert
+
 class SpielInitialisierer:
     def __init__(self):
         pass
     @staticmethod
-    def initialize_game(db=None):
+    def initialize_game_for_storage(db: 'Datenbank'):
         game = SpielInitialisierer.set_up_game()
-        db.save_starting_cards(game)
+        id= db.get_next_game_id()
+        db.save_starting_cards(game,id)
+        game = SpielInitialisierer.set_up_fist_moves(game)
+        return game, id
+    @staticmethod
+    def initialize_game_for_play():
+        game = SpielInitialisierer.set_up_game()
+        game = SpielInitialisierer.set_up_fist_moves(game)
+        return game
+
+    @staticmethod
+    def initialize_game_for_replay(db: 'Datenbank',id:int):
+        game = SpielInitialisierer.set_up_game_db(db,id)
         game = SpielInitialisierer.set_up_fist_moves(game)
         return game
     @staticmethod
@@ -31,6 +45,15 @@ class SpielInitialisierer:
         SpielInitialisierer.initialize_oponents(game,game.spieler1, game.spieler2)
         return game
     @staticmethod
+    def set_up_game_db(db: 'Datenbank',game_id):
+        game = Spiel()
+        deck1, deck2 = db.load_starting_cards(game_id)
+        game.spieler1 = Spieler(1, deck1)
+        game.spieler2 = Spieler(2, deck2)
+        SpielInitialisierer.initialize_oponents(game, game.spieler1, game.spieler2)
+        return game
+
+    @staticmethod
     def set_up_fist_moves(game: Spiel):
         game.spieler1.ersteAktion()
         game.spieler2.ersteAktion()
@@ -38,7 +61,11 @@ class SpielInitialisierer:
         SpielInitialisierer.initialize_paechen(game)
         return game
 
-
+    @staticmethod
+    def save_moves(list_of_moves:list[str], id:int):
+        from Datenbank.datenbank import Datenbank
+        db = Datenbank("Datenbank/krips_replay_store.duckdb")
+        db.save_game_moves(list_of_moves,id)
     @staticmethod
     def initialize_oponents(game: Spiel, spielerimport1, spielerimport2):
         # Spiel wird für den Spieler initialisiert
@@ -78,6 +105,7 @@ class SpielInitialisierer:
                                     "Runde Aufhören= P,Kartenhaufen umdrehen = R,Krips rufen = K\n")
                 if action == "M": return None
                 game.play_nn(action)
+
 
     @staticmethod
     def play_console(game: Spiel, db: 'Datenbank'):

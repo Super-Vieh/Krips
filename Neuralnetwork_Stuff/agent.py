@@ -22,7 +22,7 @@ class Agent():
         self.reward_engine = None
 
 
-
+    '''
     def training_loop(self,optimizer,nr_episodes,start_epsilon,discount_factor):
         #gui = GUI(self.game)
 
@@ -61,7 +61,7 @@ class Agent():
                 #print(f"Epsilon is now {epsilon}")
 
             self.nn.save_savestate()
-
+    '''
 
 
 
@@ -147,11 +147,12 @@ class Agent():
         loss.backward()
         optimizer.step()
 
-    def train_one_turn(self, epsilon, discount_factor, epsilon_decay=0.9995)->tuple[int,float]:
+    def train_one_turn(self, epsilon, discount_factor, epsilon_edcay=0.9995):
         made_moves = 0
         valid_moves = 0
         total_reward = 0
         total_loss = 0
+        list_of_valid_moves = []
         while self.game.current == self.spieler and self.game.gameon:
             # could create a bug, not sure if the game.current can be equal to the player. 
             # Does the player object change after a move in the game?
@@ -166,6 +167,7 @@ class Agent():
 
             if not T.equal(states, next_state):
                 valid_moves+=1
+                list_of_valid_moves.append(action)
             # rewards are computed in the storageclass
             reward = self.reward_engine.reward()
 
@@ -181,5 +183,5 @@ class Agent():
             total_reward += reward
             total_loss += loss.item()
 
-        return made_moves,valid_moves, epsilon, total_reward, total_loss
+        return made_moves,valid_moves, epsilon, total_reward, total_loss, list_of_valid_moves
 

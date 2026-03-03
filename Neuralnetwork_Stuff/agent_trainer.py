@@ -1,8 +1,7 @@
 
-from Klassen import Spiel, Spieler
+from Klassen import Spiel, Spieler, SpielInitialisierer
 #, initialize_paechen, initialize_oponents)
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, TensorMetricBoard
-
 import random
 
 from Neuralnetwork_Stuff.reward_engine import RewardEngine
@@ -40,19 +39,55 @@ class AgentTrainer:
             nn2 = DualingQNetwork(learnig_rate, file_Path2)
             self.agent2 = Agent(nn2)
 
-    def train_agents(self,nr_episodes,steps,start_epsilon= 0.9,discount_factor=0.9,epsilon_decay=0.99995):
+    def train_agents_and_store(self, nr_episodes, steps, start_epsilon= 0.9, discount_factor=0.9, epsilon_decay=0.99995):
+        from Datenbank.datenbank import Datenbank
+        db = Datenbank("Datenbank/krips_replay_store.duckdb")
         max_number_of_moves = steps
         current_epsilon = start_epsilon
         current_move = 0
         for episode in range(nr_episodes):
             move = 0
-            self.initialize_game()
+            id = self.initialize_agenttrainer_for_storage(db)
             self.set_game_for_agent(self.agent1)
             self.set_game_for_agent(self.agent2)
             print("New Episode started")
             while move < max_number_of_moves and self.game.gameon:
                 self.check_current_agent()
-                made_moves,valid_moves, epsilon, total_reward, total_loss= self.current_playing_agent.train_one_turn(current_epsilon, discount_factor, epsilon_decay)
+                made_moves,valid_moves, epsilon, total_reward, total_loss, list_of_valid_moves= self.current_playing_agent.train_one_turn(current_epsilon, discount_factor, epsilon_decay)
+                current_epsilon = epsilon
+                print(epsilon)
+                move += made_moves
+                current_move +=1
+                if total_loss != 0:
+                    reward_loss_ratio = total_reward / (-total_loss)
+                else:
+                    reward_loss_ratio = 0
+                if made_moves != 0:
+                    valid_moves_ratio = valid_moves / made_moves
+                else:
+                    valid_moves_ratio = 0
+
+                db.save_game_moves(list_of_valid_moves,id)
+                self.tensorboard.log_turn(current_move,made_moves,valid_moves, epsilon, total_reward, total_loss, reward_loss_ratio, valid_moves_ratio)
+        self.agent1.nn.save_savestate()
+        self.agent2.nn.save_savestate()
+
+    'AKTIONEN MÜSSEN EINGESPEIST WERDEN'
+    def train_agents_and_replay(self, nr_episodes, steps, start_epsilon= 0.9, discount_factor=0.9, epsilon_decay=0.99995):
+        from Datenbank.datenbank import Datenbank
+        db = Datenbank("Datenbank/krips_replay_store.duckdb")
+        max_number_of_moves = steps
+        current_epsilon = start_epsilon
+        current_move = 0
+        for episode in range(nr_episodes):
+            move = 0
+            self.initialize_agenttrainer_for_replay()
+            self.set_game_for_agent(self.agent1)
+            self.set_game_for_agent(self.agent2)
+            print("New Episode started")
+            while move < max_number_of_moves and self.game.gameon:
+                self.check_current_agent()
+                made_moves,valid_moves, epsilon, total_reward, total_loss,_= self.current_playing_agent.train_one_turn(current_epsilon, discount_factor, epsilon_decay)
                 current_epsilon = epsilon
                 print(epsilon)
                 move += made_moves
@@ -71,53 +106,35 @@ class AgentTrainer:
         self.agent2.nn.save_savestate()
 
 
+    def initialize_agenttrainer_for_storage(self,db:'Datenbank'):
 
+        self.game ,id= SpielInitialisierer.initialize_game_for_storage(db)
 
-
-
-
-
-
-
-    def set_all_game(self,game):
-        self.game = game
-        self.agent1.game = game
-        self.agent2.game = game
-
-
-    def initialize_game(self):
-        self.game = Spiel()
-        self.set_all_game(self.game)
-        newdeck1 =  self.game.kartenDeckErstellung()
-        newdeck2 =  self.game.kartenDeckErstellung()
-
-        random.shuffle(newdeck1)
-        random.shuffle(newdeck2)
-
-        spieler1 = Spieler(1, newdeck1)
-        spieler2 = Spieler(2, newdeck2)
-        self.game.spieler1 = spieler1
-        self.game.spieler2 = spieler2
-
-        self.agent1.spieler = spieler1
-        self.agent2.spieler = spieler2
-
-        initialize_oponents(self.game, spieler1, spieler2)
-
-        spieler1.ersteAktion()
-        spieler2.ersteAktion()
-        self.game.game_first_move()
-        initialize_paechen(self.game)
-
+        self.agent1.game = self.game
+        self.agent2.game = self.game
+        self.agent1.spieler = self.game.spieler1
+        self.agent2.spieler = self.game.spieler2
         self.agent1.storage = Storage(self.game)
         self.agent2.storage = Storage(self.game)
         self.agent1.reward_engine = RewardEngine(self.game,self.agent1.storage)
         self.agent2.reward_engine = RewardEngine(self.game,self.agent2.storage)
+        return id
+    def initialize_agenttrainer_for_replay(self,db:'Datenbank',id:int):
+
+        self.game = SpielInitialisierer.initialize_game_for_replay(db,id)
+
+        self.agent1.game = self.game
+        self.agent2.game = self.game
+        self.agent1.spieler = self.game.spieler1
+        self.agent2.spieler = self.game.spieler2
+        self.agent1.storage = Storage(self.game)
+        self.agent2.storage = Storage(self.game)
+        self.agent1.reward_engine = RewardEngine(self.game, self.agent1.storage)
+        self.agent2.reward_engine = RewardEngine(self.game, self.agent2.storage)
+
+
         if self.agent1.spieler.anderreihe:
             self.current_playing_agent = self.agent1
-
-
-
         else:
             self.current_playing_agent = self.agent2
 
