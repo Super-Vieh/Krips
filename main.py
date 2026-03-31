@@ -15,8 +15,8 @@ def main():
     for i in range(0,40):
         trainer = AgentTrainer()
         trainer.load_nn("Agent1.txt", "Agent2.txt")
-        #trainer.train_agents_and_store(1, 2000, 0.9, 0.9, 0.9999)
-        trainer.train_agents_and_replay(20, 2000, 0.9, 0.9, 0.9999)
+        trainer.train_agents_and_store(1, 2000, 0.9, 0.9, 0.9999)
+        #trainer.train_agents_and_replay(20, 2000, 0.9, 0.9, 0.9999)
 
         #play_from_db(game1,db,6)
         #gui = GUI(game1)
@@ -24,7 +24,6 @@ def main():
 
         #play_console(game1,db)
         #pygame.quit()
-
 
 
         #db.verbindung_schliessen()
