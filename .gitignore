@@ -1,0 +1,11 @@
+.venv/
+"TensorMetricBoard Logs/"
+.idea/
+*.pyc
+*.py~
+**/__pycache__/
+*.xml
+*.iml
+*.idea
+
+

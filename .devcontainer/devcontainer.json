@@ -2,5 +2,8 @@
   "name": "Krips Dev Container 1.0",
   "image": "intel/intel-extension-for-pytorch:latest",
   "workspaceFolder":"/IdeaProjects/Krips",
-  "postCreateCommand": "pip install -r requirements.txt"
+  "features" : {
+    "ghcr.io/devcontainers/features/git-lfs:1": {}
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
 }
