@@ -5,5 +5,5 @@
   "features" : {
     "ghcr.io/devcontainers/features/git-lfs:1": {}
   },
-  "postCreateCommand": "pip install -r requirements.txt",
+  "postCreateCommand": "pip install -r .devcontainer/requirements.txt",
 }
