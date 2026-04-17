@@ -7,5 +7,5 @@
 *.xml
 *.iml
 *.idea
-
+**/*tfevents*
 
