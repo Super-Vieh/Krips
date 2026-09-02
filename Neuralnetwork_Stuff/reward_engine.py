@@ -15,11 +15,18 @@ class RewardEngine():
         #every ellement in the tuple is a list of lists
         current_state= self.storage.initialize_states(self.game)
         self.storage.all_states.append(current_state)
-        if not self.did_an_action_do_something():reward-=5#; print("action did something")
+        # Jede zustandswechselnde (legale) Aktion bekommt Basis-Reward +1; nur
+        # No-ops (uber alle 252 Kombis) werden mit -5 bestraft. So trennt das
+        # Netz legale von illegalen Zuegen, statt dass alles am selben Zustand
+        # auf ~-50 kollabiert (Ansatz-1-Bootstrap-Vergiftung).
+        if self.did_an_action_do_something():
+            reward += 1
+        else:
+            reward -= 5
         if self.punish_back_and_forth(): reward-=5#; print("back and forth punished")
         if self.put_card_in_the_middel(): reward+=3 #; print("card in the middel")
         if self.card_fromplayer_toboard(): reward+=10 #; print("card from player to board")
-        if self.did_end_move(): reward=1#; print("did end move")
+        if self.did_end_move(): reward+=1#; print("did end move")
         if self.count_additional_spaces(): reward += self.count_additional_spaces()*0.15#;print("created space")
         #print(f"the reward is {reward}")
         #if reward> 0:
