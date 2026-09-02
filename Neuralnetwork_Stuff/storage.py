@@ -53,6 +53,7 @@ class Storage:
 
     def initialize_states(self,game:Spiel)->T.tensor:
         """
+        KARTEN-MENGEN (welche Karten liegen in der Liste): 22 Listen * 52 = 1144
         SPIELER 1:
         [0:52]     -> Spieler 1 Päckchen (Handkarten)
         [52:104]   -> Spieler 1 Haufen (Ablagestapel)
@@ -69,6 +70,12 @@ class Storage:
 
         SPIELFELD Mitte:
         [728:1144] -> Mittelliste 8 Listen * 52
+
+        OBERSTE KARTE PRO LISTE (welche Karte ist oben/spielbar): 22 * 52 = 1144
+        [1144:2288] -> für jede der 22 Listen dieselbe Reihenfolge wie oben,
+                       aber nur die oberste aufgedeckte Karte gesetzt.
+        Grund: die Mengen-Kodierung verliert die Reihenfolge (z.B. beim
+        Ablagehaufen), damit wäre die einzig spielbare Karte unsichtbar.
         """
 
 
@@ -88,11 +95,13 @@ class Storage:
         spieler_listen.append(game.spieler2Haufen)
         spieler_listen.append(game.spieler2Dreizehner)
 
-
-        i =0
+        # Layout: erst alle 22 Karten-Mengen-Vektoren ([0:1144]), dann alle 22
+        # Top-Karten-Vektoren ([1144:2288]) - entspricht dem Docstring oben und
+        # den Indizes in reward_engine.py. (NICHT pro Liste interleaved.)
         for list in spieler_listen + spielfeld_listen:
-            i+=1
-            states+=self.transform_to_52bitvektor(list)
+            states += self.transform_to_52bitvektor(list)
+        for list in spieler_listen + spielfeld_listen:
+            states += self.transform_top_to_52bitvektor(list)
         return T.tensor(states, dtype=T.float32)
 
     def transform_to_52bitvektor(self,list:list[Karten]):
@@ -118,4 +127,22 @@ class Storage:
             empty_list[(mult*13)+card.kartenwert.value-1]=1
             # der intex wird berechnet durch die art von Karte 0-3 und den Wert1-13
 
+        return empty_list
+
+    def transform_top_to_52bitvektor(self, list:list[Karten]):
+        """Kodiert NUR die oberste (spielbare) Karte einer Liste als 52-Bit.
+        Die Mengen-Kodierung (transform_to_52bitvektor) verliert die Reihenfolge
+        und damit, welche Karte oben liegt (kritisch beim Ablagehaufen: dort ist
+        nur die oberste Karte spielbar und der Gegner spielt auf ihr)."""
+        dict_suit = {
+            KartenTyp.Pik: 0,
+            KartenTyp.Coeur: 1,
+            KartenTyp.Treff: 2,
+            KartenTyp.Karro: 3
+        }
+        empty_list = [0] * 52
+        if not list or not list[-1].karteOffen:
+            return empty_list
+        card = list[-1]
+        empty_list[(dict_suit[card.kartentyp] * 13) + card.kartenwert.value - 1] = 1
         return empty_list
