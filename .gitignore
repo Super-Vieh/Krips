@@ -1,11 +1,28 @@
+# Virtuelle Umgebung & Python-Caches
 .venv/
-"TensorMetricBoard Logs/"
-.idea/
 *.pyc
 *.py~
 **/__pycache__/
-*.xml
+
+# IDE
+.idea/
 *.iml
-*.idea
+*.xml
+
+# Trainings-Logs & Savestates (generiert, nicht Quellcode)
+"TensorMetricBoard Logs/"
 **/*tfevents*
+Savestates/
+*.pt
+*.pth
+*.ckpt
+
+# Graphify (generierte Knowledge-Graph-Ausgabe + Tool-Konfig)
+graphify-out/
+.graphifyignore
+.graphify_python
+.graphify_root
+
+# Generierte Docs / Artefakte
+docs/
 

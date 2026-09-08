@@ -1,10 +1,10 @@
-from Klassen import Spiel
+from Klassen import Game
 #print_bot, print_sidesplus, print_top
 from Neuralnetwork_Stuff.storage import Storage
 import torch as T
 
 class RewardEngine():
-    def __init__(self, game:Spiel,storage:Storage):
+    def __init__(self, game:Game,storage:Storage):
         self.game = game
         self.storage = storage
 
@@ -59,11 +59,11 @@ class RewardEngine():
         player2_cards_changed = not T.equal(self.storage.all_states[-1][156:312], self.storage.all_states[-2][156:312])
         side_cards_changed = not T.equal(self.storage.all_states[-1][312:728], self.storage.all_states[-2][312:728])
 
-        if self.game.current.spielernummer == 1:
+        if self.game.current_player.player_number == 1:
             if player1_cards_changed and side_cards_changed:
                 return True
 
-        if self.game.current.spielernummer == 2:
+        if self.game.current_player.player_number == 2:
             if player2_cards_changed and side_cards_changed:
                 return True
         return False
@@ -72,14 +72,14 @@ class RewardEngine():
         player1_put_card = (T.sum(self.storage.all_states[-1][0:52])== T.sum(self.storage.all_states[-2][0:52])-1)
         player2_put_card = (T.sum(self.storage.all_states[-1][156:208])== T.sum(self.storage.all_states[-2][156:208])-1)
         #wenn der Spielerhaufen um eine karte weniger hat als letzen spielzug
-        player1_paeckchen_gotcard= (T.sum(self.storage.all_states[-1][52:104])+1== T.sum(self.storage.all_states[-2][52:104]))
-        player2_paeckchen_gotcard= (T.sum(self.storage.all_states[-1][208:260])+1== T.sum(self.storage.all_states[-2][208:260]))
+        player1_stock_got_card = (T.sum(self.storage.all_states[-1][52:104])+1== T.sum(self.storage.all_states[-2][52:104]))
+        player2_stock_got_card = (T.sum(self.storage.all_states[-1][208:260])+1== T.sum(self.storage.all_states[-2][208:260]))
 
-        if self.game.current.spielernummer ==1:
-            if player1_put_card and player1_paeckchen_gotcard:
+        if self.game.current_player.player_number ==1:
+            if player1_put_card and player1_stock_got_card:
                 return True
-        if self.game.current.spielernummer ==2:
-            if player2_put_card and player2_paeckchen_gotcard:
+        if self.game.current_player.player_number ==2:
+            if player2_put_card and player2_stock_got_card:
                 return True
         return False
 

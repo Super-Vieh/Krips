@@ -7,9 +7,9 @@ import setuptools
 from numpy import integer
 from sympy.codegen.ast import Raise
 
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from Klassen import Game, Card, Player, CardType, CardValue
 import duckdb
-class Datenbank:
+class Database:
     def __init__(self,dbfilepath):
         self.connection = duckdb.connect(dbfilepath)
 
@@ -17,7 +17,7 @@ class Datenbank:
 
 
     '''
-    game:Spiel = None
+    game:Game = None
     hostname = "StudiDB.GM.TH-Koeln.de"
     port = 1521
     sid = "vlesung"
@@ -38,7 +38,7 @@ class Datenbank:
         if not self._check_if_table_exists("StartingCards"):
             raise Exception("Es gibt keine StartingCards Tabelle, es wurden noch keine Spiele gespeichert")
         return self._extract_game_starting_cards(id)
-    def save_starting_cards(self,game:Spiel,id:int):
+    def save_starting_cards(self,game:Game,id:int):
         if not self._check_if_table_exists("StartingCards"):
             self._create_starting_cards_table()
         if not self._check_if_table_exists("Moves"):
@@ -98,21 +98,21 @@ class Datenbank:
         self.connection.execute(sql, (id, zuege))
 
 
-    def _store_starting_cards(self, id:int, game:Spiel):
-        spieler1owndeck = dumps(self._convert_listofcard_in_json(game.spieler1.owndeck))
-        spieler2owndeck = dumps(self._convert_listofcard_in_json(game.spieler2.owndeck))
+    def _store_starting_cards(self, id:int, game:Game):
+        player1owndeck = dumps(self._convert_listofcard_in_json(game.player1.own_deck))
+        player2owndeck = dumps(self._convert_listofcard_in_json(game.player2.own_deck))
 
 
         sql = "INSERT INTO StartingCards VALUES (?, ?, ?)"
-        self.connection.execute(sql, (id,spieler1owndeck,spieler2owndeck))
+        self.connection.execute(sql, (id,player1owndeck,player2owndeck))
 
-    def _convert_listofcard_in_json(self, cards:list[Karten]):
+    def _convert_listofcard_in_json(self, cards:list[Card]):
         list_jsonobjects = []
         for card in cards:
             card_json = {
-                "wert": card.kartenwert.value,
-                "typ": card.kartentyp.value,
-                "offen": card.karteOffen
+                "wert": card.rank.value,
+                "typ": card.card_type.value,
+                "offen": card.is_face_up
             }
             list_jsonobjects.append(card_json)
         return list_jsonobjects
@@ -151,7 +151,7 @@ class Datenbank:
             wert = card_json["wert"]
             typ = card_json["typ"]
             offen = card_json["offen"]
-            karte = Karten(KartenTyp(typ),KartenWert(wert))
-            karte.karteOffen = offen
-            card_list.append(karte)
+            card = Card(CardType(typ),CardValue(wert))
+            card.is_face_up = offen
+            card_list.append(card)
         return card_list

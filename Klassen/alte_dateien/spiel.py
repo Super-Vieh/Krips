@@ -9,10 +9,11 @@ from .spieler import Spieler
 class Spiel:
 
     def __init__(self):
+        self.seed = None
         self.current: Spieler = None
         self.gameon = True
         self.wouldbeKrips = False
-        self.winner = 0 #
+        self.winner = 0
         self.spieler1: Spieler = None
         self.spieler2: Spieler = None
         #Mitte listen
@@ -49,7 +50,6 @@ class Spiel:
 
         self.stalemate_counter=0
         self.last_playerpackages_length=[]
-
 
     def kartenDeckErstellung(self) -> list[Karten]:
         templist = []  # Speichert die Karten

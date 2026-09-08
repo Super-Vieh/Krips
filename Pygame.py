@@ -1,7 +1,7 @@
 import pygame
 
 #from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize_oponents,print_top, print_bot,play_init
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from Klassen import Game, Card, Player, CardType, CardValue
 from Pygame_Funktionen import MKarte
 from Pygame_Funktionen import erstelle_sidelist,erstelle_centerlist,erstelle_spieler_packchen,initialisierung_der_bilder,loesche_alle_elemente
 from Pygame_Funktionen import finde_die_ursprungsliste,aendere_kartenformat,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,definiere_bewegbare_karten,setze_karte_auf_den_zeiger
@@ -14,7 +14,7 @@ from Pygame_Funktionen import finde_die_ursprungsliste,aendere_kartenformat,draw
 
 
 class GUI:
-    def __init__(self,game:Spiel):
+    def __init__(self,game:Game):
         pygame.init()
         self.run = True
         self.screen =pygame.display.set_mode((1540,  790))
@@ -49,7 +49,7 @@ class GUI:
 
         initialisierung_der_bilder(self)
 
-        self.game.game_first_move()
+        self.game.decide_first_player()
 
         erstelle_centerlist(self, self.plus)
         erstelle_sidelist(self)
@@ -59,8 +59,8 @@ class GUI:
 
             definiere_bewegbare_karten(self)
 
-            if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
-            elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
+            if self.game.player1.has_turn == True: self.game.current_player = self.game.player1
+            elif self.game.player2.has_turn == True: self.game.current_player = self.game.player2
 
             #Utilize Play ist eine Funktion welche die Funktion Play der Klasse Spiel durchführt.
             self.nutze_play()

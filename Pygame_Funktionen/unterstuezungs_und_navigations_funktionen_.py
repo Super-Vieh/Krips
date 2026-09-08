@@ -21,7 +21,7 @@ def draw(self, list):
         self.screen.blit(bild.bild, (bild.x, bild.y))
 
     for bild in highpriority:
-        if  bild.kard_reference and bild.kard_reference.karteOffen == False:
+        if  bild.kard_reference and bild.kard_reference.is_face_up == False:
             self.screen.blit(self.placeholder_rueckseite, (bild.x, bild.y))
         else: self.screen.blit(bild.bild, (bild.x, bild.y))
         if bild.highlighted:
@@ -34,13 +34,13 @@ def waehle_karteaus(self)->MKarte:
     templiste:list[int] =[]
     jointlist = self.gamelist+self.centerlist
     # Hier werden die Gegenerischen packchenkarten entfernt.
-    if self.game.current.spielernummer == 1:
+    if self.game.current_player.player_number == 1:
         for kard in jointlist:
-            if self.game.spieler2Paechen and kard.kard_reference == self.game.spieler2Paechen[-1]:
+            if self.game.player2_stock and kard.kard_reference == self.game.player2_stock[-1]:
                 jointlist.remove(kard)
-    if self.game.current.spielernummer == 2:
+    if self.game.current_player.player_number == 2:
         for kard in jointlist:
-            if self.game.spieler1Paechen and kard.kard_reference == self.game.spieler1Paechen[-1]:
+            if self.game.player1_stock and kard.kard_reference == self.game.player1_stock[-1]:
                 jointlist.remove(kard)
 
 
@@ -86,8 +86,8 @@ def hebe_karte_auf(self, feld):
         return None
 
     if pygame.mouse.get_pressed()[0]:
-        if feld.kard_reference.karteOffen == False:
-            feld.kard_reference.karteOffen=True
+        if feld.kard_reference.is_face_up == False:
+            feld.kard_reference.is_face_up=True
             return None
         # delay damit der klick nicht mehrmals gezählt wird
         pygame.time.delay(250)
@@ -122,8 +122,8 @@ def definiere_bewegbare_karten(self):
     #Hier werden listen deklariert die die erste karte vom Haufen speichern
     haufen1_k = None
     haufen2_k = None
-    if self.game.spieler1Haufen: haufen1_k = self.game.spieler1Haufen[0]
-    if self.game.spieler2Haufen: haufen2_k = self.game.spieler2Haufen[0]
+    if self.game.player1_waste: haufen1_k = self.game.player1_waste[0]
+    if self.game.player2_waste: haufen2_k = self.game.player2_waste[0]
 
     for karte in jointlist:
         if karte.picked_up == True:
@@ -132,7 +132,7 @@ def definiere_bewegbare_karten(self):
             #erst wenn die karte wieder runtergelegt wird kann eine nächste karte hochgehoben werden bzw.
             #ist noch nicht kontroliert ob es wirklich funktioniert
         #alle karten in der liste von den dargestellten karten
-        joint_list_fuer_paeckchen= self.game.platzliste+self.game.spieler1listen+self.game.spieler2listen
+        joint_list_fuer_paeckchen= self.game.tableau+self.game.player1_piles+self.game.player2_piles
         for liste in joint_list_fuer_paeckchen:
             #alle karten in den platzlisten werden überprüft
             if not liste:
@@ -141,9 +141,9 @@ def definiere_bewegbare_karten(self):
             if karte.kard_reference is liste[-1]:
                 karte.bewegbar = True
                 #karte.highlighted = True
-            if haufen1_k and karte.kard_reference is haufen1_k and self.game.current.spielernummer == 1:
+            if haufen1_k and karte.kard_reference is haufen1_k and self.game.current_player.player_number == 1:
                 karte.bewegbar = True
-            if haufen2_k and karte.kard_reference is haufen2_k and self.game.current.spielernummer == 2:
+            if haufen2_k and karte.kard_reference is haufen2_k and self.game.current_player.player_number == 2:
                 karte.bewegbar = True
 
 def finde_die_ursprungsliste(self, feld:MKarte)->str:
@@ -151,27 +151,27 @@ def finde_die_ursprungsliste(self, feld:MKarte)->str:
     # geht durch alle liste durch und schaut ob die karte in einer der listen ist
     # wenn ja wird der string zurückgegeben mit den Regeln passend zu aktionen in der Funktion Play() aus der Klasse Spiel
     # wenn nicht wird die Funktion finde_die_adequate_liste aufgerufen um spezialfälle zu behandeln wie leere listen
-    for sublist in self.game.platzliste:
+    for sublist in self.game.tableau:
         for kard in sublist:
             if kard == feld.kard_reference:
-                return f"S{self.game.platzliste.index(sublist)+1}"
+                return f"S{self.game.tableau.index(sublist)+1}"
 
-    for sublist in self.game.spieler1listen:
+    for sublist in self.game.player1_piles:
         for kard in sublist:
             if kard == feld.kard_reference:
-                if sublist in self.game.spieler1listen and self.game.current.spielernummer== 1:
-                    return f"A{self.game.spieler1listen.index(sublist)}"
+                if sublist in self.game.player1_piles and self.game.current_player.player_number== 1:
+                    return f"A{self.game.player1_piles.index(sublist)}"
 
-    for sublist in self.game.spieler2listen:
+    for sublist in self.game.player2_piles:
         for kard in sublist:
             if kard == feld.kard_reference:
-                if sublist in self.game.spieler2listen and self.game.current.spielernummer== 2:
-                    return f"A{self.game.spieler2listen.index(sublist)}"
+                if sublist in self.game.player2_piles and self.game.current_player.player_number== 2:
+                    return f"A{self.game.player2_piles.index(sublist)}"
 
-    for sublist in self.game.mittlereliste:
+    for sublist in self.game.foundations:
         for kard in sublist:
             if kard == feld.kard_reference:
-                return f"M{self.game.mittlereliste.index(sublist)+1}"
+                return f"M{self.game.foundations.index(sublist)+1}"
     return finde_die_adequate_liste(self, feld)
 def finde_die_adequate_liste(self, feld:MKarte)->str:
     #funktion die die liste von der karte findet wenn es keine karte in der list gibt
@@ -197,21 +197,21 @@ def finde_die_adequate_liste(self, feld:MKarte)->str:
             # "A1" = Karte vom eigenen Haufen nehmen oder auf eigenen Haufen legen
 
             if feld.y ==25:
-                if self.game.current.spielernummer == 1:
+                if self.game.current_player.player_number == 1:
                     #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
-                    print("Spieler 1 Haufen", self.game.spieler1Haufen, "Spieler 1 Paechen", self.game.spieler1Paechen)
-                    if self.game.spieler1Haufen and not self.game.spieler1Paechen:
+                    print("Spieler 1 Haufen", self.game.player1_waste, "Spieler 1 Paechen", self.game.player1_stock)
+                    if self.game.player1_waste and not self.game.player1_stock:
                         return "R"
                     return "A1"
-                if self.game.current.spielernummer == 2:
+                if self.game.current_player.player_number == 2:
                     return "G0"
             if feld.y == 655:
-                if self.game.current.spielernummer == 2:
+                if self.game.current_player.player_number == 2:
                     #wenn alle karten aus den packchen weg sind und noch karten im Haufen wird es umgedreht
-                    if self.game.spieler2Haufen and not self.game.spieler2Paechen:
+                    if self.game.player2_waste and not self.game.player2_stock:
                         return "R"
                     return "A1"
-                if self.game.current.spielernummer == 1:
+                if self.game.current_player.player_number == 1:
                     return "G0"
 
         case 800:

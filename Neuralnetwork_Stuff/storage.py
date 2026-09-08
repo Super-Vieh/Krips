@@ -4,10 +4,10 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from Klassen import Game, Card, Player, CardType, CardValue
 #from Klassen import print_top,print_sidesplus,print_bot
 class Storage:
-    def __init__(self,game:Spiel):
+    def __init__(self,game:Game):
         self.game = game
         self.transitions:list[tuple[T.Tensor,tuple[T.Tensor,T.Tensor],float,T.Tensor,bool]] = []
         # A list which contains tuples of the state(tensor),action(tupel of two tensors),reward(float),next_state(tensor),done(bool)
@@ -51,7 +51,7 @@ class Storage:
         return actions_firstoutputlayer_t, actions_secondoutputlayer_t
 
 
-    def initialize_states(self,game:Spiel)->T.tensor:
+    def initialize_states(self,game:Game)->T.tensor:
         """
         SPIELER 1:
         [0:52]     -> Spieler 1 Päckchen (Handkarten)
@@ -76,17 +76,17 @@ class Storage:
         spieler_listen = []
         #spielerfeld listen is a list of all list that are on the playing field.
         # it is a list of lists and so are platzliste and mittlereliste. they can be added
-        spielfeld_listen = game.platzliste+game.mittlereliste
+        spielfeld_listen = game.tableau+game.foundations
 
         #spieler listen is a list of all lists that belong to the players the list itself is also a list of list
-        # but the game.spieler1 and game.spieler2 list are only simple lists
-        spieler_listen.append(game.spieler1Paechen)
-        spieler_listen.append(game.spieler1Haufen)
-        spieler_listen.append(game.spieler1Dreizehner)
+        # but the game.player1 and game.player2 list are only simple lists
+        spieler_listen.append(game.player1_stock)
+        spieler_listen.append(game.player1_waste)
+        spieler_listen.append(game.player1_reserve)
 
-        spieler_listen.append(game.spieler2Paechen)
-        spieler_listen.append(game.spieler2Haufen)
-        spieler_listen.append(game.spieler2Dreizehner)
+        spieler_listen.append(game.player2_stock)
+        spieler_listen.append(game.player2_waste)
+        spieler_listen.append(game.player2_reserve)
 
 
         i =0
@@ -95,27 +95,27 @@ class Storage:
             states+=self.transform_to_52bitvektor(list)
         return T.tensor(states, dtype=T.float32)
 
-    def transform_to_52bitvektor(self,list:list[Karten]):
+    def transform_to_52bitvektor(self,list:list[Card]):
         dict_suit ={
-            KartenTyp.Pik:0,
-            KartenTyp.Coeur:1,
-            KartenTyp.Treff:2,
-            KartenTyp.Karro:3
+            CardType.Pik:0,
+            CardType.Coeur:1,
+            CardType.Treff:2,
+            CardType.Karro:3
         }
         empty_list = [0]*52
         if not list:# wenn die liste kein element hat wird ein voller 0 vektor zurückgegeben
             return empty_list
         for card in list:
-            if card.karteOffen== False and list[-1].karteOffen== False:
+            if card.is_face_up== False and list[-1].is_face_up== False:
                 # wenn die Karte nicht offen ist, dann wird sie nicht in den Vektor aufgenommen
                 # das list[-1] ist für doe spielerlisten da dort die letze karte die erste ist
                 break
-            if card.karteOffen == False:
+            if card.is_face_up == False:
                 # wenn die Karte nicht offen ist, dann wird sie nicht in den Vektor aufgenommen
                 # die zweite überprüfung is notwending da im ersten if auf eine kombination
                 continue
-            mult = dict_suit[card.kartentyp]
-            empty_list[(mult*13)+card.kartenwert.value-1]=1
+            mult = dict_suit[card.card_type]
+            empty_list[(mult*13)+card.rank.value-1]=1
             # der intex wird berechnet durch die art von Karte 0-3 und den Wert1-13
 
         return empty_list

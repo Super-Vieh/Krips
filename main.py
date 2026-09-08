@@ -3,12 +3,12 @@ import random
 
 import pygame
 
-from Datenbank.datenbank import Datenbank
-from Klassen.spielinititalisierer import SpielInitialisierer
-from Datenbank import Datenbank
+from Datenbank.datenbank import Database
+from Klassen.game_initializer import GameInitializer
+from Datenbank import Database
 
 from Pygame import GUI, MKarte
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert, SpielInitialisierer
+from Klassen import Game, Card, Player, CardType, CardValue, GameInitializer
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 def main():
 

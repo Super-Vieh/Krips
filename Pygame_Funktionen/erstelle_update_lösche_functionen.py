@@ -2,7 +2,7 @@
 import pygame
 import Pygame # kann aucbh nicht genutzt werden
 from .mk_karte import MKarte
-from Klassen import Karten, KartenWert, KartenTyp
+from Klassen import Card, CardValue, CardType
 from .unterstuezungs_und_navigations_funktionen_ import aendere_kartenformat,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf
 
 
@@ -31,36 +31,36 @@ def erstelle_spieler_packchen(self):
 def loesche_alle_elemente(self):
     self.gamelist = []
 def mache_die_packete(self, x_wert, y_wert1, y_wert2, bild):
-    if self.game.spieler1Paechen:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler1Paechen[-1], x_wert, y_wert1, bild)
+    if self.game.player1_stock:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player1_stock[-1], x_wert, y_wert1, bild)
         self.gamelist.append(MKarte(self.screen, x_wert , y_wert1,self.placeholder_rueckseite, None))
     else: self.gamelist.append(MKarte(self.screen,x_wert,y_wert1,self.plus,None))
-    if self.game.spieler2Paechen:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler2Paechen[-1], x_wert, y_wert2, bild)
+    if self.game.player2_stock:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player2_stock[-1], x_wert, y_wert2, bild)
         self.gamelist.append(MKarte(self.screen, x_wert , y_wert2,self.placeholder_rueckseite, None))
     else: self.gamelist.append(MKarte(self.screen,x_wert,y_wert2,self.plus,None))
 def mache_die_haufen(self, x_wert, y_wert1, y_wert2, index):
-    if self.game.spieler1Haufen:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler1Haufen[-1], x_wert + index * 180, y_wert1)
+    if self.game.player1_waste:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player1_waste[-1], x_wert + index * 180, y_wert1)
     else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1, self.plus, None))
-    if self.game.spieler2Haufen:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler2Haufen[-1], x_wert + index * 180, y_wert2)
+    if self.game.player2_waste:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player2_waste[-1], x_wert + index * 180, y_wert2)
     else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert2, self.plus, None))
 def mache_die_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild):
-    if self.game.spieler1Dreizehner:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler1Dreizehner[-1], x_wert + index * 180, y_wert1, bild)
+    if self.game.player1_reserve:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player1_reserve[-1], x_wert + index * 180, y_wert1, bild)
         self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1,self.placeholder_rueckseite, None))
-    if self.game.spieler2Dreizehner:
-        fuege_karte_der_gamelist_hinzu(self, self.game.spieler2Dreizehner[-1], x_wert + index * 180, y_wert2, bild)
+    if self.game.player2_reserve:
+        fuege_karte_der_gamelist_hinzu(self, self.game.player2_reserve[-1], x_wert + index * 180, y_wert2, bild)
         self.gamelist.append(MKarte(self.screen, x_wert+ index * 180 , y_wert2,self.placeholder_rueckseite, None))
 
 
 def fuege_karte_der_gamelist_hinzu(self, card, x_wert, y_wert, bild=None):
-        if not card.karteOffen:
+        if not card.is_face_up:
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert,  self.placeholder_rueckseite, card))
         else:
             geholtes_bild_liste = kartendarstellungs_listen_funktion(self, card)
-            dargestelltes_bild = geholtes_bild_liste[card.kartenwert.value - 1]
+            dargestelltes_bild = geholtes_bild_liste[card.rank.value - 1]
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, dargestelltes_bild, card))
 def erstelle_centerlist(self, bild):
     x_wert1 = 700
@@ -69,11 +69,11 @@ def erstelle_centerlist(self, bild):
     for i in range(8):
         y_wert = (i*108)/2 + i*12.5 if i%2==0 else ((i-1)*108)/2 + (i-1)*12.5    #karten höhe ist 108 || i%4 * 108
         y_wert+= 140
-        current_list= self.game.mittlereliste[i]
+        current_list= self.game.foundations[i]
 
         if current_list:
             kartendarstellung = kartendarstellungs_listen_funktion(self, current_list[-1])
-            geholtes_bild = kartendarstellung[current_list[-1].kartenwert.value - 1]
+            geholtes_bild = kartendarstellung[current_list[-1].rank.value - 1]
         if i % 2 == 0:
             if not current_list:
 
@@ -96,13 +96,13 @@ def erstelle_sidelist(self):
 
         y_wert+=140
 
-        if not self.game.platzliste[i]:
+        if not self.game.tableau[i]:
 
             x_wert = 600 if i < 4 else 900
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, self.plus, None))
-        for k in self.game.platzliste[i]:
+        for k in self.game.tableau[i]:
             kartendarstellung = kartendarstellungs_listen_funktion(self, k)
-            geholtes_bild = kartendarstellung[k.kartenwert.value - 1]
+            geholtes_bild = kartendarstellung[k.rank.value - 1]
 
 
             #hard coded values
@@ -110,8 +110,8 @@ def erstelle_sidelist(self):
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, geholtes_bild, k))
             it += 1
 
-def kartendarstellungs_listen_funktion(self, karte: Karten):
-    match(karte.kartentyp.value):
+def kartendarstellungs_listen_funktion(self, karte: Card):
+    match(karte.card_type.value):
         case "Pik":
             kartendarstellung = self.Kartentypen[0]
         case "Coeur":

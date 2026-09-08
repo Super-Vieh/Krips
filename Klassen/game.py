@@ -1,0 +1,477 @@
+import random
+
+
+from .card import Card, CardType, CardValue
+from .player import Player
+# Die Klasse Game beinhaltet alle Daten, die das Spiel selber betreffen.
+# Die anfangsanktionen werden hier durchgeführt.(kartendeck erstellung, game_first_move)
+# Das Spiel wird hier gestartet und die Aktionen der Spieler werden hier durchgeführt nach dem Algorithmus der Funktion play().
+class Game:
+
+    def __init__(self):
+        self.current_player: Player = None
+        self.is_running = True
+        self.would_be_krips = False
+        self.winner = 0 #
+        self.player1: Player = None
+        self.player2: Player = None
+        #Mitte listen
+        self.pik1: list[Card] = []
+        self.pik2: list[Card] = []
+        self.coeur1: list[Card] = []
+        self.coeur2: list[Card] = []
+        self.treff1: list[Card] = []
+        self.treff2: list[Card] = []
+        self.karro1: list[Card] = []
+        self.karro2: list[Card] = []
+        self.foundations = [self.pik1, self.pik2, self.coeur1, self.coeur2, self.treff1, self.treff2, self.karro1, self.karro2]
+        #Seitenlisten
+        self.tableau1: list[Card] = []
+        self.tableau2: list[Card] = []
+        self.tableau3: list[Card] = []
+        self.tableau4: list[Card] = []
+        self.tableau5: list[Card] = []
+        self.tableau6: list[Card] = []
+        self.tableau7: list[Card] = []
+        self.tableau8: list[Card] = []
+        self.tableau = [self.tableau1, self.tableau2, self.tableau3, self.tableau4, self.tableau5, self.tableau6, self.tableau7,
+                      self.tableau8]
+        #Spielerlisten
+        self.player1_stock: list[Card] = []
+        self.player1_waste: list[Card] = []
+        self.player1_reserve: list[Card] = []
+        self.player1_piles = []
+
+        self.player2_stock: list[Card] = []
+        self.player2_waste: list[Card] = []
+        self.player2_reserve: list[Card] = []
+        self.player2_piles = []
+
+        self.stalemate_counter=0
+        self.last_player_pile_lengths=[]
+
+
+    def create_deck(self) -> list[Card]:
+        templist = []  # Speichert die Karten
+        card_type = list(CardType)
+        card_value = list(CardValue)
+
+        for i in range(len(card_type)):
+            for j in range(len(card_value)):
+                templist.append(Card(card_type[i], card_value[j]))
+        return templist
+
+    def decide_first_player(self):
+        # Hier wird entschieden wer anfängt. Die Höchste karte auf dem Dreizehner päckchen gewinnt
+        # Wenn die karten gleich sind werden die ausgelegten nach unt
+        objdrz1 = self.player1_reserve[
+            len(self.player1_reserve) - 1]  #erstezt das lezte objekt des ersten Dreizehnerpaeckchen
+        objdrz2 = self.player2_reserve[
+            len(self.player2_reserve) - 1]  #erstezt das lezte objekt des zweiten Dreizehnerpaeckchen
+
+        if (objdrz1.is_face_up == True and self.player2_reserve[
+            len(self.player2_reserve) - 1].is_face_up == True):  #Wenn die längen gleich sind
+            # Hier wird entschieden wer anfängt die Höhere Karte im Dreizehnerpäckchen gewinnt. Ausnahme ist wenn ein Ass kommt
+            if (objdrz1.rank.value > objdrz2.rank.value) or (objdrz1.rank.value == 1 and objdrz2.rank.value != 1):  # stimmt wenn player1 die höhere karte hat
+                self.player1.has_turn = True
+                self.current_player = self.player1
+                #Hier wird die möglichkeit auf das erste Krips geschaffen.
+                if self.current_player.has_turn == True and self.current_player.player_number==1 and self.current_player.is_krips() == True:
+                    self.would_be_krips = True
+
+            elif (objdrz1.rank.value < objdrz2.rank.value) or (objdrz2.rank.value == 1 and objdrz1.rank.value != 1):  # stimmt wenn player2 die höhere karte hat
+                self.player2.has_turn = True
+                self.current_player = self.player2
+                if self.current_player.has_turn == True and self.current_player.player_number==2 and self.current_player.is_krips() == True:
+                    self.would_be_krips = True
+
+            else:
+                for karte in range(4):  #geht durch die ersten 4 plätze auf jeder seite durch und vergleich sie
+
+                    if (self.tableau[karte][0].rank.value > self.tableau[karte + 4][0].rank.value):
+                        print("Schleife engaged player1 ist drann?", self.player1.has_turn)
+                        self.current_player= self.player1
+                        return None
+                    elif (self.tableau[karte][0].rank.value < self.tableau[karte + 4][0].rank.value):
+                        print("Schleife engaged player2 ist drann?", self.player2.has_turn)
+                        self.current_player = self.player2
+                        return None
+
+    def play(self,action):
+        #Diese Funktion beinhaltet die Spielregeln und ist der ort an dem das Spielgeschehen stattfindet.
+
+        # action ist ein bis zu 4 stelliger string aus Buchsabe, Zahl, Buchtabe ,Zahl
+        # der erste buchstabe bestimmt die art der liste aus der die karte genommen wird oder eine bestimmte aktion
+        # der zweite buchstabe bestimmt die art der liste auf die die karte gelegt wird
+        # die erste zahl bestimmt die position der karte der Ursprungsliste, also die genaue liste. es wird immer die letzte karte einer Liste genommen.
+        # die zweite zahl macht genau das gleiche wie die erste nur für die Ziel liste.
+
+        # Es gibt 4 verschiedene Listenarten: A = Hauptliste, S = Seitenliste, M = Mittelliste, G = Gegnerliste
+
+        # Die Hauptliste ist die Liste der Karten die der Spieler auf der Hand hat. Diese ändert sich je nachdem welcher Spieler an der Reihe ist.
+        # Es gibt für jeden Spieler 3 eigene listen. Das Dreizehnerpäckchen, das Normale Packchen und der Haufen.
+
+        # Das Dreizehnerpäckchen ist die Liste der Karten die der Spieler zu beginn des Spiels bekommt. Es sind 13 Karten die nicht auf den Haufen gelegt werden können.
+
+        # Das Normale Packchen ist die Liste der Karten die der Spieler im laufe des Spiels bekommt. Diese Karten können auf den Haufen gelegt werden wenn man nicht mehr kann oder seinen Zug benden möchte.
+
+        # Der Haufen ist ein Päckchen welches alte karten beinhaltet. Die jeweils oberste Karte kann auf die Äußeren felder gelegt werden. Wenn das Packchen leer wird es aufgefüllt mit den Karten die auf dem haufen liegen.
+
+        # Die Seitenliste ist die Liste der Karten die auf den 8 Plätzen liegen.
+
+        # Die Mittelliste ist die Liste der Karten die in der Mitte liegen. Es sind 8 Felder und die ersten karten die darauf gelegt werden können sind Asse. 2 Pik-, 2 Coeur-, 2 Treff- und 2 Karro Asse.
+        # Diese werden von Ass zu Zwei bis König der gleichen Karten Art zusammengelegt.
+
+        # Die Gegnerliste hängt von dem Spieler ab welcher am Zug ist. Für Spieler 1 ist die Gegnerliste der Haufen des Spieler 2.
+        # Auf diese liste können karten abgelegt werden die von der gleicher Art sind aber von wert sich um 1 hoch oder runter unterscheiden. z.B. auf eine Herz 7 kann eine Herz 6 oder 8 gelegt werden.
+
+        # Zusatz aktionen sind P, K, und R
+        # P ist das benden des zuges. K ist das Rufen des Krips und R ist das Umlegen des Haufens wenn das Normale Päckchen leer ist.
+
+        # Das Krips ist eine Aktion die der Gegenspieler ausführen kann währen der Spieler am zug ist. Diese Symbolisiert das der Spieler ein fehler gemacht hat.
+        # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
+        # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
+
+        lenaction = len(action)
+        print(f"{self.current_player.player_number} ist drann")
+
+
+        #print(action)
+        match (lenaction, action):
+                case (1, "P"):
+                    self.current_player.end_turn()
+                    return None
+                case (1, "R"):
+                    self.current_player.reset_waste()
+                    return None
+                case (1, "K"):
+                    if self.would_be_krips:
+                        self.current_player.end_turn_due_to_krips()
+                    return None
+                case (2, "A0") | (4, "A0A0"):
+                    print("test")
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.flip_card(0)
+                    return None
+                case (2, "A2") | (4, "A2A2"):
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.flip_card(1)
+                    return None
+
+        if action == "A1":
+            if not self.player1_stock and self.player1_waste and self.current_player.player_number == 1:
+                self.would_be_krips = self.current_player.is_krips()
+                self.current_player.reset_waste()
+
+
+        if not self.player2_stock and self.player2_waste and self.current_player.player_number == 2:
+            self.would_be_krips = self.current_player.is_krips()
+            self.current_player.reset_waste()
+
+
+        # Hier wird sichergestellt das keine fehler entstehen wenn auf die Zeichen der Aktion zugegriffen wird.
+        try: first = action[0]  #Herkunftslistentyp
+        except IndexError:return None
+        try: second = int(action[1])  #herkuftsliste
+        except ValueError: return None
+        except IndexError: return None
+        try: third = action[2]  #Ziellistentyp
+        except IndexError: return None
+        try:fourth = int(action[3])  #zielliste
+        except ValueError: return None
+        except IndexError: return None
+
+        match (first, third):  # M = Mitte, S = Seite, G = Gegner, A=Haupt
+            case ("A","A"):
+                if second==0 and fourth == 1:
+                    self.current_player.end_turn()
+            case ("A", "M"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.player1_piles[second])
+                    self.current_player.krips_card_played(self.player1_piles[second])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.player2_piles[second])
+                    self.current_player.krips_card_played(self.player1_piles[second])
+            case ("A", "S"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.player1_piles[second])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.player2_piles[second])
+
+            case ("A", "G"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_opponent(self.player1_piles[second])
+
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_opponent(self.player2_piles[second])
+            case ("S", "M"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+                    self.current_player.krips_card_played(self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+                    self.current_player.krips_card_played(self.tableau[second - 1])
+            case ("S", "S"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+            case ("S", "G"):
+                print("test for S G")
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    print("test for S G player 1")
+                    self.current_player.play_to_opponent(self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    print("test for S G player 2")
+                    self.current_player.play_to_opponent(self.tableau[second - 1])
+            case ("A", "R"):
+                if second == fourth:
+                    self.current_player.reset_waste()
+            case ("K", "K"):
+                if second == fourth:
+                    self.current_player.end_turn_due_to_krips()
+            case _:
+                print("Ungültige Aktion.")
+
+    def console_play(self,action):
+        if(action=="A0"):
+            self.would_be_krips = self.current_player.is_krips()
+            self.current_player.flip_card(0)
+            return None
+        elif action=="A2":
+            self.would_bSe_krips = self.current_player.is_krips()
+            self.current_player.flip_card(1)
+            return None
+        try:
+            first = action[0]  # Herkunftslistentyp
+            print(action)
+            second = int(action[1])  # Herkunftsliste
+            third = action[2]  # Ziellistentyp
+            fourth = int(action[3])  # Zielliste
+        except (IndexError, ValueError):
+            return None
+
+
+
+        match (first, third):  # M = Mitte, S = Seite, G = Gegner, A=Haupt
+            case ("A","A"):
+                if second==0 and fourth == 1:
+                    self.current_player.end_turn()
+            case ("A", "M"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player1_piles[second].is_face_up == True:
+                        self.current_player.play_to_foundation(fourth, self.player1_piles[second])
+                    self.current_player.krips_card_played(self.player1_piles[second])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player2_piles[second].is_face_up == True:
+                        self.current_player.play_to_foundation(fourth, self.player2_piles[second])
+                    self.current_player.krips_card_played(self.player2_piles[second])
+            case ("A", "S"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player1_piles[second].is_face_up== True:
+                        self.current_player.play_to_tableau(fourth, self.player1_piles[second])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player2_piles[second].is_face_up== True:
+                        self.current_player.play_to_tableau(fourth, self.player2_piles[second])
+
+            case ("A", "G"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player1_piles[second].is_face_up== True:
+                        self.current_player.play_to_opponent(self.player1_piles[second])
+
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    if self.player2_piles[second].is_face_up== True:
+                        self.current_player.play_to_opponent(self.player2_piles[second])
+            case ("S", "M"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+                    self.current_player.krips_card_played(self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+                    self.current_player.krips_card_played(self.tableau[second - 1])
+            case ("S", "S"):
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+            case ("S", "G"):
+                print("test for S G")
+                if self.current_player.player_number == 1:
+                    self.would_be_krips = self.current_player.is_krips()
+                    print("test for S G player 1")
+                    self.current_player.play_to_opponent(self.tableau[second - 1])
+                if self.current_player.player_number == 2:
+                    self.would_be_krips = self.current_player.is_krips()
+                    print("test for S G player 2")
+                    self.current_player.play_to_opponent(self.tableau[second - 1])
+            case _:
+                if first=="R":
+                    self.current_player.reset_waste()
+                if first=="K":
+                    self.current_player.end_turn_due_to_krips()
+                if first!="K" and first!="R":
+                    print("Ungültige Aktion.")
+    def case_aa(self,second:int,fourth:int):
+        try:
+            if second==0 and fourth == 1 and self.current_player.player_number == 1 and self.player1_stock[-1].is_face_up == True:
+                #if the card comes from the normal package and goes to the waste it is checked if the last card is open and to which list it belongs to
+                self.current_player.end_turn()
+            if second == 0 and fourth == 1 and self.current_player.player_number == 2 and self.player2_stock[-1].is_face_up == True:
+                self.current_player.end_turn()
+        except IndexError:
+            self.current_player.reset_waste()
+        if second == fourth and second == 0:
+            self.current_player.flip_card(0)
+        elif second == fourth and second ==2:
+            self.current_player.flip_card(1)
+        self.would_be_krips = self.current_player.is_krips()
+
+
+    def case_as(self,second:int,fourth:int):
+        player1_last_card_exists = self.player1_piles[second] and self.player1_piles[second][-1] and self.player1_piles[second][-1].is_face_up== True
+        player2_last_card_exists = self.player2_piles[second] and self.player2_piles[second][-1] and self.player2_piles[second][-1].is_face_up== True
+        if self.current_player.player_number == 1 and player1_last_card_exists:
+           self.current_player.play_to_tableau(fourth, self.player1_piles[second])
+        if self.current_player.player_number == 2 and player2_last_card_exists:
+           self.current_player.play_to_tableau(fourth, self.player2_piles[second])
+        self.would_be_krips = self.current_player.is_krips()
+    def case_am(self,second:int,fourth:int):
+        player1_last_card_exists = self.player1_piles[second] and self.player1_piles[second][-1] and self.player1_piles[second][-1].is_face_up== True
+        player2_last_card_exists = self.player2_piles[second] and self.player2_piles[second][-1] and self.player2_piles[second][-1].is_face_up== True
+        if self.current_player.player_number == 1 and player1_last_card_exists:
+            self.current_player.play_to_foundation(fourth, self.player1_piles[second])
+        if self.current_player.player_number == 2 and player2_last_card_exists:
+            self.current_player.play_to_foundation(fourth, self.player2_piles[second])
+        self.would_be_krips = self.current_player.is_krips()
+
+        if self.current_player.player_number == 1:
+            self.current_player.krips_card_played(self.player1_piles[second])
+        if self.current_player.player_number == 2:
+            self.current_player.krips_card_played(self.player2_piles[second])
+    def case_ag(self,second:int):
+        player1_last_card_exists = self.player1_piles[second] and self.player1_piles[second][-1] and self.player1_piles[second][-1].is_face_up== True
+        player2_last_card_exists = self.player2_piles[second] and self.player2_piles[second][-1] and self.player2_piles[second][-1].is_face_up== True
+        if self.current_player.player_number == 1 and player1_last_card_exists and self.player2_piles[1] and self.player2_piles[1][-1]:
+            self.current_player.play_to_opponent(self.player1_piles[second])
+        if self.current_player.player_number == 2 and player2_last_card_exists and self.player1_piles[1] and self.player1_piles[1][-1]:
+            self.current_player.play_to_opponent(self.player2_piles[second])
+        self.would_be_krips = self.current_player.is_krips()
+    def case_ss(self,second:int,fourth:int):
+        origin_list_exists = self.tableau[second - 1] and self.tableau[second - 1][-1] and self.tableau[second - 1][-1].is_face_up== True
+        if self.current_player.player_number == 1 and origin_list_exists:
+            self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+        if self.current_player.player_number == 2 and origin_list_exists:
+            self.current_player.play_to_tableau(fourth, self.tableau[second - 1])
+        self.would_be_krips = self.current_player.is_krips()
+    def case_sm(self,second:int,fourth:int):
+        origin_list_exists = self.tableau[second - 1] and self.tableau[second - 1][-1] and self.tableau[second - 1][-1].is_face_up== True
+
+        if self.current_player.player_number== 1 and origin_list_exists:
+            self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+        if self.current_player.player_number==2 and origin_list_exists:
+            self.current_player.play_to_foundation(fourth, self.tableau[second - 1])
+        self.would_be_krips = self.current_player.is_krips()
+
+
+        if self.current_player.player_number == 1:
+            self.current_player.krips_card_played(self.tableau[second-1])
+        if self.current_player.player_number == 2:
+            self.current_player.krips_card_played(self.tableau[second-1])
+    def case_sg(self,second:int):
+        player1_last_card_exists = self.player1_waste and self.player1_waste[-1] and self.tableau and self.tableau[second-1] and self.tableau[second-1][-1]
+        player2_last_card_exists = self.player2_waste and self.player2_waste[-1] and self.tableau and self.tableau[second-1] and self.tableau[second-1][-1]
+        if self.current_player.player_number == 1 and player1_last_card_exists:
+            self.current_player.play_to_opponent(self.tableau[second-1])
+        if self.current_player.player_number == 2 and player2_last_card_exists:
+            self.current_player.play_to_opponent(self.tableau[second-1])
+        self.would_be_krips = self.current_player.is_krips()
+
+    def case_kk(self):
+        if self.would_be_krips == True:
+            self.current_player.end_turn_due_to_krips()
+
+
+
+
+    def play_nn(self,action):
+        #print(action)
+
+        first = action[0]  # Herkunftslistentyp
+        second = int(action[1])  # Herkunftsliste
+        third = action[2]  # Ziellistentyp
+        fourth = int(action[3])  # Zielliste
+        match (first, third):
+            case ("A", "A"):
+                self.case_aa(second,fourth)
+            case ("A", "S"):
+                self.case_as(second,fourth)
+            case ("A", "M"):
+                self.case_am(second,fourth)
+            case ("A", "G"):
+                self.case_ag(second)
+            case ("S", "S"):
+                self.case_ss(second,fourth)
+            case ("S", "M"):
+                self.case_sm(second, fourth)
+            case ("S", "G"):
+                self.case_sg(second)
+            case ("K", "K"):
+                self.case_kk()
+            #krips funtionalität muss noch implementiert werden
+
+
+    def player_pile_lengths(self):
+        current_len = [len(self.player1_waste),len(self.player1_stock),len(self.player1_reserve),len(self.player2_waste),len(self.player2_stock),len(self.player2_reserve)]
+        if current_len == self.last_player_pile_lengths:
+            self.stalemate_counter+=1
+        else:
+            self.stalemate_counter=0
+        self.last_player_pile_lengths=current_len
+    def is_stalemate(self)->bool: # wenn der stalemate_counter 30 erreicht hat wird die funktion True zurückgeben
+        self.player_pile_lengths()
+        if self.stalemate_counter>=30:
+            if len(self.player1_reserve)!=0:
+                self.winner=1
+            elif len(self.player2_reserve)!=0:
+                self.winner=2
+            else:
+                self.winner=0
+            return True
+        else:return False
+
+
+    def has_game_ended(self):
+        if not self.player1_waste and not self.player1_stock and not self.player1_reserve:
+            self.winner = 1
+            self.is_running = False
+        if not self.player2_waste and not self.player2_stock and not self.player2_reserve:
+            self.winner = 2
+            self.is_running = False
+        if self.is_stalemate():
+            self.is_running = False
+    def get_state(self):
+        player1_piles = [self.player1_stock,self.player1_waste,self.player1_reserve]
+        player2_piles = [self.player2_stock,self.player2_waste,self.player2_reserve]
+        return (player1_piles,player2_piles,self.tableau,self.foundations)

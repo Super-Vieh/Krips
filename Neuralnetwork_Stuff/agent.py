@@ -9,16 +9,15 @@ import torch.optim as optim
 from Neuralnetwork_Stuff.reward_engine import RewardEngine
 from Neuralnetwork_Stuff.storage import Storage
 from Neuralnetwork_Stuff.qualing_q_learning import DualingQNetwork
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from Klassen import Game, Card, Player, CardType, CardValue
 #,initialize_paechen,initialize_oponents)
-from Pygame import GUI, MKarte
 
 class Agent():
     def __init__(self,nn:DualingQNetwork):
         self.storage = None
         self.nn = nn
         self.game= None
-        self.spieler = None
+        self.player = None
         self.reward_engine = None
         self.replay_moves = []
 
@@ -40,8 +39,8 @@ class Agent():
             while not done and  max_number_of_moves > 0:
                 max_number_of_moves -= 1
 
-                if self.game.spieler1.anderreihe == True: self.game.current = self.game.spieler1
-                elif self.game.spieler2.anderreihe == True: self.game.current = self.game.spieler2
+                if self.game.player1.has_turn == True: self.game.current_player = self.game.player1
+                elif self.game.player2.has_turn == True: self.game.current_player = self.game.player2
 
                 states = self.storage.initialize_states(self.game)
                 # makes states into a tensor
@@ -154,8 +153,8 @@ class Agent():
         total_reward = 0
         total_loss = 0
         list_of_valid_moves = []
-        while self.game.current == self.spieler and self.game.gameon:
-            # could create a bug, not sure if the game.current can be equal to the player. 
+        while self.game.current_player == self.player and self.game.is_running:
+            # could create a bug, not sure if the game.current_player can be equal to the player.
             # Does the player object change after a move in the game?
             made_moves += 1
             states = self.storage.initialize_states(self.game)
@@ -191,14 +190,14 @@ class Agent():
         valid_moves = 0
         total_reward = 0
         total_loss = 0
-        while self.game.current == self.spieler and self.game.gameon:
-            # could create a bug, not sure if the game.current can be equal to the player.
+        while self.game.current_player == self.player and self.game.is_running:
+            # could create a bug, not sure if the game.current_player can be equal to the player.
             # Does the player object change after a move in the game?
             made_moves += 1
             states = self.storage.initialize_states(self.game)
             # makes states into a tensor
             if  len(self.replay_moves)==0:
-                self.game.gameon = False
+                self.game.is_running = False
                 break
 
             action = self.replay_moves.pop(0)

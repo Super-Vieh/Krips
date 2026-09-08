@@ -4,7 +4,7 @@ import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert
+from Klassen import Game, Card, Player, CardType, CardValue
 
 class DualingQNetwork(nn.Module):
     def __init__(self,learning_rate,savestate_file_name):
