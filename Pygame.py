@@ -14,27 +14,27 @@ from Pygame_Funktionen import finde_die_ursprungsliste,aendere_kartenformat,draw
 
 
 class GUI:
-    def __init__(self,game:Game):
+    def __init__(self, game: Game):
         pygame.init()
-        self.run = True
-        self.screen =pygame.display.set_mode((1540,  790))
+        self.run: bool = True
+        self.screen: pygame.Surface = pygame.display.set_mode((1540,  790))
         self.movable_cards:list[MKarte]= []
         self.centerlist:list[MKarte] = []
         self.gamelist:list[MKarte] = []
         self.movable_list:list[MKarte]=[]
-        self.game = game
-        self.Kartentypen = []
-        self.action_done = False
-        self.placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')
+        self.game: Game = game
+        self.Kartentypen: list = []
+        self.action_done: bool = False
+        self.placeholder_rueckseite: pygame.Surface = pygame.image.load('Bilder/Placeholder.png')
         self.placeholder_rueckseite = aendere_kartenformat(self, self.placeholder_rueckseite)# ändert die größe zu einer vorherbestimmten größe
-        self.plus = pygame.image.load('Bilder/Plus.png')
+        self.plus: pygame.Surface = pygame.image.load('Bilder/Plus.png')
         self.plus = aendere_kartenformat(self, self.plus, 50)
-        self.current_card = None
+        self.current_card: MKarte | None = None
 
 
 
 
-    def image(self):
+    def image(self) -> None:
         initialisierung_der_bilder(self)
         erstelle_centerlist(self, self.plus)
         erstelle_sidelist(self)
@@ -45,7 +45,7 @@ class GUI:
         draw(self, self.centerlist)
         self.reset()
         pygame.display.update()
-    def instance(self):
+    def instance(self) -> None:
 
         initialisierung_der_bilder(self)
 
@@ -68,12 +68,12 @@ class GUI:
             draw(self, self.gamelist)
             draw(self, self.centerlist)
 
-            krips_knoepfe = self.erstelle_knopf()
+            krips_knoepfe: list[pygame.Rect] = self.erstelle_knopf()
             for button in krips_knoepfe:
                 pygame.draw.rect(self.screen, (255, 0, 0), button)
 
 
-            mouse_pos = pygame.mouse.get_pos()
+            mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
             pygame.draw.circle(self.screen, (255, 0, 0), mouse_pos, 5)
 
             for event in pygame.event.get():
@@ -86,17 +86,17 @@ class GUI:
 
 
 
-    def nutze_play(self):
+    def nutze_play(self) -> None:
         #Hier wird die Funktion Play() der Klasse Spiel durchgeführt
 
-        temp = waehle_karteaus(self)
+        temp: MKarte | None = waehle_karteaus(self)
         if not temp: return None
         if temp.picked_up == False:
             hebe_karte_auf(self, temp)
 
         elif temp.picked_up == True:
             #print(temp.kard_reference.kartenwert, temp.kard_reference.kartentyp)
-            ergebniss_string =lege_karte_ab(self)
+            ergebniss_string: str | None = lege_karte_ab(self)
             if ergebniss_string:
                 self.game.play(ergebniss_string)
         setze_karte_auf_den_zeiger(self)
@@ -107,7 +107,7 @@ class GUI:
 
 
 
-    def reset(self):
+    def reset(self) -> None:
         #Es löscht alle Elemente auf dem Bildschirm und erstellt neue nach dem gamestate.
         if self.action_done == True: #action_done hat keinen bezug zu dem hier in der funktion
             loesche_alle_elemente(self)
@@ -116,15 +116,15 @@ class GUI:
             erstelle_centerlist(self, self.plus)
             self.action_done=False
 
-    def erstelle_knopf(self):
+    def erstelle_knopf(self) -> list[pygame.Rect]:
         #Der Krips Button wird erstellt
-        button_color = (255, 0, 0)  # Red color
-        button_rects = [
+        button_color: tuple[int, int, int] = (255, 0, 0)  # Red color
+        button_rects: list[pygame.Rect] = [
             pygame.Rect(400, 25, 100, 108),  # Button at (400, 25)
             pygame.Rect(1085, 655, 100, 108)  # Button at (400, 655)
         ]
         return button_rects
-    def rufe_krips(self, event, knoepfe_liste):
+    def rufe_krips(self, event: pygame.event.Event, knoepfe_liste: list[pygame.Rect]) -> None:
         # Die interaktion mit dem Krips Button wird hier gesteuert
         if event.type == pygame.MOUSEBUTTONDOWN:
             for rect in knoepfe_liste:

@@ -3,11 +3,11 @@ import os
 import time
 
 class TensorMetricBoard:
-    def __init__(self, log_dir:str = "TensorMetricBoard Logs"):
-        timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
-        file_dir = os.path.join(log_dir, timestamp)
-        self.writer = SummaryWriter(log_dir = file_dir)
-    def log_turn(self,current_move,made_moves,valid_moves, epsilon, total_reward, total_loss, reward_loss_ratio, valid_moves_ratio):
+    def __init__(self, log_dir: str = "TensorMetricBoard Logs"):
+        timestamp: str = time.strftime("%Y-%m-%d_%H-%M-%S")
+        file_dir: str = os.path.join(log_dir, timestamp)
+        self.writer: SummaryWriter = SummaryWriter(log_dir = file_dir)
+    def log_turn(self, current_move: int, made_moves: int, valid_moves: int, epsilon: float, total_reward: float, total_loss: float, reward_loss_ratio: float, valid_moves_ratio: float) -> None:
         self.writer.add_scalar('turn/made_moves', made_moves, current_move)
         self.writer.add_scalar('turn/valid_moves', valid_moves, current_move)
         self.writer.add_scalar('turn/epsilon', epsilon, current_move)
@@ -20,5 +20,5 @@ class TensorMetricBoard:
 
 
 
-    def close(self):
+    def close(self) -> None:
         self.writer.close()

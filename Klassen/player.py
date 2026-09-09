@@ -4,22 +4,26 @@ from .card import Card
 #Imgrunde ist die Klasse das Werkzeug welches von anhand der Regeln der Klasse Game genutzt wird.
 #Die namen der einzelnen Funktionen Beschreiben den Nutzen ziemlich gut.
 class Player:
-    def __init__(self,player_number:int, own_deck: list[Card]):
+    def __init__(self,player_number:int, own_deck: list[Card]) -> None:
         self.game:'Game' = None
-        self.player_number=player_number
-        self.own_deck = own_deck
+        self.player_number: int = player_number
+        self.own_deck: list[Card] = own_deck
         self.opponent: 'Player' = None
-        self.has_turn = False
+        self.has_turn: bool = False
+        self.player_stock: list[Card] = []
+        self.player_waste: list[Card] = []
+        self.player_reserve: list[Card] = []
+        self.player_piles = [self.player_stock, self.player_waste, self.player_reserve]
 
 
 
-    def set_opponent(self, opponent: 'Player'):
+    def set_opponent(self, opponent: 'Player') -> None:
         #initialisierungs funktion
         from .game import Game
         self.opponent = opponent
 
 
-    def set_game(self, game: 'Game'):
+    def set_game(self, game: 'Game') -> None:
         # initialisierungs funktion wegen circular imports
         from .game import Game
         self.game = game
@@ -30,37 +34,28 @@ class Player:
         if len(self.own_deck) != 52:
             raise ValueError("Deck has less than 52 cards")
         # Erstellung des Dreizehner Päckchens
-        for i in range(13):
-            if self.player_number == 1:
-                self.game.player1_reserve.append(self.own_deck.pop())
-            if self.player_number == 2:
-                self.game.player2_reserve.append(self.own_deck.pop())
+        for _ in range(13):
+            self.player_reserve.append(self.own_deck.pop())
 
         #Hinlegen der ersten 4 Karten aus dem Normalen Päckchen auf die Seitenstreifen
-        for i in range(1,5):
-            if self.player_number == 1:
-                self.play_to_tableau(i, self.own_deck)
-                #self.own_deck.pop()
-            elif self.player_number == 2:
-                self.play_to_tableau(i + 4, self.own_deck)
-                #self.own_deck.pop()
+        start = 1 if self.player_number == 1 else 5
+        for i in range(start, start + 4):
+            self.play_to_tableau(i, self.own_deck)
 
-        if self.player_number == 1:
-            self.game.player1_reserve[-1].is_face_up = True
-            self.game.player1_stock = self.own_deck
-        if self.player_number == 2:
-            self.game.player2_reserve[-1].is_face_up = True
-            self.game.player2_stock = self.own_deck
+        self.player_reserve[-1].is_face_up = True
+        self.player_stock = self.own_deck
 
 
 
 
 
-    def flip_card(self,stock:int=0):
-        reserve1= self.game.player1_reserve
-        reserve2= self.game.player2_reserve
-        stock1= self.game.player1_stock
-        stock2= self.game.player2_stock
+
+
+    def flip_card(self,stock:int=0) -> None:
+        reserve1: list[Card] = self.game.player1_reserve
+        reserve2: list[Card] = self.game.player2_reserve
+        stock1: list[Card] = self.game.player1_stock
+        stock2: list[Card] = self.game.player2_stock
         if   stock == 1:
             #Päckchen 1 ist das Dreizehner Päckchen
             if   self.player_number == 1 and reserve1:
@@ -74,8 +69,8 @@ class Player:
             elif self.player_number == 2 and stock2: stock2[-1].is_face_up = True
             else:return None
 
-    def play_to_foundation(self,slot:int,origin:list[Card]):
-        foundations = self.game.foundations[slot-1]#Es wird die liste ausgesucht aus den listen also slot 1 ist [0]
+    def play_to_foundation(self,slot:int,origin:list[Card]) -> None:
+        foundations: list[Card] = self.game.foundations[slot-1]#Es wird die liste ausgesucht aus den listen also slot 1 ist [0]
         #Nur wenn das Ass gelegt wird
         if origin and origin[-1].rank.value==1:
             #Wenn als erste Karte das Ass gelegt wird muss sichergegangen werden dass, das Ass zum Feld passt
@@ -94,7 +89,7 @@ class Player:
 
 
     def can_play_on_foundation(self,card:Card,slot:int)->bool: # Es wird überprüft ob das hinlegen der karte erlaubt , wichtig, in der Mitte
-        foundations = self.game.foundations[slot-1]
+        foundations: list[Card] = self.game.foundations[slot-1]
         #Es wird die liste ausgesucht aus den listen also slot 1 ist [0]
         # Es wird jetzt von 1-8 nummeriert
         if foundations and (len(foundations) == card.rank.value-1 and foundations[len(foundations)-1].card_type == card.card_type):
@@ -105,21 +100,21 @@ class Player:
 
 
     def can_play_on_tableau(self, card: Card, slot: int) -> bool:
-        tableau = self.game.tableau[slot-1]
+        tableau: list[Card] = self.game.board.tableau[slot-1]
         if (tableau[-1].rank.value == card.rank.value + 1 and tableau[-1].farbe != card.farbe):
             return True
         return False
 
 
     def play_to_tableau(self,slot:int,origin:list[Card])->None:
-        tableau:list[Card] = self.game.tableau[slot-1]
+        tableau:list[Card] = self.game.board.tableau[slot-1]
         if origin and len(tableau) == 0:
-            tempcard= origin.pop()
+            tempcard: Card = origin.pop()
             tempcard.is_face_up = True
             tableau.append(tempcard)
             return None
         if origin and (self.can_play_on_tableau(origin[-1], slot)):
-            tempcard= origin.pop()
+            tempcard: Card = origin.pop()
             tempcard.is_face_up = True
             tableau.append(tempcard)
             return None
@@ -128,14 +123,14 @@ class Player:
     def can_play_on_opponent(self, card: Card) -> bool:
         #kontroliert ob die karte um eins höher oder kleiner ist als die karte auf dem gegner stock und ob die von der gleicher art ist
         if self.player_number == 1:
-            p2waste = self.game.player2_waste
+            p2waste: list[Card] = self.game.player2_waste
             if not p2waste: return False
             elif (card.card_type == p2waste[-1].card_type)and((card.rank.value == p2waste[-1].rank.value + 1) or (card.rank.value == p2waste[-1].rank.value -1)):
                 #Es wird zuerst kontroliert ob die Art der Karte die gleiche ist wie die letzte Karte der Liste.
                 #Danach wird überprüft ob die karte im karten wert sich um 1 hoch oder runter, unterscheiden. Also wie 7 und 9 sich zu 8 verhalten
                 return True
         if self.player_number == 2:
-            p1waste =self.game.player1_waste
+            p1waste: list[Card] =self.game.player1_waste
             if not p1waste: return False
             elif (card.card_type == p1waste[-1].card_type)and((card.rank.value == p1waste[-1].rank.value + 1) or (card.rank.value == p1waste[-1].rank.value -1)) :
                 #Es passiert genau das gleiche wie vorher
@@ -149,7 +144,7 @@ class Player:
         if self.player_number == 2:
             if origin and self.can_play_on_opponent(origin[-1]):
                 self.game.player1_waste.append(origin.pop())
-    def reset_waste(self):
+    def reset_waste(self) -> None:
        if self.player_number == 1:
             for i in self.game.player1_waste:
                 i.is_face_up = False
@@ -166,7 +161,7 @@ class Player:
             self.game.player2_waste = []
             for i in self.game.player2_waste:
                 print(i.is_face_up)
-    def end_turn(self):
+    def end_turn(self) -> None:
         if self.player_number ==1 and self.game.player1_stock and self.game.player1_stock[-1].is_face_up == True:
             self.game.player1_waste.append(self.game.player1_stock.pop())
             self.has_turn= False
@@ -177,7 +172,7 @@ class Player:
             self.has_turn= False
             self.opponent.has_turn= True
             self.game.current_player = self.game.player1
-    def end_turn_due_to_krips(self):
+    def end_turn_due_to_krips(self) -> None:
         if self.player_number == 1:
             if self.game.player1_stock[-1].is_face_up == True: self.end_turn()
             else:
@@ -195,8 +190,8 @@ class Player:
     def is_krips(self )-> bool:
         # Kontroliert ob ein Krips gelegt werden kann. Die funktion wird in play() aufgerufen
         if self.player_number == 1:
-            ownlists=[self.game.player1_stock,self.game.player1_waste,self.game.player1_reserve]
-            validlists =[liste for liste in (self.game.tableau + ownlists) if liste] # Alle listen die nicht leer sind werden in die validlists geschrieben. Nur die listen aus tableau und ownlist werden überprüft
+            ownlists: list[list[Card]] =[self.game.player1_stock,self.game.player1_waste,self.game.player1_reserve]
+            validlists: list[list[Card]] =[liste for liste in (self.game.tableau + ownlists) if liste] # Alle listen die nicht leer sind werden in die validlists geschrieben. Nur die listen aus tableau und ownlist werden überprüft
             for slist in validlists:
                 if slist[-1].rank.value == 1: #Wenn irgenwo ein Ass liegt
                     return True
@@ -207,8 +202,8 @@ class Player:
                             return True
 
         if self.player_number == 2:
-            ownlists=[self.game.player2_stock,self.game.player2_waste,self.game.player2_reserve]
-            validlists=[liste for liste in (self.game.tableau + ownlists) if len(liste) > 0]
+            ownlists: list[list[Card]] =[self.game.player2_stock,self.game.player2_waste,self.game.player2_reserve]
+            validlists: list[list[Card]] =[liste for liste in (self.game.tableau + ownlists) if len(liste) > 0]
             for slist in validlists:
                 if slist[-1].rank.value == 1: #Wenn irgenwo ein Ass leigt
                     return True
@@ -217,7 +212,7 @@ class Player:
                         if slist[-1].card_type.value == mliste[-1].card_type.value and slist[-1].rank.value -1 == mliste[-1].rank.value:
                             return True
         return False
-    def krips_card_played(self, list_of_last_card:list[Card]):
+    def krips_card_played(self, list_of_last_card:list[Card]) -> None:
         # ist eine Funktion welche kontroliert, ob die gelegte karte nicht das Krips bedient und wenn es das tut wird would_be_krips auf false gesetzt
         # wird in der play() funktion genutzt um Krips zu kontrolieren. Nur in dem Fall das eine Karte in die mitte gelegt wird, wird die funktiomn aufgerufen.
         if self.game.would_be_krips == False or not list_of_last_card:

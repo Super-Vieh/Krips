@@ -13,13 +13,13 @@ from .unterstuezungs_und_navigations_funktionen_ import aendere_kartenformat,dra
 #Die drei Wichtigsten funktionen sind erstelle_spieler_packchen, erstelle_centerlist und erstelle_sidelist
 #Sie positionieren und erstellen die MKarten Objekte welche dann auf dem Bildschirm ausgegebemn werden.
 #Sie werden nach jeder aktion ausgeführt. Alle Objekte werden mit jeder Aktion auf dem Bildschirm gelöscht und erstellt. Dieser Ansatz hätte eventuel noch sehr hohes optimierungspotenzial
-def erstelle_spieler_packchen(self):
-    bild = self.placeholder_rueckseite
+def erstelle_spieler_packchen(self) -> None:
+    bild: pygame.Surface = self.placeholder_rueckseite
     for i in range(3):
-        index = i
-        x_wert = 575
-        y_wert1 = 25
-        y_wert2 = 655
+        index: int = i
+        x_wert: int = 575
+        y_wert1: int = 25
+        y_wert2: int = 655
         match(index):
             case 0:
                 mache_die_packete(self, x_wert, y_wert1, y_wert2, bild)
@@ -28,9 +28,9 @@ def erstelle_spieler_packchen(self):
             case 2:
                 mache_die_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild)
 
-def loesche_alle_elemente(self):
+def loesche_alle_elemente(self) -> None:
     self.gamelist = []
-def mache_die_packete(self, x_wert, y_wert1, y_wert2, bild):
+def mache_die_packete(self, x_wert: int, y_wert1: int, y_wert2: int, bild: pygame.Surface) -> None:
     if self.game.player1_stock:
         fuege_karte_der_gamelist_hinzu(self, self.game.player1_stock[-1], x_wert, y_wert1, bild)
         self.gamelist.append(MKarte(self.screen, x_wert , y_wert1,self.placeholder_rueckseite, None))
@@ -39,14 +39,14 @@ def mache_die_packete(self, x_wert, y_wert1, y_wert2, bild):
         fuege_karte_der_gamelist_hinzu(self, self.game.player2_stock[-1], x_wert, y_wert2, bild)
         self.gamelist.append(MKarte(self.screen, x_wert , y_wert2,self.placeholder_rueckseite, None))
     else: self.gamelist.append(MKarte(self.screen,x_wert,y_wert2,self.plus,None))
-def mache_die_haufen(self, x_wert, y_wert1, y_wert2, index):
+def mache_die_haufen(self, x_wert: int, y_wert1: int, y_wert2: int, index: int) -> None:
     if self.game.player1_waste:
         fuege_karte_der_gamelist_hinzu(self, self.game.player1_waste[-1], x_wert + index * 180, y_wert1)
     else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1, self.plus, None))
     if self.game.player2_waste:
         fuege_karte_der_gamelist_hinzu(self, self.game.player2_waste[-1], x_wert + index * 180, y_wert2)
     else: self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert2, self.plus, None))
-def mache_die_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild):
+def mache_die_dreizehner(self, x_wert: int, y_wert1: int, y_wert2: int, index: int, bild: pygame.Surface) -> None:
     if self.game.player1_reserve:
         fuege_karte_der_gamelist_hinzu(self, self.game.player1_reserve[-1], x_wert + index * 180, y_wert1, bild)
         self.gamelist.append(MKarte(self.screen, x_wert + index * 180, y_wert1,self.placeholder_rueckseite, None))
@@ -55,25 +55,25 @@ def mache_die_dreizehner(self, x_wert, y_wert1, y_wert2, index, bild):
         self.gamelist.append(MKarte(self.screen, x_wert+ index * 180 , y_wert2,self.placeholder_rueckseite, None))
 
 
-def fuege_karte_der_gamelist_hinzu(self, card, x_wert, y_wert, bild=None):
+def fuege_karte_der_gamelist_hinzu(self, card: Card, x_wert: int, y_wert: int, bild: pygame.Surface | None = None) -> None:
         if not card.is_face_up:
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert,  self.placeholder_rueckseite, card))
         else:
-            geholtes_bild_liste = kartendarstellungs_listen_funktion(self, card)
-            dargestelltes_bild = geholtes_bild_liste[card.rank.value - 1]
+            geholtes_bild_liste: list = kartendarstellungs_listen_funktion(self, card)
+            dargestelltes_bild: pygame.Surface = geholtes_bild_liste[card.rank.value - 1]
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, dargestelltes_bild, card))
-def erstelle_centerlist(self, bild):
-    x_wert1 = 700
-    x_wert2 = 800
+def erstelle_centerlist(self, bild: pygame.Surface) -> None:
+    x_wert1: int = 700
+    x_wert2: int = 800
 
     for i in range(8):
-        y_wert = (i*108)/2 + i*12.5 if i%2==0 else ((i-1)*108)/2 + (i-1)*12.5    #karten höhe ist 108 || i%4 * 108
+        y_wert: float = (i*108)/2 + i*12.5 if i%2==0 else ((i-1)*108)/2 + (i-1)*12.5    #karten höhe ist 108 || i%4 * 108
         y_wert+= 140
-        current_list= self.game.foundations[i]
+        current_list: list = self.game.foundations[i]
 
         if current_list:
-            kartendarstellung = kartendarstellungs_listen_funktion(self, current_list[-1])
-            geholtes_bild = kartendarstellung[current_list[-1].rank.value - 1]
+            kartendarstellung: list = kartendarstellungs_listen_funktion(self, current_list[-1])
+            geholtes_bild: pygame.Surface = kartendarstellung[current_list[-1].rank.value - 1]
         if i % 2 == 0:
             if not current_list:
 
@@ -89,20 +89,20 @@ def erstelle_centerlist(self, bild):
 
 
 
-def erstelle_sidelist(self):
+def erstelle_sidelist(self) -> None:
     for i in range(8):
-        it = 0
-        y_wert = i * 133 if i < 4 else (i - 4) * 133 # gekürze funktion
+        it: int = 0
+        y_wert: float = i * 133 if i < 4 else (i - 4) * 133 # gekürze funktion
 
         y_wert+=140
 
         if not self.game.tableau[i]:
 
-            x_wert = 600 if i < 4 else 900
+            x_wert: int = 600 if i < 4 else 900
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, self.plus, None))
         for k in self.game.tableau[i]:
-            kartendarstellung = kartendarstellungs_listen_funktion(self, k)
-            geholtes_bild = kartendarstellung[k.rank.value - 1]
+            kartendarstellung: list = kartendarstellungs_listen_funktion(self, k)
+            geholtes_bild: pygame.Surface = kartendarstellung[k.rank.value - 1]
 
 
             #hard coded values
@@ -110,7 +110,7 @@ def erstelle_sidelist(self):
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, geholtes_bild, k))
             it += 1
 
-def kartendarstellungs_listen_funktion(self, karte: Card):
+def kartendarstellungs_listen_funktion(self, karte: Card) -> list:
     match(karte.card_type.value):
         case "Pik":
             kartendarstellung = self.Kartentypen[0]
@@ -124,125 +124,125 @@ def kartendarstellungs_listen_funktion(self, karte: Card):
 
 
 
-def initialisierung_der_bilder(self):
-    placeholder_rueckseite = pygame.image.load('Bilder/Placeholder.png')
+def initialisierung_der_bilder(self) -> None:
+    placeholder_rueckseite: pygame.Surface = pygame.image.load('Bilder/Placeholder.png')
     placeholder_rueckseite = aendere_kartenformat(self, placeholder_rueckseite)
 
-    pik2 = pygame.image.load('Bilder/2_of_spades.png')
+    pik2: pygame.Surface = pygame.image.load('Bilder/2_of_spades.png')
     pik2 = aendere_kartenformat(self, pik2)
-    couer2 = pygame.image.load('Bilder/2_of_hearts.png')
+    couer2: pygame.Surface = pygame.image.load('Bilder/2_of_hearts.png')
     couer2 = aendere_kartenformat(self, couer2)
-    treff2 = pygame.image.load('Bilder/2_of_clubs.png')
+    treff2: pygame.Surface = pygame.image.load('Bilder/2_of_clubs.png')
     treff2 = aendere_kartenformat(self, treff2)
-    karro2 = pygame.image.load('Bilder/2_of_diamonds.png')
+    karro2: pygame.Surface = pygame.image.load('Bilder/2_of_diamonds.png')
     karro2 = aendere_kartenformat(self, karro2)
 
-    pik3 = pygame.image.load('Bilder/3_of_spades.png')
+    pik3: pygame.Surface = pygame.image.load('Bilder/3_of_spades.png')
     pik3 = aendere_kartenformat(self, pik3)
-    couer3 = pygame.image.load('Bilder/3_of_hearts.png')
+    couer3: pygame.Surface = pygame.image.load('Bilder/3_of_hearts.png')
     couer3 = aendere_kartenformat(self, couer3)
-    treff3 = pygame.image.load('Bilder/3_of_clubs.png')
+    treff3: pygame.Surface = pygame.image.load('Bilder/3_of_clubs.png')
     treff3 = aendere_kartenformat(self, treff3)
-    karro3 = pygame.image.load('Bilder/3_of_diamonds.png')
+    karro3: pygame.Surface = pygame.image.load('Bilder/3_of_diamonds.png')
     karro3 = aendere_kartenformat(self, karro3)
 
-    pik4 = pygame.image.load('Bilder/4_of_spades.png')
+    pik4: pygame.Surface = pygame.image.load('Bilder/4_of_spades.png')
     pik4 = aendere_kartenformat(self, pik4)
-    couer4 = pygame.image.load('Bilder/4_of_hearts.png')
+    couer4: pygame.Surface = pygame.image.load('Bilder/4_of_hearts.png')
     couer4 = aendere_kartenformat(self, couer4)
-    treff4 = pygame.image.load('Bilder/4_of_clubs.png')
+    treff4: pygame.Surface = pygame.image.load('Bilder/4_of_clubs.png')
     treff4 = aendere_kartenformat(self, treff4)
-    karro4 = pygame.image.load('Bilder/4_of_diamonds.png')
+    karro4: pygame.Surface = pygame.image.load('Bilder/4_of_diamonds.png')
     karro4 = aendere_kartenformat(self, karro4)
 
-    pik5 = pygame.image.load('Bilder/5_of_spades.png')
+    pik5: pygame.Surface = pygame.image.load('Bilder/5_of_spades.png')
     pik5 = aendere_kartenformat(self, pik5)
-    couer5 = pygame.image.load('Bilder/5_of_hearts.png')
+    couer5: pygame.Surface = pygame.image.load('Bilder/5_of_hearts.png')
     couer5 = aendere_kartenformat(self, couer5)
-    treff5 = pygame.image.load('Bilder/5_of_clubs.png')
+    treff5: pygame.Surface = pygame.image.load('Bilder/5_of_clubs.png')
     treff5 = aendere_kartenformat(self, treff5)
-    karro5 = pygame.image.load('Bilder/5_of_diamonds.png')
+    karro5: pygame.Surface = pygame.image.load('Bilder/5_of_diamonds.png')
     karro5 = aendere_kartenformat(self, karro5)
 
-    pik6 = pygame.image.load('Bilder/6_of_spades.png')
+    pik6: pygame.Surface = pygame.image.load('Bilder/6_of_spades.png')
     pik6 = aendere_kartenformat(self, pik6)
-    couer6 = pygame.image.load('Bilder/6_of_hearts.png')
+    couer6: pygame.Surface = pygame.image.load('Bilder/6_of_hearts.png')
     couer6 = aendere_kartenformat(self, couer6)
-    treff6 = pygame.image.load('Bilder/6_of_clubs.png')
+    treff6: pygame.Surface = pygame.image.load('Bilder/6_of_clubs.png')
     treff6 = aendere_kartenformat(self, treff6)
-    karro6 = pygame.image.load('Bilder/6_of_diamonds.png')
+    karro6: pygame.Surface = pygame.image.load('Bilder/6_of_diamonds.png')
     karro6 = aendere_kartenformat(self, karro6)
 
-    pik7 = pygame.image.load('Bilder/7_of_spades.png')
+    pik7: pygame.Surface = pygame.image.load('Bilder/7_of_spades.png')
     pik7 = aendere_kartenformat(self, pik7)
-    couer7 = pygame.image.load('Bilder/7_of_hearts.png')
+    couer7: pygame.Surface = pygame.image.load('Bilder/7_of_hearts.png')
     couer7 = aendere_kartenformat(self, couer7)
-    treff7 = pygame.image.load('Bilder/7_of_clubs.png')
+    treff7: pygame.Surface = pygame.image.load('Bilder/7_of_clubs.png')
     treff7 = aendere_kartenformat(self, treff7)
-    karro7 = pygame.image.load('Bilder/7_of_diamonds.png')
+    karro7: pygame.Surface = pygame.image.load('Bilder/7_of_diamonds.png')
     karro7 = aendere_kartenformat(self, karro7)
 
-    pik8 = pygame.image.load('Bilder/8_of_spades.png')
+    pik8: pygame.Surface = pygame.image.load('Bilder/8_of_spades.png')
     pik8 = aendere_kartenformat(self, pik8)
-    couer8 = pygame.image.load('Bilder/8_of_hearts.png')
+    couer8: pygame.Surface = pygame.image.load('Bilder/8_of_hearts.png')
     couer8 = aendere_kartenformat(self, couer8)
-    treff8 = pygame.image.load('Bilder/8_of_clubs.png')
+    treff8: pygame.Surface = pygame.image.load('Bilder/8_of_clubs.png')
     treff8 = aendere_kartenformat(self, treff8)
-    karro8 = pygame.image.load('Bilder/8_of_diamonds.png')
+    karro8: pygame.Surface = pygame.image.load('Bilder/8_of_diamonds.png')
     karro8 = aendere_kartenformat(self, karro8)
 
-    pik9 = pygame.image.load('Bilder/9_of_spades.png')
+    pik9: pygame.Surface = pygame.image.load('Bilder/9_of_spades.png')
     pik9 = aendere_kartenformat(self, pik9)
-    couer9 = pygame.image.load('Bilder/9_of_hearts.png')
+    couer9: pygame.Surface = pygame.image.load('Bilder/9_of_hearts.png')
     couer9 = aendere_kartenformat(self, couer9)
-    treff9 = pygame.image.load('Bilder/9_of_clubs.png')
+    treff9: pygame.Surface = pygame.image.load('Bilder/9_of_clubs.png')
     treff9 = aendere_kartenformat(self, treff9)
-    karro9 = pygame.image.load('Bilder/9_of_diamonds.png')
+    karro9: pygame.Surface = pygame.image.load('Bilder/9_of_diamonds.png')
     karro9 = aendere_kartenformat(self, karro9)
 
-    pik10 = pygame.image.load('Bilder/10_of_spades.png')
+    pik10: pygame.Surface = pygame.image.load('Bilder/10_of_spades.png')
     pik10 = aendere_kartenformat(self, pik10)
-    couer10 = pygame.image.load('Bilder/10_of_hearts.png')
+    couer10: pygame.Surface = pygame.image.load('Bilder/10_of_hearts.png')
     couer10 = aendere_kartenformat(self, couer10)
-    treff10 = pygame.image.load('Bilder/10_of_clubs.png')
+    treff10: pygame.Surface = pygame.image.load('Bilder/10_of_clubs.png')
     treff10 = aendere_kartenformat(self, treff10)
-    karro10 = pygame.image.load('Bilder/10_of_diamonds.png')
+    karro10: pygame.Surface = pygame.image.load('Bilder/10_of_diamonds.png')
     karro10 = aendere_kartenformat(self, karro10)
 
-    pik11 = pygame.image.load('Bilder/Jack_of_spades2.png')
+    pik11: pygame.Surface = pygame.image.load('Bilder/Jack_of_spades2.png')
     pik11 = aendere_kartenformat(self, pik11)
-    couer11 = pygame.image.load('Bilder/Jack_of_hearts2.png')
+    couer11: pygame.Surface = pygame.image.load('Bilder/Jack_of_hearts2.png')
     couer11 = aendere_kartenformat(self, couer11)
-    treff11 = pygame.image.load('Bilder/Jack_of_clubs2.png')
+    treff11: pygame.Surface = pygame.image.load('Bilder/Jack_of_clubs2.png')
     treff11 = aendere_kartenformat(self, treff11)
-    karro11 = pygame.image.load('Bilder/Jack_of_diamonds2.png')
+    karro11: pygame.Surface = pygame.image.load('Bilder/Jack_of_diamonds2.png')
     karro11 = aendere_kartenformat(self, karro11)
 
-    pik12 = pygame.image.load('Bilder/Queen_of_spades2.png')
+    pik12: pygame.Surface = pygame.image.load('Bilder/Queen_of_spades2.png')
     pik12 = aendere_kartenformat(self, pik12)
-    couer12 = pygame.image.load('Bilder/Queen_of_hearts2.png')
+    couer12: pygame.Surface = pygame.image.load('Bilder/Queen_of_hearts2.png')
     couer12 = aendere_kartenformat(self, couer12)
-    treff12 = pygame.image.load('Bilder/Queen_of_clubs2.png')
+    treff12: pygame.Surface = pygame.image.load('Bilder/Queen_of_clubs2.png')
     treff12 = aendere_kartenformat(self, treff12)
-    karro12 = pygame.image.load('Bilder/Queen_of_diamonds2.png')
+    karro12: pygame.Surface = pygame.image.load('Bilder/Queen_of_diamonds2.png')
     karro12 = aendere_kartenformat(self, karro12)
 
-    pik13 = pygame.image.load('Bilder/King_of_spades2.png')
+    pik13: pygame.Surface = pygame.image.load('Bilder/King_of_spades2.png')
     pik13 = aendere_kartenformat(self, pik13)
-    couer13 = pygame.image.load('Bilder/King_of_hearts2.png')
+    couer13: pygame.Surface = pygame.image.load('Bilder/King_of_hearts2.png')
     couer13 = aendere_kartenformat(self, couer13)
-    treff13 = pygame.image.load('Bilder/King_of_clubs2.png')
+    treff13: pygame.Surface = pygame.image.load('Bilder/King_of_clubs2.png')
     treff13 = aendere_kartenformat(self, treff13)
-    karro13 = pygame.image.load('Bilder/King_of_diamonds2.png')
+    karro13: pygame.Surface = pygame.image.load('Bilder/King_of_diamonds2.png')
     karro13 = aendere_kartenformat(self, karro13)
 
-    pik1 = pygame.image.load('Bilder/Ace_of_spades2.png')
+    pik1: pygame.Surface = pygame.image.load('Bilder/Ace_of_spades2.png')
     pik1 = aendere_kartenformat(self, pik1)
-    couer1 = pygame.image.load('Bilder/Ace_of_hearts.png')
+    couer1: pygame.Surface = pygame.image.load('Bilder/Ace_of_hearts.png')
     couer1 = aendere_kartenformat(self, couer1)
-    treff1 = pygame.image.load('Bilder/Ace_of_clubs.png')
+    treff1: pygame.Surface = pygame.image.load('Bilder/Ace_of_clubs.png')
     treff1 = aendere_kartenformat(self, treff1)
-    karro1 = pygame.image.load('Bilder/Ace_of_diamonds.png')
+    karro1: pygame.Surface = pygame.image.load('Bilder/Ace_of_diamonds.png')
     karro1 = aendere_kartenformat(self, karro1)
 
     #Hier werden die Jeweiligen karten zugeteilt zu den Kartentypen

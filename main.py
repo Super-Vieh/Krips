@@ -4,14 +4,17 @@ import random
 import pygame
 
 from Datenbank.datenbank import Database
-from Klassen.game_initializer import GameInitializer
 from Datenbank import Database
+from Klassen.playerFactory import PlayerFactory
 
 from Pygame import GUI, MKarte
-from Klassen import Game, Card, Player, CardType, CardValue, GameInitializer
+from Klassen import Game, Card, Player, CardType, CardValue
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
-def main():
+def main() -> None:
 
+    "a"
+
+"""
     for i in range(0,40):
         trainer = AgentTrainer()
         trainer.load_nn("Agent1.txt", "Agent2.txt")
@@ -28,7 +31,7 @@ def main():
 
         #db.verbindung_schliessen()
 
-
+"""
 
 if __name__ == "__main__":
     main()

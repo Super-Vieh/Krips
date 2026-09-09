@@ -6,13 +6,13 @@ from .mk_karte import MKarte
 # Diese Datei beinhaltet Teile der Funktion der Klasse GUI und wurde erstellt um die Datei kürzer zu gestallten.
 ## Die Funktionen in dieser Datei sind: aendere_kartenformat, draw, waehle_karteaus, indize_waehle_karteaus, setze_karte_auf_den_zeiger,
 # hebe_karte_auf, lege_karte_ab, definiere_bewegbare_karten, finde_die_ursprungsliste, finde_die_adequate_liste
-def aendere_kartenformat(self, placeholder_bild, neue_breite=75)->any: # verändert die karte adequat zur eingegebenen breite
-    neue_hoehe = placeholder_bild.get_height() * neue_breite/placeholder_bild.get_width()
-    kleines_bild = pygame.transform.scale(placeholder_bild, (int(neue_breite), int(neue_hoehe)))
+def aendere_kartenformat(self, placeholder_bild: pygame.Surface, neue_breite: int = 75) -> pygame.Surface: # verändert die karte adequat zur eingegebenen breite
+    neue_hoehe: float = placeholder_bild.get_height() * neue_breite/placeholder_bild.get_width()
+    kleines_bild: pygame.Surface = pygame.transform.scale(placeholder_bild, (int(neue_breite), int(neue_hoehe)))
     return kleines_bild
-def draw(self, list):
-    highpriority = []
-    lowpriority = []
+def draw(self, list: list[MKarte]) -> None:
+    highpriority: list[MKarte] = []
+    lowpriority: list[MKarte] = []
     #differenzierung in haupbilder und bilder die im hintergrund sein sollen
     for bild in list:
         if bild.kard_reference: highpriority.append(bild)
@@ -25,14 +25,14 @@ def draw(self, list):
             self.screen.blit(self.placeholder_rueckseite, (bild.x, bild.y))
         else: self.screen.blit(bild.bild, (bild.x, bild.y))
         if bild.highlighted:
-            highlight_rect = pygame.Rect(bild.x, bild.y, bild.bild.get_width(), bild.bild.get_height())
+            highlight_rect: pygame.Rect = pygame.Rect(bild.x, bild.y, bild.bild.get_width(), bild.bild.get_height())
             pygame.draw.rect(self.screen, (255, 255, 0), highlight_rect, 2)  # Gelber Rand, Dicke 4
 
-def waehle_karteaus(self)->MKarte:
+def waehle_karteaus(self) -> MKarte | None:
     #Es müssen mindest 1 karte bewegbar sein
-    maus = pygame.mouse.get_pos()
+    maus: tuple[int, int] = pygame.mouse.get_pos()
     templiste:list[int] =[]
-    jointlist = self.gamelist+self.centerlist
+    jointlist: list[MKarte] = self.gamelist+self.centerlist
     # Hier werden die Gegenerischen packchenkarten entfernt.
     if self.game.current_player.player_number == 1:
         for kard in jointlist:
@@ -45,9 +45,9 @@ def waehle_karteaus(self)->MKarte:
 
 
     for i in jointlist: #Pythagoras länge der hypotenuse als werkzeug
-        pytagoras_a_quadrat = (i.x+i.bild.get_width()/2 - maus[0])**2
-        pytagoras_b_quadrat = (i.y+i.bild.get_height()/2- maus[1])**2
-        pytagoras_c = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
+        pytagoras_a_quadrat: float = (i.x+i.bild.get_width()/2 - maus[0])**2
+        pytagoras_b_quadrat: float = (i.y+i.bild.get_height()/2- maus[1])**2
+        pytagoras_c: float = (pytagoras_a_quadrat + pytagoras_b_quadrat)**0.5
         templiste.append(pytagoras_c) #sqrt (a^2 +b^2) = c
     if not templiste:
         return None
@@ -57,8 +57,8 @@ def waehle_karteaus(self)->MKarte:
     if jointlist[indize].bewegbar == False: print("bewegbar=false")
     return jointlist[indize]
 
-def indize_waehle_karteaus(self,templiste) -> int:
-    kl_it = 0
+def indize_waehle_karteaus(self, templiste: list) -> int:
+    kl_it: int = 0
     kr: int = templiste[0]
     #speichert die erste hypotenuse zum vergleichen
     for i in range(len(templiste)):
@@ -70,17 +70,17 @@ def indize_waehle_karteaus(self,templiste) -> int:
             kl_it = i# ist die Position der kleineren hypotenuse in der Liste
     return kl_it
 
-def setze_karte_auf_den_zeiger(self):
+def setze_karte_auf_den_zeiger(self) -> None:
     #Die funktion wird immer ausgeführt.
-    feld = self.current_card
+    feld: MKarte | None = self.current_card
 
     if  feld and feld.picked_up== True:
-        eingabe = pygame.mouse.get_pos() # Es wird glaube ich ein Tupel zurückgegeben
+        eingabe: tuple[int, int] = pygame.mouse.get_pos() # Es wird glaube ich ein Tupel zurückgegeben
         feld.x = eingabe[0]-feld.bild.get_width()/2 # setzt die Position der Karte zu der Mitter der Maus
         feld.y = eingabe[1]-feld.bild.get_height()/2
 
 
-def hebe_karte_auf(self, feld):
+def hebe_karte_auf(self, feld: MKarte | None) -> None:
 
     if feld == None or feld.bewegbar == False:
         return None
@@ -96,8 +96,8 @@ def hebe_karte_auf(self, feld):
         self.current_card = feld
 
 
-def lege_karte_ab(self)-> str:
-    feld = self.current_card
+def lege_karte_ab(self) -> str | None:
+    feld: MKarte | None = self.current_card
     if pygame.mouse.get_pressed()[0]:
         self.action_done=True
         pygame.time.delay(250) # delay dami2t der klick nicht mehrmals gezählt wird
@@ -108,20 +108,20 @@ def lege_karte_ab(self)-> str:
 
         #remove ist wichtig damit waehle karte die nächste karte nimmt und nicht die gleiche
         self.gamelist.remove(feld)
-        temp = waehle_karteaus(self)
-        str1 = finde_die_ursprungsliste(self, feld)
-        str2 = finde_die_ursprungsliste(self, temp)
-        ergebnis = (str1 or "")+(str2 or "")
+        temp: MKarte | None = waehle_karteaus(self)
+        str1: str | None = finde_die_ursprungsliste(self, feld)
+        str2: str | None = finde_die_ursprungsliste(self, temp)
+        ergebnis: str = (str1 or "")+(str2 or "")
         print(ergebnis)
         return ergebnis
 
     #def an_karte_legen(self,feld_active:MKarte,feld_passive:MKarte):
-def definiere_bewegbare_karten(self):
+def definiere_bewegbare_karten(self) -> None:
     #Es wird überprüft und gesetzt ob man eine karte bewegen kann
-    jointlist = self.gamelist+self.centerlist
+    jointlist: list[MKarte] = self.gamelist+self.centerlist
     #Hier werden listen deklariert die die erste karte vom Haufen speichern
-    haufen1_k = None
-    haufen2_k = None
+    haufen1_k: MKarte | None = None
+    haufen2_k: MKarte | None = None
     if self.game.player1_waste: haufen1_k = self.game.player1_waste[0]
     if self.game.player2_waste: haufen2_k = self.game.player2_waste[0]
 
@@ -173,17 +173,17 @@ def finde_die_ursprungsliste(self, feld:MKarte)->str:
             if kard == feld.kard_reference:
                 return f"M{self.game.foundations.index(sublist)+1}"
     return finde_die_adequate_liste(self, feld)
-def finde_die_adequate_liste(self, feld:MKarte)->str:
+def finde_die_adequate_liste(self, feld: MKarte) -> str:
     #funktion die die liste von der karte findet wenn es keine karte in der list gibt
     #600 und #900 linke und rechte seite der platzlisten
     #700 und #800 Kripslisten
     match(feld.x):#wird nach x position gefiltert
 
         case 600:
-            i = (feld.y-140)/133
+            i: float = (feld.y-140)/133
             return f"S{int(i+1)}"
         case 700:
-            i = (feld.y-140)/66.5
+            i: float = (feld.y-140)/66.5
             return f"M{int(i)+1}"
             #+1 weil die funktion play nur i von 1 -> 8 nutzt
         case 755:
@@ -216,13 +216,13 @@ def finde_die_adequate_liste(self, feld:MKarte)->str:
 
         case 800:
             #Herleitung durch die funtkion Create_centerlist
-            i = (feld.y-140)/66.5
+            i: float = (feld.y-140)/66.5
             i+=1
             return f"M{int(i)+1}"
             #+1 weil die funktion play nur i von 1 -> 8 nutzt
 
         case 900:
-            i = (feld.y+392)/133
+            i: float = (feld.y+392)/133
             return f"S{int(i)+1}"
 
 

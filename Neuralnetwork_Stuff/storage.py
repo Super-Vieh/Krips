@@ -7,25 +7,25 @@ import torch.optim as optim
 from Klassen import Game, Card, Player, CardType, CardValue
 #from Klassen import print_top,print_sidesplus,print_bot
 class Storage:
-    def __init__(self,game:Game):
-        self.game = game
+    def __init__(self,game:Game) -> None:
+        self.game: Game = game
         self.transitions:list[tuple[T.Tensor,tuple[T.Tensor,T.Tensor],float,T.Tensor,bool]] = []
         # A list which contains tuples of the state(tensor),action(tupel of two tensors),reward(float),next_state(tensor),done(bool)
-        self.all_states = [self.initialize_states(self.game)]
+        self.all_states: list[T.Tensor] = [self.initialize_states(self.game)]
         # last state is the state that was stored before an action was taken in the form of a tensor
-        self.last_state = self.initialize_states(self.game)
+        self.last_state: T.Tensor = self.initialize_states(self.game)
 
 
-    def create_transition(self):
+    def create_transition(self) -> tuple[T.Tensor, tuple[T.Tensor, T.Tensor], float, T.Tensor, bool]:
         #this function creates small packages moves with its consequences
-        state = self.last_state
+        state: T.Tensor = self.last_state
         # state is the last state that was stored before an action was taken
-        next_state = self.initialize_states(self.game)
+        next_state: T.Tensor = self.initialize_states(self.game)
         # next_state is the current state after the action was taken
         (action1,action2) = self.initialize_actions()
-        reward = self.reward()
-        done = self.done()
-        transition = (state,(action1,action2),reward,next_state,done)
+        reward: float = self.reward()
+        done: bool = self.done()
+        transition: tuple[T.Tensor, tuple[T.Tensor, T.Tensor], float, T.Tensor, bool] = (state,(action1,action2),reward,next_state,done)
         self.last_state = next_state
         return transition
 
@@ -37,17 +37,17 @@ class Storage:
             return False
 
     def initialize_actions(self)->T.tensor:
-        actions_firstoutputlayer=[
+        actions_firstoutputlayer: list[int]=[
             0,1,2,3,4,5,6,7,8,9,10,11,
         ]
         # K->0 , S1-S8 ->1-8,A0->9 A1->10 A2->11 = in total 12 states for the first action
 
-        actions_secondoutputlayer=[
+        actions_secondoutputlayer: list[int]=[
             0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
         ]
         # K->0 ,S1-S8 ->1-8,M1-M8->9-16,A0->18 A1->19 A2->20, G0->21 = intotal 22 states for the second action
-        actions_firstoutputlayer_t=T.tensor(actions_firstoutputlayer, dtype=T.float32)
-        actions_secondoutputlayer_t=T.tensor(actions_secondoutputlayer, dtype=T.float32)
+        actions_firstoutputlayer_t: T.Tensor = T.tensor(actions_firstoutputlayer, dtype=T.float32)
+        actions_secondoutputlayer_t: T.Tensor = T.tensor(actions_secondoutputlayer, dtype=T.float32)
         return actions_firstoutputlayer_t, actions_secondoutputlayer_t
 
 
@@ -73,10 +73,10 @@ class Storage:
 
 
         states:list=[]
-        spieler_listen = []
+        spieler_listen: list[list[Card]] = []
         #spielerfeld listen is a list of all list that are on the playing field.
         # it is a list of lists and so are platzliste and mittlereliste. they can be added
-        spielfeld_listen = game.tableau+game.foundations
+        spielfeld_listen: list[list[Card]] = game.tableau+game.foundations
 
         #spieler listen is a list of all lists that belong to the players the list itself is also a list of list
         # but the game.player1 and game.player2 list are only simple lists
@@ -89,20 +89,20 @@ class Storage:
         spieler_listen.append(game.player2_reserve)
 
 
-        i =0
+        i: int =0
         for list in spieler_listen + spielfeld_listen:
             i+=1
             states+=self.transform_to_52bitvektor(list)
         return T.tensor(states, dtype=T.float32)
 
-    def transform_to_52bitvektor(self,list:list[Card]):
-        dict_suit ={
+    def transform_to_52bitvektor(self,list:list[Card]) -> list[int]:
+        dict_suit: dict[CardType, int] ={
             CardType.Pik:0,
             CardType.Coeur:1,
             CardType.Treff:2,
             CardType.Karro:3
         }
-        empty_list = [0]*52
+        empty_list: list[int] = [0]*52
         if not list:# wenn die liste kein element hat wird ein voller 0 vektor zurückgegeben
             return empty_list
         for card in list:
@@ -114,7 +114,7 @@ class Storage:
                 # wenn die Karte nicht offen ist, dann wird sie nicht in den Vektor aufgenommen
                 # die zweite überprüfung is notwending da im ersten if auf eine kombination
                 continue
-            mult = dict_suit[card.card_type]
+            mult: int = dict_suit[card.card_type]
             empty_list[(mult*13)+card.rank.value-1]=1
             # der intex wird berechnet durch die art von Karte 0-3 und den Wert1-13
 
