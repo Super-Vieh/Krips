@@ -5,11 +5,11 @@ from .card_property_enum import CardType,CardValue
 # Wichtig es ist nicht zu verwechseln mit der Klasse MKarte die die Karte auf dem Bildschirm darstellt.
 
 class Card:
-    def __init__(self, card_type: CardType, rank: CardValue) -> None:
+    def __init__(self, card_type: CardType, value: CardValue) -> None:
         self.card_type: CardType  = card_type
-        self.rank: CardValue = rank
+        self.value: CardValue = value
+        self.is_face_up:bool = False
 
-    is_face_up:bool = False
     farbe:str
 
 

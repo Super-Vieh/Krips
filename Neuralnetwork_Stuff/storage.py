@@ -115,7 +115,7 @@ class Storage:
                 # die zweite überprüfung is notwending da im ersten if auf eine kombination
                 continue
             mult: int = dict_suit[card.card_type]
-            empty_list[(mult*13)+card.rank.value-1]=1
+            empty_list[(mult*13) + card.value.value - 1]=1
             # der intex wird berechnet durch die art von Karte 0-3 und den Wert1-13
 
         return empty_list

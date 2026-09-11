@@ -60,7 +60,7 @@ def fuege_karte_der_gamelist_hinzu(self, card: Card, x_wert: int, y_wert: int, b
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert,  self.placeholder_rueckseite, card))
         else:
             geholtes_bild_liste: list = kartendarstellungs_listen_funktion(self, card)
-            dargestelltes_bild: pygame.Surface = geholtes_bild_liste[card.rank.value - 1]
+            dargestelltes_bild: pygame.Surface = geholtes_bild_liste[card.value.value - 1]
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, dargestelltes_bild, card))
 def erstelle_centerlist(self, bild: pygame.Surface) -> None:
     x_wert1: int = 700
@@ -73,7 +73,7 @@ def erstelle_centerlist(self, bild: pygame.Surface) -> None:
 
         if current_list:
             kartendarstellung: list = kartendarstellungs_listen_funktion(self, current_list[-1])
-            geholtes_bild: pygame.Surface = kartendarstellung[current_list[-1].rank.value - 1]
+            geholtes_bild: pygame.Surface = kartendarstellung[current_list[-1].value.value - 1]
         if i % 2 == 0:
             if not current_list:
 
@@ -102,7 +102,7 @@ def erstelle_sidelist(self) -> None:
             self.gamelist.append(MKarte(self.screen, x_wert, y_wert, self.plus, None))
         for k in self.game.tableau[i]:
             kartendarstellung: list = kartendarstellungs_listen_funktion(self, k)
-            geholtes_bild: pygame.Surface = kartendarstellung[k.rank.value - 1]
+            geholtes_bild: pygame.Surface = kartendarstellung[k.value.value - 1]
 
 
             #hard coded values

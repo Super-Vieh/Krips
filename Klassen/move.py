@@ -19,11 +19,11 @@ class DestinationType(Enum):
 
 
 class Move:
-    def __init__(self, origin: OriginType, destination: DestinationType):
-        self.origin_type: OriginType
-        self.origin_value: int
-        self.destination_type: DestinationType
-        self.destination_value: int
+    def __init__(self, origin: OriginType,origin_value:int, destination: DestinationType,destination_value:int):
+        self.origin_type: OriginType = origin
+        self.origin_value: int = origin_value
+        self.destination_type: DestinationType = destination
+        self.destination_value: int=destination_value
 
     def __post_init__(self) -> None:
 

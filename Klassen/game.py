@@ -32,14 +32,14 @@ class Game:
         if (objdrz1.is_face_up == True and self.player2_reserve[
             len(self.player2_reserve) - 1].is_face_up == True):  #Wenn die längen gleich sind
             # Hier wird entschieden wer anfängt die Höhere Karte im Dreizehnerpäckchen gewinnt. Ausnahme ist wenn ein Ass kommt
-            if (objdrz1.rank.value > objdrz2.rank.value) or (objdrz1.rank.value == 1 and objdrz2.rank.value != 1):  # stimmt wenn player1 die höhere karte hat
+            if (objdrz1.value.value > objdrz2.value.value) or (objdrz1.value.value == 1 and objdrz2.value.value != 1):  # stimmt wenn player1 die höhere karte hat
                 self.player1.has_turn = True
                 self.current_player = self.player1
                 #Hier wird die möglichkeit auf das erste Krips geschaffen.
                 if self.current_player.has_turn == True and self.current_player.player_number==1 and self.current_player.is_krips() == True:
                     self.would_be_krips = True
 
-            elif (objdrz1.rank.value < objdrz2.rank.value) or (objdrz2.rank.value == 1 and objdrz1.rank.value != 1):  # stimmt wenn player2 die höhere karte hat
+            elif (objdrz1.value.value < objdrz2.value.value) or (objdrz2.value.value == 1 and objdrz1.value.value != 1):  # stimmt wenn player2 die höhere karte hat
                 self.player2.has_turn = True
                 self.current_player = self.player2
                 if self.current_player.has_turn == True and self.current_player.player_number==2 and self.current_player.is_krips() == True:
@@ -48,11 +48,11 @@ class Game:
             else:
                 for karte in range(4):  #geht durch die ersten 4 plätze auf jeder seite durch und vergleich sie
 
-                    if (self.tableau[karte][0].rank.value > self.tableau[karte + 4][0].rank.value):
+                    if (self.tableau[karte][0].value.value > self.tableau[karte + 4][0].value.value):
                         print("Schleife engaged player1 ist drann?", self.player1.has_turn)
                         self.current_player= self.player1
                         return None
-                    elif (self.tableau[karte][0].rank.value < self.tableau[karte + 4][0].rank.value):
+                    elif (self.tableau[karte][0].value.value < self.tableau[karte + 4][0].value.value):
                         print("Schleife engaged player2 ist drann?", self.player2.has_turn)
                         self.current_player = self.player2
                         return None
