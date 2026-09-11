@@ -3,6 +3,7 @@ from random import shuffle
 from sympy.core.random import rng
 
 from Klassen import Card, CardType, CardValue, Board
+from Klassen.rules import Rules
 from game import Game
 from player import Player
 import random
@@ -13,12 +14,14 @@ class GameFactory:
         def set_up_game(self, seed: int):
             game = Game()
             game.board = Board()
+            game.rules = Rules()
             newdeck1 = self.create_deck()
             newdeck2 = self.create_deck()
 
             rng = random.Random(seed)
             shuffled_deck1: list[Card] = self.shuffle_deck(rng)
             shuffled_deck2: list[Card] = self.shuffle_deck(rng)
+
 
             player1 = Player(1, shuffled_deck1)
             player2 = Player(2, shuffled_deck2)
@@ -49,5 +52,5 @@ class GameFactory:
             player1.set_game(game)
             player2.set_game(game)
 
-            player1.first_action()
-            player2.first_action()
+            player1.distribute_cards_to_decks()
+            player2.distribute_cards_to_decks()

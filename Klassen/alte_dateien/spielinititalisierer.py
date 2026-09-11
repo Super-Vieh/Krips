@@ -216,12 +216,12 @@ class SpielInitialisierer:
         sp2_4karten = ""
         for liste in range(0, 8):
             if liste <= 3:
-                sp1_4karten += str(game.platzliste[liste][0].kartenwert.value)
-                sp1_4karten += game.platzliste[liste][0].kartentyp.value
+                sp1_4karten += str(game.platzliste[liste][0].kartenwert.card_rank)
+                sp1_4karten += game.platzliste[liste][0].kartentyp.card_rank
                 sp1_4karten += ","
             else:
-                sp2_4karten += str(game.platzliste[liste][0].kartenwert.value)
-                sp2_4karten += game.platzliste[liste][0].kartentyp.value
+                sp2_4karten += str(game.platzliste[liste][0].kartenwert.card_rank)
+                sp2_4karten += game.platzliste[liste][0].kartentyp.card_rank
                 sp2_4karten += ","
         return (sp1_paeckchen, sp2_paeckchen, sp1_dreizehner, sp2_dreizehner, sp1_4karten, sp2_4karten)
 
@@ -311,14 +311,14 @@ class SpielInitialisierer:
     def seitenKarten(game: Spiel, momentanerspieler: Spieler):
         for liste in game.platzliste:
             for karte in liste:
-                print(karte.kartentyp.value, "-", karte.kartenwert, "-", karte.farbe)
+                print(karte.kartentyp.card_rank, "-", karte.kartenwert, "-", karte.farbe)
             print("----------------")
 
     @staticmethod
     def mittlereKarten(game: Spiel):
         for liste in game.mittlereliste:
             for karte in liste:
-                print(karte.kartentyp.value, "-", karte.kartenwert)
+                print(karte.kartentyp.card_rank, "-", karte.kartenwert)
             print("----------------")
 
     @staticmethod

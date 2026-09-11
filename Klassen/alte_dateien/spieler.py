@@ -107,7 +107,7 @@ class Spieler:
 
     def kannSeiteHinlegen(self, karte: Karten, stelle: int) -> bool:
         aktliste = self.game.platzliste[stelle-1]
-        if (aktliste[-1].kartenwert.value == karte.kartenwert.value + 1 and aktliste[-1].farbe != karte.farbe):
+        if (aktliste[-1].kartenwert.card_rank == karte.kartenwert.value + 1 and aktliste[-1].farbe != karte.farbe):
             return True
         return False
 
@@ -131,14 +131,14 @@ class Spieler:
         if self.spielernummer == 1:
             sp2h = self.game.spieler2Haufen
             if not sp2h: return False
-            elif (karte.kartentyp == sp2h[-1].kartentyp)and((karte.kartenwert.value == sp2h[-1].kartenwert.value + 1) or (karte.kartenwert.value == sp2h[-1].kartenwert.value -1)):
+            elif (karte.kartentyp == sp2h[-1].kartentyp)and((karte.kartenwert.value == sp2h[-1].kartenwert.card_rank + 1) or (karte.kartenwert.value == sp2h[-1].kartenwert.card_rank - 1)):
                 #Es wird zuerst kontroliert ob die Art der Karte die gleiche ist wie die letzte Karte der Liste.
                 #Danach wird überprüft ob die karte im karten wert sich um 1 hoch oder runter, unterscheiden. Also wie 7 und 9 sich zu 8 verhalten
                 return True
         if self.spielernummer == 2:
             sp1h =self.game.spieler1Haufen
             if not sp1h: return False
-            elif (karte.kartentyp == sp1h[-1].kartentyp)and((karte.kartenwert.value == sp1h[-1].kartenwert.value + 1) or (karte.kartenwert.value == sp1h[-1].kartenwert.value -1)) :
+            elif (karte.kartentyp == sp1h[-1].kartentyp)and((karte.kartenwert.value == sp1h[-1].kartenwert.card_rank + 1) or (karte.kartenwert.value == sp1h[-1].kartenwert.card_rank - 1)) :
                 #Es passiert genau das gleiche wie vorher
                 return True
 
@@ -199,11 +199,11 @@ class Spieler:
             ownliste=[self.game.spieler1Paechen,self.game.spieler1Haufen,self.game.spieler1Dreizehner]
             valideliste =[liste for liste in (self.game.platzliste + ownliste) if liste] # Alle listen die nicht leer sind werden in die valideliste geschrieben. Nur die listen aus platztlsite und ownlist werden überprüft
             for slist in valideliste:
-                if slist[-1].kartenwert.value == 1: #Wenn irgenwo ein Ass liegt
+                if slist[-1].kartenwert.card_rank == 1: #Wenn irgenwo ein Ass liegt
                     return True
                 for mliste in self.game.mittlereliste:
                     if slist and mliste:#Check ob die listen leer sind
-                        if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
+                        if slist[-1].kartentyp.card_rank == mliste[-1].kartentyp.card_rank and slist[-1].kartenwert.card_rank -1 == mliste[-1].kartenwert.card_rank:
                             #Hier wird überprüft ob eine karte die gleiche art ist und 1 höher ist als die andren. Wenn irgentwo ein Pik ass ist liegt und eine Pik 2 überprüft wird die bedingung ausgelöst
                             return True
 
@@ -211,11 +211,11 @@ class Spieler:
             ownliste=[self.game.spieler2Paechen,self.game.spieler2Haufen,self.game.spieler2Dreizehner]
             valideliste=[liste for liste in (self.game.platzliste + ownliste) if len(liste) > 0]
             for slist in valideliste:
-                if slist[-1].kartenwert.value == 1: #Wenn irgenwo ein Ass leigt
+                if slist[-1].kartenwert.card_rank == 1: #Wenn irgenwo ein Ass leigt
                     return True
                 for mliste in self.game.mittlereliste:
                     if slist and mliste:
-                        if slist[-1].kartentyp.value == mliste[-1].kartentyp.value and slist[-1].kartenwert.value -1 == mliste[-1].kartenwert.value:
+                        if slist[-1].kartentyp.card_rank == mliste[-1].kartentyp.card_rank and slist[-1].kartenwert.card_rank -1 == mliste[-1].kartenwert.card_rank:
                             return True
         return False
     def krips_karte_gespielt(self, list_of_second:list[Karten]):
@@ -225,7 +225,7 @@ class Spieler:
             return None
         for kripslist in self.game.mittlereliste or not list_of_second:
             #die übergebene list_of second gibt die zuletzt gelegte karte wieder
-            if kripslist and list_of_second[-1].kartentyp == kripslist[-1].kartentyp and list_of_second[-1].kartenwert.value -1 == kripslist[-1].kartenwert.value:
+            if kripslist and list_of_second[-1].kartentyp == kripslist[-1].kartentyp and list_of_second[-1].kartenwert.value -1 == kripslist[-1].kartenwert.card_rank:
                 self.game.wouldbeKrips = False
 
 

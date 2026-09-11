@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from . import Game
 from .card import Card
 
 
@@ -48,7 +49,5 @@ class Move:
                 allowed_dest = {0}
             case _:
                 raise ValueError("Irgendwas ist Falsch")
-
-
         if self.destination_value not in allowed_dest:
             raise ValueError("Illegaler Move")

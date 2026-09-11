@@ -29,18 +29,13 @@ class Player:
         self.game = game
 
 
-    def first_action(self) -> None:
+    def distribute_cards_to_decks(self) -> None:
 
         if len(self.own_deck) != 52:
             raise ValueError("Deck has less than 52 cards")
         # Erstellung des Dreizehner Päckchens
         for _ in range(13):
             self.player_reserve.append(self.own_deck.pop())
-
-        #Hinlegen der ersten 4 Karten aus dem Normalen Päckchen auf die Seitenstreifen
-        start = 1 if self.player_number == 1 else 5
-        for i in range(start, start + 4):
-            self.play_to_tableau(i, self.own_deck)
 
         self.player_reserve[-1].is_face_up = True
         self.player_stock = self.own_deck
@@ -72,7 +67,7 @@ class Player:
     def play_to_foundation(self,slot:int,origin:list[Card]) -> None:
         foundations: list[Card] = self.game.foundations[slot-1]#Es wird die liste ausgesucht aus den listen also slot 1 ist [0]
         #Nur wenn das Ass gelegt wird
-        if origin and origin[-1].value.value==1:
+        if origin and origin[-1].card_rank.value==1:
             #Wenn als erste Karte das Ass gelegt wird muss sichergegangen werden dass, das Ass zum Feld passt
             #Und es wird überprüftt das das ass nicht 2 mal auf das gleiche feld gelegt werden kann
             if slot in [1,2] and origin[-1].card_type.value == "Pik" and len(foundations) == 0:
@@ -88,24 +83,6 @@ class Player:
             foundations.append(origin.pop())
 
 
-    def can_play_on_foundation(self,card:Card,slot:int)->bool: # Es wird überprüft ob das hinlegen der karte erlaubt , wichtig, in der Mitte
-        foundations: list[Card] = self.game.foundations[slot-1]
-        #Es wird die liste ausgesucht aus den listen also slot 1 ist [0]
-        # Es wird jetzt von 1-8 nummeriert
-        if foundations and (len(foundations) == card.value.value - 1 and foundations[len(foundations) - 1].card_type == card.card_type):
-            return True
-        else:
-            return False
-
-
-
-    def can_play_on_tableau(self, card: Card, slot: int) -> bool:
-        tableau: list[Card] = self.game.board.tableau[slot-1]
-        if (tableau[-1].value.value == card.value.value + 1 and tableau[-1].farbe != card.farbe):
-            return True
-        return False
-
-
     def play_to_tableau(self,slot:int,origin:list[Card])->None:
         tableau:list[Card] = self.game.board.tableau[slot-1]
         if origin and len(tableau) == 0:
@@ -118,23 +95,6 @@ class Player:
             tempcard.is_face_up = True
             tableau.append(tempcard)
             return None
-
-
-    def can_play_on_opponent(self, card: Card) -> bool:
-        #kontroliert ob die karte um eins höher oder kleiner ist als die karte auf dem gegner stock und ob die von der gleicher art ist
-        if self.player_number == 1:
-            p2waste: list[Card] = self.game.player2_waste
-            if not p2waste: return False
-            elif (card.card_type == p2waste[-1].card_type)and((card.value.value == p2waste[-1].value.value + 1) or (card.value.value == p2waste[-1].value.value - 1)):
-                #Es wird zuerst kontroliert ob die Art der Karte die gleiche ist wie die letzte Karte der Liste.
-                #Danach wird überprüft ob die karte im karten wert sich um 1 hoch oder runter, unterscheiden. Also wie 7 und 9 sich zu 8 verhalten
-                return True
-        if self.player_number == 2:
-            p1waste: list[Card] =self.game.player1_waste
-            if not p1waste: return False
-            elif (card.card_type == p1waste[-1].card_type)and((card.value.value == p1waste[-1].value.value + 1) or (card.value.value == p1waste[-1].value.value - 1)) :
-                #Es passiert genau das gleiche wie vorher
-                return True
 
 
     def play_to_opponent(self,origin:list[Card])->None:

@@ -82,7 +82,7 @@ class Rules:
 
         if self.opposing_player.player_waste:
             top: Card = self.opposing_player.player_waste[-1]
-            if (top.value.value in (origin_card.value.value+1, origin_card.value.value-1)
+            if (top.card_rank.value in (origin_card.card_rank.value + 1, origin_card.card_rank.value - 1)
                     and top.card_type == origin_card.card_type):
                 move_list.append(Move(origin_type, origin_value, DestinationType.OPPONENT, 0))
         return move_list
@@ -128,7 +128,7 @@ class Rules:
         if not tableau:
             return True  # leeres Tableau darf belegt werden
         top: Card = tableau[-1]
-        return top.value.value == card.value.value + 1 and top.farbe != card.farbe
+        return top.card_rank.value == card.card_rank.value + 1 and top.farbe != card.farbe
     def can_play_on_foundation(self, card: Card, slot: int) -> bool:
         foundation: list[Card] = self.game.board.foundations[slot]
         card_type: CardType = None
@@ -142,9 +142,9 @@ class Rules:
             case 6 | 7:
                 card_type = CardType.Karro
         if not foundation :
-            return card.value == CardValue.ACE and card_type == card.card_type
+            return card.card_rank == CardValue.ACE and card_type == card.card_type
         top: Card = foundation[-1]
-        return top.value.value +1 == card.value.value  and top.card_type == card.card_type
+        return top.card_rank.value +1 == card.card_rank.value  and top.card_type == card.card_type
 
     def get_legal_tableau_origins_to_move_a_card(self):
         origin_value = []
@@ -183,4 +183,27 @@ class Rules:
             else:
                 return False
         return False
+
+    def player_has_no_cards(self, player: Player) -> bool:
+        return not (player.player_waste or player.player_stock or player.player_reserve)
+
+    def is_stalemate(self) -> bool:
+        return self.game.stalemate_counter >= 30
+
+    def has_game_ended(self) -> bool:
+        return (self.player_has_no_cards(self.game.player1)
+                or self.player_has_no_cards(self.game.player2)
+                or self.is_stalemate())
+
+    def get_winner(self) -> int:
+        if self.player_has_no_cards(self.game.player1):
+            return 1
+        if self.player_has_no_cards(self.game.player2):
+            return 2
+        if self.is_stalemate():
+            if self.game.player1.player_reserve:
+                return 1
+            if self.game.player2.player_reserve:
+                return 2
+        return 0
 

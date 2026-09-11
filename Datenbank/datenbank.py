@@ -110,7 +110,7 @@ class Database:
         list_jsonobjects: list[dict[str, int | str | bool]] = []
         for card in cards:
             card_json: dict[str, int | str | bool] = {
-                "wert": card.value.value,
+                "wert": card.card_rank.value,
                 "typ": card.card_type.value,
                 "offen": card.is_face_up
             }
