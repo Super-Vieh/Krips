@@ -59,9 +59,6 @@ class GUI:
 
             definiere_bewegbare_karten(self)
 
-            if self.game.player1.has_turn == True: self.game.current_player = self.game.player1
-            elif self.game.player2.has_turn == True: self.game.current_player = self.game.player2
-
             #Utilize Play ist eine Funktion welche die Funktion Play der Klasse Spiel durchführt.
             self.nutze_play()
 

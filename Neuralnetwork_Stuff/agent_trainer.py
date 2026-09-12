@@ -116,8 +116,6 @@ class AgentTrainer:
     def initialize_agenttrainer_for_storage(self, db: 'Database') -> int:
 
         self.game ,id= SpielInitialisierer.initialize_game_for_storage(db)
-        print(self.game.player1.has_turn)
-        print(self.game.player2.has_turn)
         self.agent1.game = self.game
         self.agent2.game = self.game
         self.agent1.player = self.game.player1
@@ -127,7 +125,7 @@ class AgentTrainer:
         self.agent1.reward_engine = RewardEngine(self.game,self.agent1.storage)
         self.agent2.reward_engine = RewardEngine(self.game,self.agent2.storage)
 
-        if self.agent1.player.has_turn:
+        if self.game.current_player is self.agent1.player:
             self.current_playing_agent = self.agent1
         else:
             self.current_playing_agent = self.agent2
@@ -148,7 +146,7 @@ class AgentTrainer:
         self.agent2.replay_moves = db.load_game_moves(id)
 
 
-        if self.agent1.player.has_turn:
+        if self.game.current_player is self.agent1.player:
             self.current_playing_agent = self.agent1
         else:
             self.current_playing_agent = self.agent2
@@ -165,7 +163,7 @@ class AgentTrainer:
 
     def check_current_agent(self) -> None:
         #wenn der Spieler des Agente nicht ander reihe ist wird der momentan spielende Agent gewechselt
-        if self.current_playing_agent.player.has_turn == False:
+        if self.game.current_player is not self.current_playing_agent.player:
             if self.current_playing_agent == self.agent1:
                 self.current_playing_agent = self.agent2
             else:

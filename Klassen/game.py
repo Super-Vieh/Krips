@@ -14,7 +14,6 @@ class Game:
         self.current_player: Player = None
         self.is_running: bool = True
         self.would_be_krips: bool = False
-        self.winner: int = 0 #
         self.player1: Player = None
         self.player2: Player = None
         self.board:Board = None
@@ -40,12 +39,10 @@ class Game:
 
 
         if (drz1.card_rank.value > drz2.card_rank.value) or (drz1.card_rank.value == 1 and drz2.card_rank.value != 1):  # stimmt wenn player1 die höhere karte hat
-            self.player1.has_turn = True
             self.current_player = self.player1
             #Hier wird die möglichkeit auf das erste Krips geschaffen.
             self.would_be_krips = self.rules.could_be_krips()
         elif (drz1.card_rank.value < drz2.card_rank.value) or (drz2.card_rank.value == 1 and drz1.card_rank.value != 1):  # stimmt wenn player2 die höhere karte hat
-            self.player2.has_turn = True
             self.current_player = self.player2
             self.would_be_krips = self.rules.could_be_krips()
 
@@ -60,16 +57,16 @@ class Game:
                     return None
 
                 if (self.board.tableau[index][-1].card_rank.value > self.board.tableau[index + 4][-1].card_rank.value):
-                    print("Schleife engaged player1 ist drann?", self.player1.has_turn)
+                    print("Schleife engaged player1 ist drann?")
                     self.current_player= self.player1
                     return None
                 elif (self.board.tableau[index][-1].card_rank.value < self.board.tableau[index + 4][-1].card_rank.value):
-                    print("Schleife engaged player2 ist drann?", self.player2.has_turn)
+                    print("Schleife engaged player2 ist drann?")
                     self.current_player = self.player2
                     return None
         return None
 
-    def execute_move(self, action: Move) -> None:
+    def play_move(self, action: Move) -> None:
         #Diese Funktion beinhaltet die Spielregeln und ist der ort an dem das Spielgeschehen stattfindet.
 
         # action ist ein bis zu 4 stelliger string aus Buchsabe, Zahl, Buchtabe ,Zahl
@@ -104,16 +101,97 @@ class Game:
         # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
         # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
 
-        match (action.origin_type, action.destination_value):
+        match (action.origin_type, action.destination_type):
                 case (OriginType.PLAYER,DestinationType.PLAYER):
-                    return None
+                    self.play_player_on_player(action)
                 case (OriginType.PLAYER,DestinationType.OPPONENT):
-                    return None
+                    self.play_player_on_opponent(action)
                 case (OriginType.PLAYER,DestinationType.TABLEAU):
-                    return None
+                    self.play_player_on_tableau(action)
                 case (OriginType.PLAYER,DestinationType.FOUNDATION):
-                    return None
+                    self.player_on_foundation(action)
+                case (OriginType.TABLEAU,DestinationType.TABLEAU):
+                    self.play_tableau_on_tableau(action)
                 case (OriginType.TABLEAU,DestinationType.FOUNDATION):
-                    return None
+                    self.play_tableau_on_foundation(action)
                 case (OriginType.TABLEAU,DestinationType.OPPONENT):
-                    return None
+                    self.play_tableau_on_opponent(action)
+
+        self.would_be_krips = self.rules.could_be_krips()
+        self.count_stalemate()
+        self.stalemate()
+    def transfer_card(self, source: list[Card], destination: list[Card], face_up: bool = False) -> None:
+        if not source:
+            return
+        card: Card = source.pop()
+        if face_up:
+            card.is_face_up = True
+        destination.append(card)
+
+    def play_player_on_player(self, action: Move) -> None:
+
+        player: Player = self.current_player
+        if action.origin_value == 0 and action.destination_value == 0:
+            if player.player_stock:
+                player.player_stock[-1].is_face_up = True
+            elif player.player_waste:
+                self.reset_waste(player)
+        elif action.origin_value == 2 and action.destination_value == 2:
+            if player.player_reserve:
+                player.player_reserve[-1].is_face_up = True
+        elif action.origin_value == 0 and action.destination_value == 1:
+            if player.player_stock and player.player_stock[-1].is_face_up:
+                player.player_waste.append(player.player_stock.pop())
+            self.current_player = player.opponent
+        #elif action.origin_value == 1 and action.destination_value == 0:
+         #   self.reset_waste(player)
+
+    def reset_waste(self, player: Player) -> None:
+        for card in reversed(player.player_waste):
+            card.is_face_up = False
+            player.player_stock.append(card)
+        player.player_waste.clear()
+
+    def play_player_on_tableau(self, action: Move) -> None:
+        self.transfer_card(self.current_player.player_piles[action.origin_value],
+                        self.board.tableau[action.destination_value], face_up=True)
+
+    def player_on_foundation(self, action: Move) -> None:
+        self.transfer_card(self.current_player.player_piles[action.origin_value],
+                        self.board.foundations[action.destination_value])
+
+    def play_player_on_opponent(self, action: Move) -> None:
+        self.transfer_card(self.current_player.player_piles[action.origin_value],
+                        self.current_player.opponent.player_waste)
+
+    def play_tableau_on_foundation(self, action: Move) -> None:
+        self.transfer_card(self.board.tableau[action.origin_value],
+                        self.board.foundations[action.destination_value])
+
+    def play_tableau_on_opponent(self, action: Move) -> None:
+        self.transfer_card(self.board.tableau[action.origin_value],
+                        self.current_player.opponent.player_waste)
+
+    def play_tableau_on_tableau(self, action: Move) -> None:
+        self.transfer_card(self.board.tableau[action.origin_value],
+                        self.board.tableau[action.destination_value], face_up=True)
+
+    def count_stalemate(self) -> None:
+        current_len: list[int] = [
+            len(self.player1.player_reserve),
+            len(self.player2.player_reserve),
+        ]
+        if current_len[0]==0 and current_len[1]==0:
+            self.stalemate_counter =0
+            return None
+        if current_len == self.last_player_pile_lengths:
+            self.stalemate_counter += 1
+        else:
+            self.stalemate_counter = 0
+        self.last_player_pile_lengths = current_len
+    def stalemate(self):
+        if self.stalemate_counter >=30:
+            if not self.current_player.player_reserve and self.current_player.opponent.player_reserve:
+                self.current_player.won = True
+            elif self.current_player.player_reserve and not self.current_player.opponent.player_reserve:
+                self.current_player.opponent.won = True

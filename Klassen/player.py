@@ -9,12 +9,11 @@ class Player:
         self.player_number: int = player_number
         self.own_deck: list[Card] = own_deck
         self.opponent: 'Player' = None
-        self.has_turn: bool = False
         self.player_stock: list[Card] = []
         self.player_waste: list[Card] = []
         self.player_reserve: list[Card] = []
         self.player_piles = [self.player_stock, self.player_waste, self.player_reserve]
-
+        self.won : bool = False
 
 
     def set_opponent(self, opponent: 'Player') -> None:
@@ -124,26 +123,18 @@ class Player:
     def end_turn(self) -> None:
         if self.player_number ==1 and self.game.player1_stock and self.game.player1_stock[-1].is_face_up == True:
             self.game.player1_waste.append(self.game.player1_stock.pop())
-            self.has_turn= False
-            self.opponent.has_turn = True
             self.game.current_player = self.game.player2
         if self.player_number ==2 and self.game.player2_stock and self.game.player2_stock[-1].is_face_up == True:
             self.game.player2_waste.append(self.game.player2_stock.pop())
-            self.has_turn= False
-            self.opponent.has_turn= True
             self.game.current_player = self.game.player1
     def end_turn_due_to_krips(self) -> None:
         if self.player_number == 1:
             if self.game.player1_stock[-1].is_face_up == True: self.end_turn()
             else:
-                self.has_turn= False
-                self.opponent.has_turn=True
                 self.game.current_player = self.game.player2
             self.game.would_be_krips = False
         if self.player_number == 2:
             if self.game.player2_stock[-1].is_face_up == True: self.end_turn()
             else:
-                self.has_turn= False
-                self.opponent.has_turn=True
                 self.game.current_player = self.game.player1
             self.game.would_be_krips = False

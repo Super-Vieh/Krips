@@ -5,8 +5,14 @@ from Klassen.move import Move, OriginType, DestinationType
 class Rules:
     def __init__(self, game: Game):
         self.game = game
-        self.current_player = game.current_player
-        self.opposing_player = game.current_player.opponent
+
+    @property
+    def current_player(self)->Player:
+        return self.game.current_player
+    def opposing_player(self)->Player:
+        return self.game.current_player.opponent
+
+
     def get_all_valid_moves(self)->list[Move]:
         legal_moves :list[Move] = []
         legal_moves += self.possible_moves_to_tableau()
@@ -97,7 +103,6 @@ class Rules:
             return move_list
         origin_card: Card = source_pile[-1]
 
-        #
         for slot in range(0, 8):
             if self.can_play_on_foundation(origin_card, slot):
                 move_list.append(Move(origin_type, origin_value, DestinationType.FOUNDATION, slot))
@@ -114,7 +119,6 @@ class Rules:
             return move_list
         origin_card: Card = source_pile[-1]
 
-        #
         for slot in range(0, 8):
             if self.can_play_on_tableau(origin_card, slot):
                 move_list.append(Move(origin_type,origin_value,DestinationType.TABLEAU,slot))
@@ -195,15 +199,16 @@ class Rules:
                 or self.player_has_no_cards(self.game.player2)
                 or self.is_stalemate())
 
-    def get_winner(self) -> int:
+    def set_winner(self) -> None:
         if self.player_has_no_cards(self.game.player1):
-            return 1
+            self.game.player1.won = True
+            return
         if self.player_has_no_cards(self.game.player2):
-            return 2
+            self.game.player2.won = True
+            return
         if self.is_stalemate():
-            if self.game.player1.player_reserve:
-                return 1
-            if self.game.player2.player_reserve:
-                return 2
-        return 0
+            if not self.game.player1.player_reserve and self.game.player2.player_reserve:
+                self.game.player1.won = True
+            elif self.game.player1.player_reserve and not self.game.player2.player_reserve:
+                self.game.player2.won = True
 

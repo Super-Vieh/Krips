@@ -11,7 +11,6 @@ class OriginType(Enum):
 
 
 class DestinationType(Enum):
-    """Art des Ziel-Päckchens."""
     PLAYER = "player"
     TABLEAU = "tableau"
     FOUNDATION = "foundation"

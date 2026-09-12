@@ -39,9 +39,6 @@ class Agent():
             while not done and  max_number_of_moves > 0:
                 max_number_of_moves -= 1
 
-                if self.game.player1.has_turn == True: self.game.current_player = self.game.player1
-                elif self.game.player2.has_turn == True: self.game.current_player = self.game.player2
-
                 states = self.storage.initialize_states(self.game)
                 # makes states into a tensor
 
