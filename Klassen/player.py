@@ -37,8 +37,9 @@ class Player:
             self.player_reserve.append(self.own_deck.pop())
 
         self.player_reserve[-1].is_face_up = True
-        self.player_stock = self.own_deck
-
+        for card in self.own_deck:
+            self.player_stock.append(card)
+        self.own_deck.clear()
 
 
 

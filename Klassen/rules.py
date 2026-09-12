@@ -1,5 +1,8 @@
-from Klassen import Game, Player, Card, CardValue, CardType, game
-from Klassen.move import Move, OriginType, DestinationType
+from __future__ import annotations
+
+from .card import Card, CardValue, CardType
+from .player import Player
+from .move import Move, OriginType, DestinationType
 
 
 class Rules:
@@ -9,9 +12,9 @@ class Rules:
     @property
     def current_player(self)->Player:
         return self.game.current_player
+    @property
     def opposing_player(self)->Player:
         return self.game.current_player.opponent
-
 
     def get_all_valid_moves(self)->list[Move]:
         legal_moves :list[Move] = []

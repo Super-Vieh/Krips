@@ -1,20 +1,20 @@
-from enum import Enum
-import random
+from Klassen.game_orchestor import Game_Orchestor
 
-import pygame
 
-from Datenbank.datenbank import Database
-from Datenbank import Database
-from Klassen.playerFactory import PlayerFactory
-
-from Pygame import GUI, MKarte
-from Klassen import Game, Card, Player, CardType, CardValue
-from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 def main() -> None:
+    # Konsolen-Version des Spieles.
+    # pygame, torch und duckdb werden dafür nicht gebraucht und deshalb auch nicht geladen.
+    orchestrator: Game_Orchestor = Game_Orchestor(seed=42)
+    game = orchestrator.set_up_game()
+    orchestrator.play_console(game)
 
-    "a"
 
+# GUI- und Trainings-Variante. Die schweren Importe werden nur dort gebraucht:
+# from Datenbank.datenbank import Database
+# from Pygame import GUI, MKarte
+# from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 """
+
     for i in range(0,40):
         trainer = AgentTrainer()
         trainer.load_nn("Agent1.txt", "Agent2.txt")

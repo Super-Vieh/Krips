@@ -101,21 +101,29 @@ class Game:
         # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
         # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
 
+
         match (action.origin_type, action.destination_type):
                 case (OriginType.PLAYER,DestinationType.PLAYER):
-                    self.play_player_on_player(action)
+                    if action in self.rules.possible_moves_to_player():
+                        self.play_player_on_player(action)
                 case (OriginType.PLAYER,DestinationType.OPPONENT):
-                    self.play_player_on_opponent(action)
+                    if action in self.rules.possible_moves_to_opponent():
+                        self.play_player_on_opponent(action)
                 case (OriginType.PLAYER,DestinationType.TABLEAU):
-                    self.play_player_on_tableau(action)
+                    if action in self.rules.possible_moves_to_tableau():
+                        self.play_player_on_tableau(action)
                 case (OriginType.PLAYER,DestinationType.FOUNDATION):
-                    self.player_on_foundation(action)
+                    if action in self.rules.possible_moves_to_foundation():
+                        self.player_on_foundation(action)
                 case (OriginType.TABLEAU,DestinationType.TABLEAU):
-                    self.play_tableau_on_tableau(action)
+                    if action in self.rules.possible_moves_to_tableau():
+                        self.play_tableau_on_tableau(action)
                 case (OriginType.TABLEAU,DestinationType.FOUNDATION):
-                    self.play_tableau_on_foundation(action)
+                    if action in self.rules.possible_moves_to_foundation():
+                        self.play_tableau_on_foundation(action)
                 case (OriginType.TABLEAU,DestinationType.OPPONENT):
-                    self.play_tableau_on_opponent(action)
+                    if action in self.rules.possible_moves_to_opponent():
+                        self.play_tableau_on_opponent(action)
 
         self.would_be_krips = self.rules.could_be_krips()
         self.count_stalemate()
