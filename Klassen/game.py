@@ -1,5 +1,7 @@
 import random
 
+from sympy.physics.units import current
+
 from .board import Board
 from .card import Card, CardType, CardValue
 from .move import Move, OriginType, DestinationType
@@ -14,6 +16,7 @@ class Game:
         self.current_player: Player = None
         self.is_running: bool = True
         self.would_be_krips: bool = False
+        self.is_krips: bool = False
         self.player1: Player = None
         self.player2: Player = None
         self.board:Board = None
@@ -51,18 +54,22 @@ class Game:
             for index in range(4):  #geht durch die ersten 4 plätze auf jeder seite durch und vergleich sie
                 if self.board.tableau[index][-1].card_rank.value == 1 and not self.board.tableau[index+4][-1].card_rank.value == 1:
                     self.current_player = self.player1
+                    self.would_be_krips = self.rules.could_be_krips()
                     return None
                 elif not self.board.tableau[index][-1].card_rank.value == 1 and self.board.tableau[index+4][-1].card_rank.value == 1:
                     self.current_player = self.player2
+                    self.would_be_krips = self.rules.could_be_krips()
                     return None
 
                 if (self.board.tableau[index][-1].card_rank.value > self.board.tableau[index + 4][-1].card_rank.value):
                     print("Schleife engaged player1 ist drann?")
                     self.current_player= self.player1
+                    self.would_be_krips = self.rules.could_be_krips()
                     return None
                 elif (self.board.tableau[index][-1].card_rank.value < self.board.tableau[index + 4][-1].card_rank.value):
                     print("Schleife engaged player2 ist drann?")
                     self.current_player = self.player2
+                    self.would_be_krips = self.rules.could_be_krips()
                     return None
         return None
 
@@ -101,6 +108,7 @@ class Game:
         # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
         # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
 
+        self.is_krips = self.rules.move_is_krips(action)
 
         match (action.origin_type, action.destination_type):
                 case (OriginType.PLAYER,DestinationType.PLAYER):
@@ -128,6 +136,14 @@ class Game:
         self.would_be_krips = self.rules.could_be_krips()
         self.count_stalemate()
         self.stalemate()
+        if self.rules.has_game_ended():
+            self.rules.conclude_game()
+    def play_move_off_turn(self, krips_call: Move) -> None:
+        if krips_call in self.rules.get_valid_moves_when_not_playing():
+            self.call_krips()
+
+
+
     def transfer_card(self, source: list[Card], destination: list[Card], face_up: bool = False) -> None:
         if not source:
             return
@@ -147,7 +163,7 @@ class Game:
         elif action.origin_value == 2 and action.destination_value == 2:
             if player.player_reserve:
                 player.player_reserve[-1].is_face_up = True
-        elif action.origin_value == 0 and action.destination_value == 1:
+        elif action.origin_value == 0 and action.destination_value == 1 and self.rules.can_end_turn():
             if player.player_stock and player.player_stock[-1].is_face_up:
                 player.player_waste.append(player.player_stock.pop())
             self.current_player = player.opponent
@@ -198,8 +214,17 @@ class Game:
             self.stalemate_counter = 0
         self.last_player_pile_lengths = current_len
     def stalemate(self):
-        if self.stalemate_counter >=30:
+        if self.stalemate_counter >=100:
             if not self.current_player.player_reserve and self.current_player.opponent.player_reserve:
                 self.current_player.won = True
             elif self.current_player.player_reserve and not self.current_player.opponent.player_reserve:
                 self.current_player.opponent.won = True
+
+
+    def call_krips(self):
+        if self.is_krips:
+            player = self.current_player
+            if player.player_stock and player.player_stock[-1].is_face_up:
+                player.player_waste.append(player.player_stock.pop())
+            self.current_player = player.opponent
+            self.is_krips = False

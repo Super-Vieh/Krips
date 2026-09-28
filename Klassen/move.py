@@ -4,12 +4,14 @@ from enum import Enum
 class OriginType(Enum):
     PLAYER= "player"
     TABLEAU = "tableau"
+    KRIPS = "krips"
 
 
 class DestinationType(Enum):
     PLAYER = "player"
     TABLEAU = "tableau"
     FOUNDATION = "foundation"
+    KRIPS = "krips"
     OPPONENT = "opponent"
 
 
@@ -39,6 +41,8 @@ class Move:
                 allowed_origin = [i for i in range(0,3)]
             case OriginType.TABLEAU:
                 allowed_origin = [i for i in range(0,8)]
+            case OriginType.KRIPS:
+                allowed_origin = [0,1]
             case _:
                 raise ValueError("Irgendwas ist Falsch")
         if self.origin_value not in allowed_origin:
@@ -52,7 +56,9 @@ class Move:
             case DestinationType.FOUNDATION:
                 allowed_dest = [i for i in range(0,8)]
             case DestinationType.OPPONENT:
-                allowed_dest = {0}
+                allowed_dest = [0]
+            case DestinationType.KRIPS:
+                allowed_dest = [0,1]
             case _:
                 raise ValueError("Irgendwas ist Falsch")
         if self.destination_value not in allowed_dest:

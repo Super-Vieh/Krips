@@ -1,8 +1,14 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from .card import Card, CardValue, CardType
 from .player import Player
 from .move import Move, OriginType, DestinationType
+
+if TYPE_CHECKING:
+    # Circular import
+    from .game import Game
 
 
 class Rules:
@@ -23,6 +29,16 @@ class Rules:
         legal_moves += self.possible_moves_to_foundation()
         legal_moves += self.possible_moves_to_opponent()
         return legal_moves
+
+    def get_valid_moves_when_not_playing(self)->list[Move]:
+        legal_moves :list[Move] = []
+        if self.game.is_krips:
+            legal_moves.append(Move(OriginType.KRIPS,1,DestinationType.KRIPS,1))#Krips
+            return legal_moves
+        else:
+            legal_moves.append(Move(OriginType.KRIPS,0,DestinationType.KRIPS,0))#Nothing
+            return legal_moves
+
     def can_end_turn(self) -> bool:
         if self.current_player.player_stock and self.current_player.player_stock[-1].is_face_up== True:
             return True
@@ -185,11 +201,12 @@ class Rules:
             tableau_exists = False
             for possible_move in possible_moves:
                 if possible_move.origin_type == OriginType.TABLEAU: tableau_exists = True
+            if move not in possible_moves:
+                return True
             if move.origin_type == OriginType.PLAYER and tableau_exists:
                 return True
-            else:
-                return False
         return False
+
 
     def player_has_no_cards(self, player: Player) -> bool:
         return not (player.player_waste or player.player_stock or player.player_reserve)
@@ -202,16 +219,19 @@ class Rules:
                 or self.player_has_no_cards(self.game.player2)
                 or self.is_stalemate())
 
-    def set_winner(self) -> None:
+    def conclude_game(self) -> None:
         if self.player_has_no_cards(self.game.player1):
             self.game.player1.won = True
-            return
+            self.game.is_running = False
+            return None
         if self.player_has_no_cards(self.game.player2):
             self.game.player2.won = True
-            return
+            self.game.is_running = False
+            return None
         if self.is_stalemate():
             if not self.game.player1.player_reserve and self.game.player2.player_reserve:
                 self.game.player1.won = True
             elif self.game.player1.player_reserve and not self.game.player2.player_reserve:
                 self.game.player2.won = True
-
+            self.game.is_running = False
+        return None
