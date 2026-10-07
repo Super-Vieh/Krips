@@ -12,6 +12,10 @@ from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert, SpielInitiali
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 def main():
 
+    game = SpielInitialisierer.initialize_game_for_play()
+    SpielInitialisierer.play_init(gameA0A0)
+
+    """
     for i in range(0,40):
         trainer = AgentTrainer()
         trainer.load_nn("Agent1.txt", "Agent2.txt")
@@ -28,7 +32,7 @@ def main():
 
         #db.verbindung_schliessen()
 
-
+"""
 
 if __name__ == "__main__":
     main()

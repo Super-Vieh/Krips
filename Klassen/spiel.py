@@ -440,6 +440,9 @@ class Spiel:
             case ("K", "K"):
                 self.case_kk()
             #krips funtionalität muss noch implementiert werden
+    def play_off_turn(self,action:str):
+        if action == "K0K0":
+            self.case_kk()
 
 
 
@@ -477,3 +480,6 @@ class Spiel:
         spieler1listen = [self.spieler1Paechen,self.spieler1Haufen,self.spieler1Dreizehner]
         spieler2listen = [self.spieler2Paechen,self.spieler2Haufen,self.spieler2Dreizehner]
         return (spieler1listen,spieler2listen,self.platzliste,self.mittlereliste)
+
+    def all_moves(self)-> list[str]:
+        return

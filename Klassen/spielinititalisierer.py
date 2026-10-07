@@ -8,8 +8,8 @@ from .spieler import Spieler
 from .karten import Karten, KartenTyp, KartenWert
 
 class SpielInitialisierer:
-    def __init__(self):
-        pass
+    #def __init__(self):
+
     @staticmethod
     def initialize_game_for_storage(db: 'Datenbank'):
         game = SpielInitialisierer.set_up_game()
