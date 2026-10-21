@@ -482,4 +482,14 @@ class Spiel:
         return (spieler1listen,spieler2listen,self.platzliste,self.mittlereliste)
 
     def all_moves(self)-> list[str]:
-        return
+        origins = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "A0", "A1", "A2"]
+        destinations = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "A0", "A1", "A2", "G0"]
+        moves = ["K0K0"]
+
+        for origin in origins:
+            for destination in destinations:
+                if origin == destination and origin not in ["A1", "A2"]:
+                    continue
+                moves.append(origin + destination)
+
+        return moves

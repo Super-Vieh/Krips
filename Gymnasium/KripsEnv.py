@@ -25,7 +25,7 @@ class KripsEnv(gymnasium.Env):
         if not off_turn:
             self.game.play_nn(move)
         elif off_turn:
-            self.game.play_move_off_turn(move)
+            self.game.play_off_turn(move)
 
     def _agent_player(self):
         pass
