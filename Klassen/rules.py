@@ -42,6 +42,8 @@ class Rules:
     def can_end_turn(self) -> bool:
         if self.current_player.player_stock and self.current_player.player_stock[-1].is_face_up== True:
             return True
+        elif not self.current_player.player_stock and not self.current_player.player_waste:
+            return True
         else:
             return False
     def possible_moves_to_tableau(self)->list[Move]:
@@ -59,7 +61,8 @@ class Rules:
         return legal_moves
     def possible_moves_to_player(self)->list[Move]:
         legal_moves :list[Move] = []
-        if self.current_player.player_stock and self.current_player.player_stock[-1].is_face_up== True:
+        if ((self.current_player.player_stock and self.current_player.player_stock[-1].is_face_up== True)
+                or(not self.current_player.player_stock and not self.current_player.player_waste)):
             legal_moves.append(Move(OriginType.PLAYER,0,DestinationType.PLAYER,1))
         if self.current_player.player_stock and self.current_player.player_stock[-1].is_face_up== False:
             legal_moves.append(Move(OriginType.PLAYER,0,DestinationType.PLAYER,0))
