@@ -92,7 +92,6 @@ class Storage:
         rewards: T.Tensor,
         next_states: T.Tensor,
         dones: T.Tensor,
-        next_masks: T.Tensor,
     ) -> None:
         for i in range(states.shape[0]):
             self.transitions.append(
@@ -102,7 +101,6 @@ class Storage:
                     float(rewards[i]),
                     next_states[i].detach().cpu().float(),
                     bool(dones[i]),
-                    next_masks[i].detach().cpu().bool(),
                 )
             )
 
@@ -115,14 +113,12 @@ class Storage:
         rewards = T.tensor([row[2] for row in batch], dtype=T.float32)
         next_states = T.stack([row[3] for row in batch])
         dones = T.tensor([row[4] for row in batch], dtype=T.float32)
-        next_masks = T.stack([row[5] for row in batch])
         return {
             "states": states,
             "actions": actions,
             "rewards": rewards,
             "next_states": next_states,
             "dones": dones,
-            "next_masks": next_masks,
         }
 
     def create_transition(self, action_index: int, reward: float) -> tuple:

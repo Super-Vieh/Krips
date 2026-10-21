@@ -5,7 +5,6 @@ import torch as T
 
 from Klassen import Spiel, SpielInitialisierer
 
-from .legal_moves import legal_masks, legal_moves
 from .storage import Storage
 
 
@@ -45,12 +44,6 @@ class GamePool:
 
     def encode(self) -> T.Tensor:
         return self.storage.initialize_states_batch(self.games)
-
-    def legal_moves(self) -> list[list[str]]:
-        return [legal_moves(game) for game in self.games]
-
-    def legal_masks(self) -> T.Tensor:
-        return legal_masks(self.games)
 
     def current_players(self) -> np.ndarray:
         return np.array([game.current.spielernummer for game in self.games])

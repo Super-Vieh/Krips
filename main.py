@@ -16,7 +16,6 @@ from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 from Neuralnetwork_Batch import (
     DualingQNetwork as BatchDualingQNetwork,
     Storage as BatchStorage,
-    legal_moves,
 )
 
 
@@ -29,7 +28,7 @@ def benchmark_batch() -> None:
     states = []
     for i in range(1000):
         states.append(storage.initialize_states(game))
-        moves = legal_moves(game)
+        moves = game.all_moves()
         if not moves:
             game = SpielInitialisierer.initialize_game_for_play()
             continue
@@ -66,6 +65,8 @@ def main():
 
     #game = SpielInitialisierer.initialize_game_for_play()
     #SpielInitialisierer.play_init(game)
+    benchmark_batch()
+    """
     start = time.perf_counter()
     env = KripsEnv()
     env.reset()
@@ -89,7 +90,7 @@ def main():
                 env.reset()
     dauer = time.perf_counter() - start
     print(dauer)
-
+"""
 """
     for i in range(0,40):
         trainer = AgentTrainer()
@@ -110,4 +111,4 @@ def main():
 """
 
 if __name__ == "__main__":
-    benchmark_batch()
+    main()

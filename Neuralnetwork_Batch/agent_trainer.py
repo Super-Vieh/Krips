@@ -28,7 +28,6 @@ class AgentTrainer:
             batch["rewards"],
             batch["next_states"],
             batch["dones"],
-            batch["next_masks"],
             self.discount_factor,
         )
         self.agent.nn.optimizer.zero_grad()
@@ -56,7 +55,6 @@ class AgentTrainer:
                 n, m = self.agent.decode_action(action)
                 action_indices.append(n * 21 + m)
             next_states, terminal_rewards, terminated, active = pool.step(actions)
-            next_masks = pool.legal_masks()
             rewards = reward_engine.reward(
                 states, next_states, T.tensor(players, dtype=T.long)
             )
@@ -68,7 +66,6 @@ class AgentTrainer:
                 rewards[index_tensor],
                 next_states[index_tensor],
                 dones,
-                next_masks[index_tensor],
             )
             added += len(indices)
         return added
