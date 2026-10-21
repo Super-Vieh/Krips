@@ -3,6 +3,7 @@ from enum import Enum
 import random
 
 import pygame
+import torch
 
 from Datenbank.datenbank import Datenbank
 from Gymnasium import KripsEnv, RandomBot
@@ -12,6 +13,55 @@ from Datenbank import Datenbank
 from Pygame import GUI, MKarte
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert, SpielInitialisierer
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
+from Neuralnetwork_Batch import (
+    DualingQNetwork as BatchDualingQNetwork,
+    Storage as BatchStorage,
+    legal_moves,
+)
+
+
+def benchmark_batch() -> None:
+    random.seed(1)
+    storage = BatchStorage()
+    game = SpielInitialisierer.initialize_game_for_play()
+
+    start = time.perf_counter()
+    states = []
+    for i in range(1000):
+        states.append(storage.initialize_states(game))
+        moves = legal_moves(game)
+        if not moves:
+            game = SpielInitialisierer.initialize_game_for_play()
+            continue
+        game.play_nn(random.choice(moves))
+        game.game_ended()
+        if not game.gameon:
+            game = SpielInitialisierer.initialize_game_for_play()
+    states = torch.cat(states, dim=0)
+    encode_dauer = time.perf_counter() - start
+
+    net = BatchDualingQNetwork(0.001, "benchmark.txt")
+    net.eval()
+
+    start = time.perf_counter()
+    with torch.no_grad():
+        for i in range(100):
+            q = net.q_values(states)
+    forward_batch_1000 = time.perf_counter() - start
+
+    start = time.perf_counter()
+    with torch.no_grad():
+        for i in range(100):
+            q_small = net.q_values(states[i * 10:(i + 1) * 10])
+    forward_batch_10 = time.perf_counter() - start
+
+    print("States:", tuple(states.shape))
+    print("1000 States erzeugen:", encode_dauer)
+    print("100 Forward-Passes mit Batch 1000:", forward_batch_1000)
+    print("100 Forward-Passes mit Batch 10 (1000 Vorhersagen):", forward_batch_10)
+    print("Q:", tuple(q.shape), tuple(q_small.shape))
+
+
 def main():
 
     #game = SpielInitialisierer.initialize_game_for_play()
@@ -60,4 +110,4 @@ def main():
 """
 
 if __name__ == "__main__":
-    main()
+    benchmark_batch()
