@@ -1,3 +1,5 @@
+import time
+
 from Klassen.gameorchestor import GameOrchestor
 from Gymnasium import KripsEnv, RandomBot
 import random
@@ -8,26 +10,26 @@ def main() -> None:
     game = orchestrator.set_up_game()
     orchestrator.play_console(game)
     """
+    start = time.perf_counter()
     env = KripsEnv()
-    for i in range(0,10000):
-
-        env.reset()
-        seed = random.randint(0, 2 ** 32 - 1)
-        bot1 = RandomBot(seed)
-        bot2 = RandomBot(seed+1)
-        while env.game.is_running:
+    env.reset()
+    seed = random.randint(0, 2 ** 32 - 1)
+    bot1 = RandomBot(seed)
+    bot2 = RandomBot(seed + 1)
+    for i in range(0,1000000):
             if env.game.current_player.player_number == 1:
                 move = bot1.act(env.game)
                 env.step(move,False)
                 move = bot2.act_off_turn(env.game)
                 env.step(move,True)
+                continue
             if env.game.current_player.player_number == 2:
                 move = bot2.act(env.game)
                 env.step(move,False)
                 move = bot1.act_off_turn(env.game)
                 env.step(move,True)
-
-
+    dauer = time.perf_counter() - start
+    print(dauer)
 
 
 
