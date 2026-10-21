@@ -35,6 +35,8 @@ def main():
                 move = bot1.act_off_turn()
                 env.step(move, True)
                 continue
+            if env.game.gameon == False:
+                env.reset()
     dauer = time.perf_counter() - start
     print(dauer)
 
