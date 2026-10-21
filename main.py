@@ -17,12 +17,11 @@ def main():
     #game = SpielInitialisierer.initialize_game_for_play()
     #SpielInitialisierer.play_init(game)
     start = time.perf_counter()
-    env = KripsEnv()
-    env.reset()
-    seed = random.randint(0, 2 ** 32 - 1)
-    bot1 = RandomBot(seed)
-    bot2 = RandomBot(seed)
-    for i in range(0, 1000000):
+    games = _create_parralel_games(1000)
+    for i in range(0, 1000):
+        for game_tuple in games:
+
+            (env,bot1,bot2) = game_tuple
             if env.game.current.spielernummer == 1:
                 move = bot1.act(env.game)
                 env.step(move, False)
@@ -34,9 +33,11 @@ def main():
                 env.step(move, False)
                 move = bot1.act_off_turn()
                 env.step(move, True)
-                continue
+
     dauer = time.perf_counter() - start
     print(dauer)
+
+
 
 """
     for i in range(0,40):
@@ -54,8 +55,20 @@ def main():
 
 
         #db.verbindung_schliessen()
-
+2
 """
+def _create_parralel_games(n_games:int)->list[tuple]:
+    list_of_enviroments = []
+    for _ in range(n_games):
+        env = KripsEnv()
+        env.reset()
+        seed = random.randint(0, 2 ** 32 - 1)
+        bot1 = RandomBot(seed)
+        bot2 = RandomBot(seed)
+        list_of_enviroments.append((env,bot1,bot2))
+    return list_of_enviroments
+
+
 
 if __name__ == "__main__":
     main()
