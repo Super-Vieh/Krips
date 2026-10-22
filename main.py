@@ -14,9 +14,11 @@ from Pygame import GUI, MKarte
 from Klassen import Spiel, Karten, Spieler, KartenTyp, KartenWert, SpielInitialisierer
 from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
 from Neuralnetwork_Batch import (
+    Agent as BatchAgent,
     DualingQNetwork as BatchDualingQNetwork,
     Storage as BatchStorage,
 )
+from performance_evaluation import benchmark_engine_and_encoding
 
 
 def benchmark_batch() -> None:
@@ -61,11 +63,52 @@ def benchmark_batch() -> None:
     print("Q:", tuple(q.shape), tuple(q_small.shape))
 
 
+def _create_parralel_games(n_games: int) -> list[tuple]:
+    list_of_enviroments = []
+    for _ in range(n_games):
+        env = KripsEnv()
+        env.reset()
+        seed = random.randint(0, 2 ** 32 - 1)
+        bot1 = RandomBot(seed)
+        bot2 = RandomBot(seed)
+        list_of_enviroments.append((env, bot1, bot2))
+    return list_of_enviroments
+
+
+def benchmark_parallel_envs(n_games: int = 1000) -> None:
+    storage = BatchStorage()
+    net = BatchDualingQNetwork(0.001, "benchmark_parallel.txt")
+    agent = BatchAgent(net, storage, seed=1)
+    games = _create_parralel_games(n_games)
+
+    start = time.perf_counter()
+    states = storage.initialize_states_batch([env.game for env, _, _ in games])
+    encode_dauer = time.perf_counter() - start
+
+    net.eval()
+    start = time.perf_counter()
+    with torch.no_grad():
+        for _ in range(10000):
+            q = net.q_values(states)
+    forward_dauer = time.perf_counter() - start
+
+    start = time.perf_counter()
+    actions = agent.act([env.game for env, _, _ in games], epsilon=0.0)
+    act_dauer = time.perf_counter() - start
+
+    print("Envs:", n_games, "States:", tuple(states.shape))
+    print("States aus Envs:", encode_dauer)
+    print("10000 Forward-Passes mit Batch", n_games, ":", forward_dauer)
+    print("Agent.act fuer", n_games, "Envs:", act_dauer, "Aktionen:", len(actions))
+
+
 def main():
 
     #game = SpielInitialisierer.initialize_game_for_play()
     #SpielInitialisierer.play_init(game)
-    benchmark_batch()
+    #benchmark_batch()
+    #benchmark_parallel_envs(5000)
+    benchmark_engine_and_encoding()
     """
     start = time.perf_counter()
     env = KripsEnv()
