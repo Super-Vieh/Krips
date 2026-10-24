@@ -1,0 +1,69 @@
+Zusammenfassung Profil: 5000 Envs, 20.000 Updates
+======================================================================
+
+Lauf-Parameter (aus main.py)
+------------------------------
+n_envs                = 5000
+nr_epochs             = 1
+episodes_per_epoch    = 1
+steps (Runden/Episode)= 32
+Runden gesamt         = 32
+Aktionen gesamt       = 160.000
+updates_per_round     = 625
+Updates gesamt        = 20.000
+batch_size            = 256
+buffer_capacity       = 100.000 pro Netz
+start_epsilon         = 0,9
+epsilon_decay         = 0,9999 (pro Update)
+discount_factor       = 0,9
+opponent              = RandomBot(0)
+trainierte Netze      = nur agent1
+seed                  = 0
+TensorBoard           = aus (Profilmodus)
+
+Messwerte
+------------------------------
+Profilierte Gesamtzeit = 337.22 s (5.62 min)
+Zeit pro Runde         = 10538.2 ms
+Aktionen pro Sekunde   = 474
+Updates pro Sekunde    = 59
+
+Hinweis: cProfile war aktiv; die Wurzel ist _run_episode, weil die
+Frames oberhalb (main, train_agents) durch die XPU-Initialisierung
+nicht aufgezeichnet wurden. Die Summen pro Funktion sind gültig.
+
+Top 15 nach tottime
+------------------------------
+<method 'item' of 'torch._C.TensorBase' objects> ~:0                                        calls=  740000 tottime=  126.63s cumtime=  126.63s
+<method 'run_backward' of 'torch._C._EngineBase' objects> ~:0                                        calls=   20000 tottime=   40.81s cumtime=   40.81s
+<method 'to' of 'torch._C.TensorBase' objects> ~:0                                        calls=  100032 tottime=   37.31s cumtime=   37.31s
+<built-in method torch._C._nn.linear> ~:0                                        calls=  360288 tottime=   19.50s cumtime=   19.50s
+games                        game_pool.py:27                            calls=  185766 tottime=   11.48s cumtime=   11.48s
+<built-in method torch.stack> ~:0                                        calls=   40000 tottime=    9.12s cumtime=    9.12s
+can_play_on_foundation       rules.py:158                               calls=30414480 tottime=    4.05s cumtime=    4.75s
+__get__                      enum.py:202                                calls=34977067 tottime=    4.03s cumtime=    5.22s
+<built-in method torch.relu> ~:0                                        calls=  240192 tottime=    3.92s cumtime=    3.92s
+<built-in method torch.cat>  ~:0                                        calls=   40032 tottime=    3.85s cumtime=    3.85s
+combine_value_advantage      qualing_q_learning.py:57                   calls=   40032 tottime=    3.67s cumtime=    5.91s
+encode_game                  observation.py:28                          calls=  577654 tottime=    3.67s cumtime=    6.14s
+sample                       random.py:359                              calls=   20000 tottime=    3.32s cumtime=    6.99s
+possible_foundation_moves_from_origin rules.py:117                               calls= 3801810 tottime=    3.17s cumtime=    7.98s
+_run_episode                 agent_trainer.py:105                       calls=       1 tottime=    3.16s cumtime=  337.22s
+
+Top 15 nach cumtime
+------------------------------
+_run_episode                 agent_trainer.py:105                       calls=       1 tottime=    3.16s cumtime=  337.22s
+train_step                   agent.py:123                               calls=   20000 tottime=    0.40s cumtime=  289.51s
+<method 'item' of 'torch._C.TensorBase' objects> ~:0                                        calls=  740000 tottime=  126.63s cumtime=  126.63s
+compute_loss                 agent.py:100                               calls=   20000 tottime=    1.76s cumtime=   81.04s
+q_values                     qualing_q_learning.py:70                   calls=   40032 tottime=    0.31s cumtime=   68.47s
+forward                      qualing_q_learning.py:38                   calls=   40032 tottime=    1.10s cumtime=   62.25s
+backward                     _tensor.py:570                             calls=   20000 tottime=    0.16s cumtime=   42.48s
+backward                     __init__.py:243                            calls=   20000 tottime=    0.21s cumtime=   42.31s
+_engine_run_backward         graph.py:832                               calls=   20000 tottime=    0.12s cumtime=   40.96s
+<method 'run_backward' of 'torch._C._EngineBase' objects> ~:0                                        calls=   20000 tottime=   40.81s cumtime=   40.81s
+<method 'to' of 'torch._C.TensorBase' objects> ~:0                                        calls=  100032 tottime=   37.31s cumtime=   37.31s
+_wrapped_call_impl           module.py:1771                             calls=  360288 tottime=    0.44s cumtime=   21.42s
+_call_impl                   module.py:1779                             calls=  360288 tottime=    0.61s cumtime=   20.98s
+forward                      linear.py:130                              calls=  360288 tottime=    0.30s cumtime=   19.97s
+<built-in method torch._C._nn.linear> ~:0                                        calls=  360288 tottime=   19.50s cumtime=   19.50s

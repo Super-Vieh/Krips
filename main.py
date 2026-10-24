@@ -1,36 +1,47 @@
+import cProfile
+import os
+import pstats
+import sys
 import time
 
 from Klassen.gameorchestor import GameOrchestor
 from Gymnasium import KripsEnv, RandomBot
+from Neuralnetwork_Batch import AgentTrainer
 import random
 
-def main() -> None:
-    """
-    orchestrator: GameOrchestor = GameOrchestor(seed=42)
-    game = orchestrator.set_up_game()
-    orchestrator.play_console(game)
-    """
-    start = time.perf_counter()
-    env = KripsEnv()
-    env.reset()
-    seed = random.randint(0, 2 ** 32 - 1)
-    bot1 = RandomBot(seed)
-    bot2 = RandomBot(seed + 1)
-    for i in range(0,1000000):
-            if env.game.current_player.player_number == 1:
-                move = bot1.act(env.game)
-                env.step(move,False)
-                move = bot2.act_off_turn(env.game)
-                env.step(move,True)
-                continue
-            if env.game.current_player.player_number == 2:
-                move = bot2.act(env.game)
-                env.step(move,False)
-                move = bot1.act_off_turn(env.game)
-                env.step(move,True)
-    dauer = time.perf_counter() - start
-    print(dauer)
 
+def main(profile: bool = False, tensorboard: bool = True) -> None:
+    if profile:
+        tensorboard = False
+    trainer = AgentTrainer(
+        batch_size=256,
+        buffer_capacity=100_000,
+        n_envs=8,
+        seed=0,
+        updates_per_round=1,
+        log_to_tensorboard=tensorboard,
+    )
+    trainer.load_nn("BatchAgent1.txt", "BatchAgent2.txt")
+    profiler = cProfile.Profile()
+    if profile:
+        profiler.enable()
+    try:
+        trainer.train_agents(
+            nr_epochs=1,
+            episodes_per_epoch=10,
+            steps=2000,
+            start_epsilon=0.9,
+            discount_factor=0.9,
+            epsilon_decay=0.9999,
+            n_envs=8,
+            opponent=RandomBot(0),
+        )
+    finally:
+        if profile:
+            profiler.disable()
+            os.makedirs("profiles", exist_ok=True)
+            profiler.dump_stats("profiles/8env20000updates.prof")
+            pstats.Stats(profiler).sort_stats("cumulative").print_stats(30)
 
 
 
@@ -63,4 +74,7 @@ def main() -> None:
 """
 
 if __name__ == "__main__":
-    main()
+    main(
+        profile="--profile" in sys.argv,
+        tensorboard="--no-tensorboard" not in sys.argv,
+    )
