@@ -200,6 +200,11 @@ class Rules:
 
     def move_is_krips(self,move:Move)->bool:
         possible_moves = self.possible_moves_to_foundation()
+        if (move.origin_type == OriginType.PLAYER
+                and move.destination_type == DestinationType.PLAYER
+                and move.origin_value == 0
+                and move.destination_value == 1):
+            return False
         if self.game.would_be_krips and possible_moves:
             tableau_exists = False
             for possible_move in possible_moves:

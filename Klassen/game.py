@@ -228,3 +228,8 @@ class Game:
                 player.player_waste.append(player.player_stock.pop())
             self.current_player = player.opponent
             self.is_krips = False
+
+        if self.rules.could_be_krips():
+            self.would_be_krips = True
+        else:
+            self.would_be_krips = False
