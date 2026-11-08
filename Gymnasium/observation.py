@@ -2,7 +2,11 @@ import numpy as np
 
 from Klassen import Card, CardType, Game
 
-VECTOR_SIZE: int = 1144
+CARD_VECTOR_SIZE: int = 1144
+PILE_COUNT_OFFSET: int = CARD_VECTOR_SIZE
+STALEMATE_INDEX: int = PILE_COUNT_OFFSET + 22
+KRIPS_INDEX: int = PILE_COUNT_OFFSET + 23
+VECTOR_SIZE: int = CARD_VECTOR_SIZE + 24
 
 SUIT_INDEX: dict[CardType, int] = {
     CardType.Pik: 0,
@@ -27,7 +31,8 @@ def game_piles(game: Game) -> list[list[Card]]:
 
 def encode_game(game: Game, out: np.ndarray | None = None) -> np.ndarray:
     target = np.zeros(VECTOR_SIZE, dtype=np.float32) if out is None else out
-    for index, pile in enumerate(game_piles(game)):
+    piles: list[list[Card]] = game_piles(game)
+    for index, pile in enumerate(piles):
         if not pile:
             continue
         offset = index * 52
@@ -38,6 +43,10 @@ def encode_game(game: Game, out: np.ndarray | None = None) -> np.ndarray:
                     break
                 continue
             target[offset + SUIT_INDEX[card.card_type] * 13 + card.card_rank.value - 1] = 1.0
+    for index, pile in enumerate(piles):
+        target[PILE_COUNT_OFFSET + index] = len(pile) / 52.0
+    target[STALEMATE_INDEX] = min(game.stalemate_counter, 30) / 30.0
+    target[KRIPS_INDEX] = 1.0 if game.is_krips else 0.0
     return target
 
 

@@ -22,7 +22,12 @@ graphify-out/
 .graphifyignore
 .graphify_python
 .graphify_root
-
+tools/
 # Generierte Docs / Artefakte
 docs/
+
+# Beschaffte Volltexte: urheberrechtlich geschützt und zu groß für Git.
+# Metadaten und Index bleiben nachvollziehbar, die PDFs selbst nicht.
+Research/Text/**/paper.pdf
+Research/Text/**/fulltext.txt
 
