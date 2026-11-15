@@ -52,8 +52,8 @@ class GameOrchestor:
 
         player1.set_opponent(player2)
         player2.set_opponent(player1)
-        player1.set_game(game)
-        player2.set_game(game)
+        #player1.set_game(game)
+        #player2.set_game(game)
 
         game.player1 = player1
         game.player2 = player2

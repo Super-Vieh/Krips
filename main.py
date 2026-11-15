@@ -16,7 +16,7 @@ def main() -> None:
     seed = random.randint(0, 2 ** 32 - 1)
     bot1 = RandomBot(seed)
     bot2 = RandomBot(seed + 1)
-    for i in range(0,1000000):
+    for i in range(0,100):
             if env.game.current_player.player_number == 1:
                 move = bot1.act(env.game)
                 env.step(move,False)

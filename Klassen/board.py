@@ -1,3 +1,5 @@
+from grpc.framework import foundation
+
 from .card import Card
 
 
@@ -25,3 +27,14 @@ class Board:
         self.tableau: list[list[Card]] = [self.tableau1, self.tableau2, self.tableau3, self.tableau4, self.tableau5, self.tableau6,
                         self.tableau7,
                         self.tableau8]
+
+    def receive_card(self,card:Card,foundation:bool,list:int):
+        if foundation:
+            self.foundations[list].append(card)
+        else:
+            self.tableau[list].append(card)
+
+    def extract_card(self,list:int)->Card:
+        if not not self.tableau[list]:
+            raise ValueError("von Leerer Liste sollte entfernt werden")
+        return self.tableau[list].pop()

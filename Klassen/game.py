@@ -144,25 +144,29 @@ class Game:
 
 
 
-    def transfer_card(self, source: list[Card], destination: list[Card], face_up: bool = False) -> None:
-        if not source:
-            return
-        card: Card = source.pop()
-        if face_up:
-            card.is_face_up = True
-        destination.append(card)
+    def transfer_card(self,move:Move) -> None:
+       if move.origin_type == OriginType.PLAYER:
+           card = self.current_player.extract_card(move.origin_value)
+       if move.origin_type == OriginType.TABLEAU:
+           card = self.board.extract_card(move.origin_value)
+       if not card: raise ValueError("Karte konnte nicht extrahiert werden")
+       match(move.destination_type):
+           case DestinationType.PLAYER: self.current_player.receive_card(card,move.destination_value)
+           case DestinationType.TABLEAU: self.board.receive_card(card,False,move.destination_value)
+           case DestinationType.FOUNDATION: self.board.receive_card(card,True,move.destination_value)
+           case _ : raise ValueError("Kein Valider Destination Type für Card Transfer genutzt")
 
     def play_player_on_player(self, action: Move) -> None:
 
         player: Player = self.current_player
         if action.origin_value == 0 and action.destination_value == 0:
             if player.player_stock:
-                player.player_stock[-1].is_face_up = True
+                player.flip_card(0)
             elif player.player_waste:
                 self.reset_waste(player)
         elif action.origin_value == 2 and action.destination_value == 2:
             if player.player_reserve:
-                player.player_reserve[-1].is_face_up = True
+                player.flip_card(1)
         elif action.origin_value == 0 and action.destination_value == 1 and self.rules.can_end_turn():
             if player.player_stock and player.player_stock[-1].is_face_up:
                 player.player_waste.append(player.player_stock.pop())
