@@ -35,6 +35,6 @@ class Board:
             self.tableau[list].append(card)
 
     def extract_card(self,list:int)->Card:
-        if not not self.tableau[list]:
+        if not self.tableau[list]:
             raise ValueError("von Leerer Liste sollte entfernt werden")
         return self.tableau[list].pop()

@@ -152,8 +152,11 @@ class Game:
        if not card: raise ValueError("Karte konnte nicht extrahiert werden")
        match(move.destination_type):
            case DestinationType.PLAYER: self.current_player.receive_card(card,move.destination_value)
-           case DestinationType.TABLEAU: self.board.receive_card(card,False,move.destination_value)
+           case DestinationType.TABLEAU:
+               card.is_face_up = True
+               self.board.receive_card(card,False,move.destination_value)
            case DestinationType.FOUNDATION: self.board.receive_card(card,True,move.destination_value)
+           case DestinationType.OPPONENT: self.current_player.opponent.receive_card(card,1)
            case _ : raise ValueError("Kein Valider Destination Type für Card Transfer genutzt")
 
     def play_player_on_player(self, action: Move) -> None:
@@ -161,15 +164,15 @@ class Game:
         player: Player = self.current_player
         if action.origin_value == 0 and action.destination_value == 0:
             if player.player_stock:
-                player.flip_card(0)
+                player.flip_last_card(action.origin_value)
             elif player.player_waste:
                 self.reset_waste(player)
         elif action.origin_value == 2 and action.destination_value == 2:
             if player.player_reserve:
-                player.flip_card(1)
+                player.flip_last_card(action.origin_value)
         elif action.origin_value == 0 and action.destination_value == 1 and self.rules.can_end_turn():
             if player.player_stock and player.player_stock[-1].is_face_up:
-                player.player_waste.append(player.player_stock.pop())
+                self.transfer_card(Move(OriginType.PLAYER,0,DestinationType.PLAYER,1))
             self.current_player = player.opponent
         #elif action.origin_value == 1 and action.destination_value == 0:
          #   self.reset_waste(player)
@@ -181,28 +184,22 @@ class Game:
         player.player_waste.clear()
 
     def play_player_on_tableau(self, action: Move) -> None:
-        self.transfer_card(self.current_player.player_piles[action.origin_value],
-                        self.board.tableau[action.destination_value], face_up=True)
+        self.transfer_card(action)
 
     def player_on_foundation(self, action: Move) -> None:
-        self.transfer_card(self.current_player.player_piles[action.origin_value],
-                        self.board.foundations[action.destination_value])
+        self.transfer_card(action)
 
     def play_player_on_opponent(self, action: Move) -> None:
-        self.transfer_card(self.current_player.player_piles[action.origin_value],
-                        self.current_player.opponent.player_waste)
+        self.transfer_card(action)
 
     def play_tableau_on_foundation(self, action: Move) -> None:
-        self.transfer_card(self.board.tableau[action.origin_value],
-                        self.board.foundations[action.destination_value])
+        self.transfer_card(action)
 
     def play_tableau_on_opponent(self, action: Move) -> None:
-        self.transfer_card(self.board.tableau[action.origin_value],
-                        self.current_player.opponent.player_waste)
+        self.transfer_card(action)
 
     def play_tableau_on_tableau(self, action: Move) -> None:
-        self.transfer_card(self.board.tableau[action.origin_value],
-                        self.board.tableau[action.destination_value], face_up=True)
+        self.transfer_card(action)
 
     def count_stalemate(self) -> None:
         current_len: list[int] = [

@@ -33,27 +33,8 @@ class Player:
             self.player_stock.append(card)
         self.own_deck.clear()
 
-    def flip_card(self, stock: int = 0) -> None:
-        reserve1: list[Card] = self.game.player1_reserve
-        reserve2: list[Card] = self.game.player2_reserve
-        stock1: list[Card] = self.game.player1_stock
-        stock2: list[Card] = self.game.player2_stock
-        if stock == 1:
-            # Päckchen 1 ist das Dreizehner Päckchen
-            if self.player_number == 1 and reserve1:
-                reserve1[-1].is_face_up = True
-            elif self.player_number == 2 and reserve2:
-                reserve2[-1].is_face_up = True
-            else:
-                return None
-        elif stock == 0:
-            # Päckchen 0 ist das Normale Päckchen
-            if self.player_number == 1 and stock1:
-                stock1[-1].is_face_up = True
-            elif self.player_number == 2 and stock2:
-                stock2[-1].is_face_up = True
-            else:
-                return None
+    def flip_last_card(self, list:int) -> None:
+        self.player_piles[list][-1].is_face_up = True
     def receive_card(self,card:Card,list:int):
         self.player_piles[list].append(card)
 
