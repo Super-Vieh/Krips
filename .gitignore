@@ -26,3 +26,24 @@ graphify-out/
 # Generierte Docs / Artefakte
 docs/
 
+# Lokale Test-Suite
+tests/
+
+# Recherche & generierte Inhalte
+Research/
+html-visualisations/
+
+# Lokale Agent-/Tool-Artefakte
+.claude/
+.playwright-mcp/
+.kun/
+
+# Lokale Recherche-Pipeline
+tools/
+
+# Coverage & Pytest-Caches
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+

@@ -11,9 +11,9 @@ class RandomBot:
         self.rng: random.Random = random.Random(seed)
 
     def act(self, game: Game) -> Move:
-        legal_moves: list[Move] = game.rules.get_all_valid_moves()
+        legal_moves: list[Move] = game.rules.get_all_legal_moves()
         return self.rng.choice(legal_moves)
 
     def act_off_turn(self, game: Game) -> Move:
-        legal_moves = game.rules.get_valid_moves_when_not_playing()
+        legal_moves = game.rules.get_legal_moves_when_not_playing()
         return self.rng.choice(legal_moves)

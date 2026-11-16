@@ -1,13 +1,8 @@
 from json import dumps, loads
-from numbers import Number
-from operator import index
 import json
 
-import setuptools
-from numpy import integer
-from sympy.codegen.ast import Raise
 
-from Klassen import Game, Card, Player, CardType, CardValue
+from Klassen import Game, Card, CardType, CardValue
 import duckdb
 class Database:
     def __init__(self,dbfilepath: str) -> None:

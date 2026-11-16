@@ -1,8 +1,7 @@
 
-from Klassen import Game, Player, GameInitializer
+from Klassen import Game
 #, initialize_paechen, initialize_oponents)
-from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, TensorMetricBoard
-import random
+from Neuralnetwork_Stuff import Agent, DualingQNetwork, Recorder, TensorMetricBoard
 
 from Neuralnetwork_Stuff.reward_engine import RewardEngine
 
@@ -49,13 +48,13 @@ class AgentTrainer:
         list_of_valid_moves: list = []
         for episode in range(nr_episodes):
             move: int = 0
-            id: int = self.initialize_agenttrainer_for_storage(db)
+            id: int = self.initialize_agenttrainer_for_recorder(db)
             self.set_game_for_agent(self.agent1)
             self.set_game_for_agent(self.agent2)
             print("New Episode started")
             while move < max_number_of_moves and self.game.is_running:
                 self.check_current_agent()
-                made_moves,valid_moves, epsilon, total_reward, total_loss, list_of_valid_moves= self.current_playing_agent.train_one_turn_storage(current_epsilon, discount_factor, epsilon_decay)
+                made_moves,valid_moves, epsilon, total_reward, total_loss, list_of_valid_moves= self.current_playing_agent.train_one_turn_recorder(current_epsilon, discount_factor, epsilon_decay)
                 current_epsilon = epsilon
                 print(epsilon)
                 move += made_moves
@@ -113,17 +112,17 @@ class AgentTrainer:
         self.agent2.nn.save_savestate()
 
 
-    def initialize_agenttrainer_for_storage(self, db: 'Database') -> int:
+    def initialize_agenttrainer_for_recorder(self, db: 'Database') -> int:
 
         self.game ,id= SpielInitialisierer.initialize_game_for_storage(db)
         self.agent1.game = self.game
         self.agent2.game = self.game
         self.agent1.player = self.game.player1
         self.agent2.player = self.game.player2
-        self.agent1.storage = Storage(self.game)
-        self.agent2.storage = Storage(self.game)
-        self.agent1.reward_engine = RewardEngine(self.game,self.agent1.storage)
-        self.agent2.reward_engine = RewardEngine(self.game,self.agent2.storage)
+        self.agent1.recorder = Recorder(self.game)
+        self.agent2.recorder = Recorder(self.game)
+        self.agent1.reward_engine = RewardEngine(self.game,self.agent1.recorder)
+        self.agent2.reward_engine = RewardEngine(self.game,self.agent2.recorder)
 
         if self.game.current_player is self.agent1.player:
             self.current_playing_agent = self.agent1
@@ -138,10 +137,10 @@ class AgentTrainer:
         self.agent2.game = self.game
         self.agent1.player = self.game.player1
         self.agent2.player = self.game.player2
-        self.agent1.storage = Storage(self.game)
-        self.agent2.storage = Storage(self.game)
-        self.agent1.reward_engine = RewardEngine(self.game, self.agent1.storage)
-        self.agent2.reward_engine = RewardEngine(self.game, self.agent2.storage)
+        self.agent1.recorder = Recorder(self.game)
+        self.agent2.recorder = Recorder(self.game)
+        self.agent1.reward_engine = RewardEngine(self.game, self.agent1.recorder)
+        self.agent2.reward_engine = RewardEngine(self.game, self.agent2.recorder)
         self.agent1.replay_moves = db.load_game_moves(id)
         self.agent2.replay_moves = db.load_game_moves(id)
 

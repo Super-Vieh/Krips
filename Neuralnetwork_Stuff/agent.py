@@ -1,4 +1,5 @@
-import os
+from __future__ import annotations
+
 import random
 import numpy as np
 import torch as T
@@ -7,14 +8,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from Neuralnetwork_Stuff.reward_engine import RewardEngine
-from Neuralnetwork_Stuff.storage import Storage
+from Neuralnetwork_Stuff.recorder import Recorder
 from Neuralnetwork_Stuff.qualing_q_learning import DualingQNetwork
-from Klassen import Game, Card, Player, CardType, CardValue
+from Klassen import Game, Player
 #,initialize_paechen,initialize_oponents)
 
 class Agent():
     def __init__(self,nn:DualingQNetwork) -> None:
-        self.storage: Storage | None = None
+        self.recorder: Recorder | None = None
         self.nn: DualingQNetwork = nn
         self.game: Game | None = None
         self.player: Player | None = None
@@ -32,23 +33,23 @@ class Agent():
                 self.delete_game()
             self.initialize_game()
             #gui.game = self.game
-            self.storage = Storage(self.game)
+            self.recorder = Recorder(self.game)
 
             done = False
             max_number_of_moves = 10000
             while not done and  max_number_of_moves > 0:
                 max_number_of_moves -= 1
 
-                states = self.storage.initialize_states(self.game)
+                states = self.recorder.initialize_states(self.game)
                 # makes states into a tensor
 
                 action = self.select_action(epsilon,states)
                 self.game.play_nn(action)
-                next_state = self.storage.initialize_states(self.game)
-                # rewards are computed in the storageclass
-                reward = self.storage.reward()
+                next_state = self.recorder.initialize_states(self.game)
+                # rewards are computed in the recorderclass
+                reward = self.recorder.reward()
                 #if reward> 0: gui.image()
-                done = self.storage.done()
+                done = self.recorder.done()
                 action1,action2 = self.decode_action(action)
                 loss = self.compute_loss(states,action1,action2,reward,next_state,done,discount_factor)
                 self.update_network(optimizer,loss)
@@ -144,7 +145,7 @@ class Agent():
         loss.backward()
         optimizer.step()
 
-    def train_one_turn_storage(self, epsilon: float, discount_factor: float, epsilon_decay: float=0.9995) -> tuple[int, int, float, float, float, list[str]]:
+    def train_one_turn_recorder(self, epsilon: float, discount_factor: float, epsilon_decay: float=0.9995) -> tuple[int, int, float, float, float, list[str]]:
         made_moves: int = 0
         valid_moves: int = 0
         total_reward: float = 0
@@ -154,23 +155,23 @@ class Agent():
             # could create a bug, not sure if the game.current_player can be equal to the player.
             # Does the player object change after a move in the game?
             made_moves += 1
-            states: T.Tensor = self.storage.initialize_states(self.game)
+            states: T.Tensor = self.recorder.initialize_states(self.game)
             # makes states into a tensor
 
             action: str = self.select_action(epsilon, states)
 
             self.game.play_nn(action)
-            next_state: T.Tensor = self.storage.initialize_states(self.game)
+            next_state: T.Tensor = self.recorder.initialize_states(self.game)
 
             if not T.equal(states, next_state):
                 valid_moves+=1
                 list_of_valid_moves.append(action)
-            # rewards are computed in the storageclass
+            # rewards are computed in the recorderclass
             reward: float = self.reward_engine.reward()
 
             if reward > 0:
                 reward*made_moves*0.999 # gives more reward for finishing slower
-            done: bool = self.storage.done()
+            done: bool = self.recorder.done()
             action1, action2 = self.decode_action(action)
             loss: T.Tensor = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
             self.update_network(self.nn.optimizer, loss)
@@ -191,7 +192,7 @@ class Agent():
             # could create a bug, not sure if the game.current_player can be equal to the player.
             # Does the player object change after a move in the game?
             made_moves += 1
-            states: T.Tensor = self.storage.initialize_states(self.game)
+            states: T.Tensor = self.recorder.initialize_states(self.game)
             # makes states into a tensor
             if  len(self.replay_moves)==0:
                 self.game.is_running = False
@@ -200,13 +201,13 @@ class Agent():
             action: str = self.replay_moves.pop(0)
             print(action)
             self.game.play_nn(action)
-            next_state: T.Tensor = self.storage.initialize_states(self.game)
-            # rewards are computed in the storageclass
+            next_state: T.Tensor = self.recorder.initialize_states(self.game)
+            # rewards are computed in the recorderclass
             reward: float = self.reward_engine.reward()
 
             if reward > 0:
                 reward*made_moves*0.999 # gives more reward for finishing slower
-            done: bool = self.storage.done()
+            done: bool = self.recorder.done()
             action1, action2 = self.decode_action(action)
             loss: T.Tensor = self.compute_loss(states, action1, action2, reward, next_state, done, discount_factor)
             self.update_network(self.nn.optimizer, loss)

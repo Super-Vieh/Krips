@@ -1,5 +1,4 @@
 # Funktionen die zu der Klasse GUI gehören
-from operator import truediv
 
 import pygame
 from .mk_karte import MKarte

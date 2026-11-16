@@ -1,9 +1,8 @@
 # Funktionen die zu der Klasse GUI gehören
 import pygame
-import Pygame # kann aucbh nicht genutzt werden
 from .mk_karte import MKarte
-from Klassen import Card, CardValue, CardType
-from .unterstuezungs_und_navigations_funktionen_ import aendere_kartenformat,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf
+from Klassen import Card
+from .unterstuezungs_und_navigations_funktionen_ import aendere_kartenformat
 
 
 # Diese Datei beinhaltet Teile der Funktion der Klasse GUI und wurde erstellt um die Datei kürzer zu gestallten.

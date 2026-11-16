@@ -1,10 +1,10 @@
 import pygame
 
 #from Klassen import print_sidesplus, seitenKarten, mittlereKarten, initialize_oponents,print_top, print_bot,play_init
-from Klassen import Game, Card, Player, CardType, CardValue
+from Klassen import Game
 from Pygame_Funktionen import MKarte
 from Pygame_Funktionen import erstelle_sidelist,erstelle_centerlist,erstelle_spieler_packchen,initialisierung_der_bilder,loesche_alle_elemente
-from Pygame_Funktionen import finde_die_ursprungsliste,aendere_kartenformat,draw,waehle_karteaus,indize_waehle_karteaus,lege_karte_ab,hebe_karte_auf,definiere_bewegbare_karten,setze_karte_auf_den_zeiger
+from Pygame_Funktionen import aendere_kartenformat, draw, waehle_karteaus, lege_karte_ab, hebe_karte_auf, definiere_bewegbare_karten, setze_karte_auf_den_zeiger
 
 
 # Die Klasse GUI ist das Graphical User Interface des Spieles. Das Ziel dieses ist keine Funktionen zum Spiel hinzufügen

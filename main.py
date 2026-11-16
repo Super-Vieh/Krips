@@ -1,6 +1,6 @@
 import time
 
-from Klassen.gameorchestor import GameOrchestor
+from Klassen.game_orchestor import GameOrchestor
 from Gymnasium import KripsEnv, RandomBot
 import random
 
@@ -41,7 +41,7 @@ def main() -> None:
 # GUI- und Trainings-Variante. Die schweren Importe werden nur dort gebraucht:
 # from Datenbank.datenbank import Database
 # from Pygame import GUI, MKarte
-# from Neuralnetwork_Stuff import Agent, DualingQNetwork, Storage, AgentTrainer
+# from Neuralnetwork_Stuff import Agent, DualingQNetwork, Recorder, AgentTrainer
 """
 
     for i in range(0,40):

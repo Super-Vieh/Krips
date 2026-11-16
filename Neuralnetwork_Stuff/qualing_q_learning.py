@@ -1,10 +1,8 @@
 import os
-import numpy as np
 import torch as T
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from Klassen import Game, Card, Player, CardType, CardValue
 
 class DualingQNetwork(nn.Module):
     def __init__(self, learning_rate: float, savestate_file_name: str):

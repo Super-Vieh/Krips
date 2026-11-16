@@ -22,7 +22,7 @@ class Rules:
     def opposing_player(self)->Player:
         return self.game.current_player.opponent
 
-    def get_all_valid_moves(self)->list[Move]:
+    def get_all_legal_moves(self)->list[Move]:
         legal_moves :list[Move] = []
         legal_moves += self.possible_moves_to_tableau()
         legal_moves += self.possible_moves_to_player()
@@ -30,7 +30,7 @@ class Rules:
         legal_moves += self.possible_moves_to_opponent()
         return legal_moves
 
-    def get_valid_moves_when_not_playing(self)->list[Move]:
+    def get_legal_moves_when_not_playing(self)->list[Move]:
         legal_moves :list[Move] = []
         if self.game.is_krips:
             legal_moves.append(Move(OriginType.KRIPS,1,DestinationType.KRIPS,1))#Krips

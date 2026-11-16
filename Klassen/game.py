@@ -1,9 +1,7 @@
-import random
 
-from sympy.physics.units import current
 
 from .board import Board
-from .card import Card, CardType, CardValue
+from .card import Card
 from .move import Move, OriginType, DestinationType
 from .player import Player
 from .rules import Rules
@@ -41,11 +39,11 @@ class Game:
         drz2: Card = self.player2.player_reserve[-1]
 
 
-        if (drz1.card_rank.value > drz2.card_rank.value) or (drz1.card_rank.value == 1 and drz2.card_rank.value != 1):  # stimmt wenn player1 die höhere karte hat
+        if  (drz1.card_rank.value == 1 and drz2.card_rank.value != 1)or (drz1.card_rank.value > drz2.card_rank.value):  # stimmt wenn player1 die höhere karte hat
             self.current_player = self.player1
             #Hier wird die möglichkeit auf das erste Krips geschaffen.
             self.would_be_krips = self.rules.could_be_krips()
-        elif (drz1.card_rank.value < drz2.card_rank.value) or (drz2.card_rank.value == 1 and drz1.card_rank.value != 1):  # stimmt wenn player2 die höhere karte hat
+        elif(drz2.card_rank.value == 1 and drz1.card_rank.value != 1) or (drz1.card_rank.value < drz2.card_rank.value):  # stimmt wenn player2 die höhere karte hat
             self.current_player = self.player2
             self.would_be_krips = self.rules.could_be_krips()
 
@@ -108,30 +106,48 @@ class Game:
         # Die Grundsatzt ist: Immer wenn man etwas in die Mitte legen kann muss man es machen!
         # Wenn man gegen diesen grundsatz verstößt und der gegegner es bemerkt ist er drann.
 
-        self.is_krips = self.rules.move_is_krips(action)
+        self.is_krips = False
+        applied = False
 
         match (action.origin_type, action.destination_type):
                 case (OriginType.PLAYER,DestinationType.PLAYER):
                     if action in self.rules.possible_moves_to_player():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_player_on_player(action)
+                        applied = True
                 case (OriginType.PLAYER,DestinationType.OPPONENT):
                     if action in self.rules.possible_moves_to_opponent():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_player_on_opponent(action)
+                        applied = True
                 case (OriginType.PLAYER,DestinationType.TABLEAU):
                     if action in self.rules.possible_moves_to_tableau():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_player_on_tableau(action)
+                        applied = True
                 case (OriginType.PLAYER,DestinationType.FOUNDATION):
                     if action in self.rules.possible_moves_to_foundation():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.player_on_foundation(action)
+                        applied = True
                 case (OriginType.TABLEAU,DestinationType.TABLEAU):
                     if action in self.rules.possible_moves_to_tableau():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_tableau_on_tableau(action)
+                        applied = True
                 case (OriginType.TABLEAU,DestinationType.FOUNDATION):
                     if action in self.rules.possible_moves_to_foundation():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_tableau_on_foundation(action)
+                        applied = True
                 case (OriginType.TABLEAU,DestinationType.OPPONENT):
                     if action in self.rules.possible_moves_to_opponent():
+                        self.is_krips = self.rules.move_is_krips(action)
                         self.play_tableau_on_opponent(action)
+                        applied = True
+
+        if not applied:
+            return
 
         self.would_be_krips = self.rules.could_be_krips()
         self.count_stalemate()
@@ -139,12 +155,16 @@ class Game:
         if self.rules.has_game_ended():
             self.rules.conclude_game()
     def play_move_off_turn(self, krips_call: Move) -> None:
-        if krips_call in self.rules.get_valid_moves_when_not_playing():
+        if krips_call in self.rules.get_legal_moves_when_not_playing():
             self.call_krips()
 
 
 
     def transfer_card(self,move:Move) -> None:
+       if move.origin_type not in (OriginType.PLAYER, OriginType.TABLEAU):
+           raise ValueError("Ungültiger Origin Type für Card Transfer")
+       if move.destination_type not in (DestinationType.PLAYER, DestinationType.TABLEAU, DestinationType.FOUNDATION, DestinationType.OPPONENT):
+           raise ValueError("Kein Valider Destination Type für Card Transfer genutzt")
        if move.origin_type == OriginType.PLAYER:
            card = self.current_player.extract_card(move.origin_value)
        if move.origin_type == OriginType.TABLEAU:
