@@ -1,4 +1,7 @@
 
+import os
+import sys
+
 import gymnasium
 import numpy as np
 from gymnasium import spaces
@@ -7,7 +10,6 @@ from Klassen.game import Game
 from Klassen.game_orchestor import GameOrchestor
 from Klassen.move import DestinationType, Move, OriginType
 from Neuralnetwork_Stuff import GameEngineEncoder, RewardEngine, Recorder
-
 
 def build_action_list() -> list[Move]:
     moves: list[Move] = [
@@ -52,6 +54,7 @@ class KripsEnv(gymnasium.Env):
         self.oponnent_agent = None
         self.action_space: spaces.Discrete = spaces.Discrete(ACTION_COUNT)
         self.observation_space: spaces.MultiBinary = spaces.MultiBinary(1144)
+        self.move_history=[]
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         super().reset(seed=seed)
@@ -61,6 +64,8 @@ class KripsEnv(gymnasium.Env):
             self.game = orchestrator.set_up_game()
             if self.game.current_player is not None:
                 break
+        self.game_seed = game_seed
+        self.move_history = []
         self.recorder = Recorder(self.game)
         self.previous_state = GameEngineEncoder.encode_states(self.game)
         self.before_previous_state = None
@@ -69,10 +74,16 @@ class KripsEnv(gymnasium.Env):
     def step(self, move: Move, off_turn: bool):
         if self.game is None or not self.game.is_running:
             raise RuntimeError("step() called on a finished or uninitialized game")
-        if not off_turn:
-            self.game.play_move(move)
-        elif off_turn:
-            self.game.play_move_off_turn(move)
+        if off_turn:
+            legal_moves = self.game.rules.get_legal_moves_when_not_playing()
+        else:
+            legal_moves = self.game.rules.get_all_legal_moves()
+        if move in legal_moves:
+            if off_turn:
+                self.game.play_move_off_turn(move)
+            else:
+                self.game.play_move(move)
+            self.move_history.append(move)
         observation = self._observe()
         reward = self._reward()
         terminated = self._terminated()
@@ -122,7 +133,15 @@ class KripsEnv(gymnasium.Env):
         return ACTION_LIST[action]
 
     def render(self):
-        pass
+        if self.game is None or getattr(self, "game_seed", None) is None:
+            return None
+        ui_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "UI")
+        if ui_dir not in sys.path:
+            sys.path.insert(0, ui_dir)
+        from ui_game_replay import play_replay
+
+        start_game = GameOrchestor(self.game_seed).set_up_game()
+        return play_replay(start_game, list(self.move_history), seed=self.game_seed)
 
     def close(self):
         self.game = None

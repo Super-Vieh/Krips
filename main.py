@@ -19,15 +19,24 @@ def main() -> None:
     for i in range(0,100):
             if env.game.current_player.player_number == 1:
                 move = bot1.act(env.game)
-                env.step(move,False)
+                step_return = env.step(move,False)
+                if step_return[2]:
+                    break
                 move = bot2.act_off_turn(env.game)
-                env.step(move,True)
+                step_return = env.step(move,True)
+                if step_return[2]:
+                    break
                 continue
             if env.game.current_player.player_number == 2:
                 move = bot2.act(env.game)
-                env.step(move,False)
+                step_return = env.step(move,False)
+                if step_return[2]:
+                    break
                 move = bot1.act_off_turn(env.game)
-                env.step(move,True)
+                step_return = env.step(move,True)
+                if step_return[2]:
+                    break
+    env.render()
     dauer = time.perf_counter() - start
     print(dauer)
 
