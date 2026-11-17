@@ -19,7 +19,7 @@ Savestates/
 
 # Graphify (generierte Knowledge-Graph-Ausgabe + Tool-Konfig)
 graphify-out/
-.graphifyignore
+graphify-out/.graphifyignore
 .graphify_python
 .graphify_root
 
@@ -47,3 +47,4 @@ tools/
 htmlcov/
 .pytest_cache/
 
+/QUELLEN.md

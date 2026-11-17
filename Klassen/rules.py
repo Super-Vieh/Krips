@@ -4,15 +4,10 @@ from typing import TYPE_CHECKING
 
 from .card import Card, CardValue, CardType
 from .player import Player
+from .board import Board
 from .move import Move, OriginType, DestinationType
-
-if TYPE_CHECKING:
-    # Circular import
-    from .game import Game
-
-
 class Rules:
-    def __init__(self, game: Game):
+    def __init__(self,game):
         self.game = game
 
     @property
@@ -21,6 +16,7 @@ class Rules:
     @property
     def opposing_player(self)->Player:
         return self.game.current_player.opponent
+
 
     def get_all_legal_moves(self)->list[Move]:
         legal_moves :list[Move] = []
