@@ -16,9 +16,9 @@ class Player:
 
 
     def set_opponent(self, opponent: 'Player') -> None:
-        #initialisierungs funktion
-        from .game import Game
         self.opponent = opponent
+    def set_won(self,won):
+        self.won=won
 
     def distribute_cards_to_decks(self) -> None:
 
@@ -26,15 +26,21 @@ class Player:
             raise ValueError("Deck has less than 52 cards")
         # Erstellung des Dreizehner Päckchens
         for _ in range(13):
-            self.player_reserve.append(self.own_deck.pop())
+            self.receive_card(self.own_deck.pop(), 2)
 
-        self.player_reserve[-1].is_face_up = True
+        self.flip_last_card(2)
         for card in self.own_deck:
-            self.player_stock.append(card)
-        self.own_deck.clear()
+            self.receive_card(card, 0)
+
 
     def flip_last_card(self, list:int) -> None:
         self.player_piles[list][-1].is_face_up = True
+    def reset_waste(self):
+        if not self.player_stock and self.player_waste:
+            while self.player_waste:
+                card = self.extract_card(1)
+                card.is_face_up=False
+                self.receive_card(card, 0)
     def receive_card(self,card:Card,list:int):
         self.player_piles[list].append(card)
 

@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pygame
 
 from Gymnasium.leaky_rule_based_bot import LeakyRuleBasedBot
-from Klassen.game_orchestor import GameOrchestor
+from Klassen.game_factory import GameFactory
 
 WIDTH = 900
 HEIGHT = 1400
@@ -380,7 +380,7 @@ def to_demo(card, owner):
 
 
 def build_game(seed, bot_seed, moves):
-    game = GameOrchestor(seed).set_up_game()
+    game = GameFactory().set_up_game(seed)
     if moves <= 0:
         return game
     bot = LeakyRuleBasedBot(bot_seed, mistake_rate=0.0, krips_miss_rate=0.0)

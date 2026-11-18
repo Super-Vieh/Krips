@@ -34,6 +34,9 @@ class Board:
         else:
             self.tableau[list].append(card)
 
+    def flip_last_board_card(self, list:int) -> None:
+        self.tableau[list][-1].is_face_up = True
+
     def extract_card(self,list:int)->Card:
         if not self.tableau[list]:
             raise ValueError("von Leerer Liste sollte entfernt werden")

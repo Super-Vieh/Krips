@@ -7,68 +7,35 @@ import numpy as np
 from gymnasium import spaces
 
 from Klassen.game import Game
-from Klassen.game_orchestor import GameOrchestor
+from Klassen.game_factory import GameFactory
 from Klassen.move import DestinationType, Move, OriginType
 from Neuralnetwork_Stuff import GameEngineEncoder, RewardEngine, Recorder
 
-def build_action_list() -> list[Move]:
-    moves: list[Move] = [
-        Move(OriginType.PLAYER, 0, DestinationType.PLAYER, 0),
-        Move(OriginType.PLAYER, 0, DestinationType.PLAYER, 1),
-        Move(OriginType.PLAYER, 2, DestinationType.PLAYER, 2),
-    ]
-    for origin in range(3):
-        for destination in range(8):
-            moves.append(
-                Move(OriginType.PLAYER, origin, DestinationType.TABLEAU, destination)
-            )
-            moves.append(
-                Move(OriginType.PLAYER, origin, DestinationType.FOUNDATION, destination)
-            )
-        moves.append(Move(OriginType.PLAYER, origin, DestinationType.OPPONENT, 0))
-    for origin in range(8):
-        for destination in range(8):
-            moves.append(
-                Move(OriginType.TABLEAU, origin, DestinationType.TABLEAU, destination)
-            )
-            moves.append(
-                Move(OriginType.TABLEAU, origin, DestinationType.FOUNDATION, destination)
-            )
-        moves.append(Move(OriginType.TABLEAU, origin, DestinationType.OPPONENT, 0))
-    return moves
-
-
-ACTION_LIST: list[Move] = build_action_list()
-ACTION_COUNT: int = len(ACTION_LIST)
 
 
 class KripsEnv(gymnasium.Env):
 
-    def __init__(self, render_mode: str | None = None):
+    def __init__(self,render_mode: bool=False):
         super().__init__()
-        self.render_mode: str | None = render_mode
+        self.render_mode: bool = render_mode
         self.game: Game | None = None
+        self.game_seed: int | None = None
         self.recorder: Recorder | None = None
-        self.previous_state: np.ndarray | None = None
-        self.before_previous_state: np.ndarray | None = None
-        self.oponnent_agent = None
-        self.action_space: spaces.Discrete = spaces.Discrete(ACTION_COUNT)
+
+        self.action_space: spaces.Discrete = spaces.Discrete(184)
         self.observation_space: spaces.MultiBinary = spaces.MultiBinary(1144)
         self.move_history=[]
 
-    def reset(self, *, seed: int | None = None, options: dict | None = None):
+    def reset(self, seed: int|None = None):
         super().reset(seed=seed)
-        while True:
-            game_seed = int(self.np_random.integers(0, 2 ** 32 - 1))
-            orchestrator = GameOrchestor(game_seed)
-            self.game = orchestrator.set_up_game()
-            if self.game.current_player is not None:
-                break
-        self.game_seed = game_seed
+        if seed is None:
+            seed = int(self.np_random.integers(0, 2 ** 32 - 1))
+        self.game_seed = seed
+        factory = GameFactory()
+        self.game = factory.set_up_game(seed)
+
         self.move_history = []
         self.recorder = Recorder(self.game)
-        self.previous_state = GameEngineEncoder.encode_states(self.game)
-        self.before_previous_state = None
         return self._observe(), self._info()
 
     def step(self, move: Move, off_turn: bool):
@@ -90,8 +57,6 @@ class KripsEnv(gymnasium.Env):
         truncated = self._truncated()
         info = self._info()
         self.recorder.add_state()
-        self.before_previous_state = self.previous_state
-        self.previous_state = observation
 
         return (observation,reward,terminated,truncated,info)
 
@@ -99,23 +64,19 @@ class KripsEnv(gymnasium.Env):
         return GameEngineEncoder.encode_states(self.game)
 
     def _reward(self):
-        return RewardEngine.reward(
-            self.game, self.previous_state, self.before_previous_state
-        )
+        return RewardEngine.reward(self.game, self.recorder)
 
     def _terminated(self):
         return not self.game.is_running
     def _truncated(self):
         return False
     def _info(self)-> dict:
-        player = (
-            self.game.current_player.player_number
-            if self.game.current_player is not None
-            else None
-        )
+        player_number = None
+        if self.game and self.game.current_player:
+            player_number = self.game.current_player.player_number
         information :dict ={
             "legal_moves":self.legal_moves(),
-            "player":player
+            "player_number":player_number
         }
         return information
     def legal_moves(self, off_turn: bool | None = None)->list[Move]:
@@ -127,20 +88,16 @@ class KripsEnv(gymnasium.Env):
             return self.game.rules.get_all_legal_moves()
         if  off_turn:
             return self.game.rules.get_legal_moves_when_not_playing()
-    def action_to_move(self, action: int) -> Move:
-        if not 0 <= action < ACTION_COUNT:
-            raise ValueError(f"Invalid action: {action}")
-        return ACTION_LIST[action]
 
     def render(self):
-        if self.game is None or getattr(self, "game_seed", None) is None:
+        if self.game_seed is None:
             return None
         ui_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "UI")
         if ui_dir not in sys.path:
             sys.path.insert(0, ui_dir)
         from ui_game_replay import play_replay
 
-        start_game = GameOrchestor(self.game_seed).set_up_game()
+        start_game = GameFactory().set_up_game(self.game_seed)
         return play_replay(start_game, list(self.move_history), seed=self.game_seed)
 
     def close(self):

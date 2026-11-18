@@ -25,10 +25,10 @@ class Game:
     def play_fist_cards(self) -> None:
         for index ,tableau_list in enumerate(self.board.tableau):
             if index <= 3:
-                tableau_list.append(self.player1.player_stock.pop())
+                self.board.receive_card(self.player1.extract_card(0), False, index)
             else:
-                tableau_list.append(self.player2.player_stock.pop())
-            tableau_list[-1].is_face_up = True
+                self.board.receive_card(self.player2.extract_card(0), False, index)
+            self.board.flip_last_board_card(index)
 
 
 
@@ -173,8 +173,8 @@ class Game:
        match(move.destination_type):
            case DestinationType.PLAYER: self.current_player.receive_card(card,move.destination_value)
            case DestinationType.TABLEAU:
-               card.is_face_up = True
                self.board.receive_card(card,False,move.destination_value)
+               self.board.flip_last_board_card(move.destination_value)
            case DestinationType.FOUNDATION: self.board.receive_card(card,True,move.destination_value)
            case DestinationType.OPPONENT: self.current_player.opponent.receive_card(card,1)
            case _ : raise ValueError("Kein Valider Destination Type für Card Transfer genutzt")
@@ -186,7 +186,7 @@ class Game:
             if player.player_stock:
                 player.flip_last_card(action.origin_value)
             elif player.player_waste:
-                self.reset_waste(player)
+                player.reset_waste()
         elif action.origin_value == 2 and action.destination_value == 2:
             if player.player_reserve:
                 player.flip_last_card(action.origin_value)
@@ -196,12 +196,6 @@ class Game:
             self.current_player = player.opponent
         #elif action.origin_value == 1 and action.destination_value == 0:
          #   self.reset_waste(player)
-
-    def reset_waste(self, player: Player) -> None:
-        for card in reversed(player.player_waste):
-            card.is_face_up = False
-            player.player_stock.append(card)
-        player.player_waste.clear()
 
     def play_player_on_tableau(self, action: Move) -> None:
         self.transfer_card(action)
@@ -234,19 +228,20 @@ class Game:
         else:
             self.stalemate_counter = 0
         self.last_player_pile_lengths = current_len
+
     def stalemate(self):
         if self.stalemate_counter >=100:
             if not self.current_player.player_reserve and self.current_player.opponent.player_reserve:
-                self.current_player.won = True
+                self.current_player.set_won(True)
             elif self.current_player.player_reserve and not self.current_player.opponent.player_reserve:
-                self.current_player.opponent.won = True
+                self.current_player.opponent.set_won(True)
 
 
     def call_krips(self):
         if self.is_krips:
             player = self.current_player
             if player.player_stock and player.player_stock[-1].is_face_up:
-                player.player_waste.append(player.player_stock.pop())
+                player.receive_card(player.extract_card(0), 1)
             self.current_player = player.opponent
             self.is_krips = False
 

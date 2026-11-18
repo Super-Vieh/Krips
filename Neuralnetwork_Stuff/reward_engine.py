@@ -3,18 +3,21 @@ import numpy as np
 from Klassen import Game
 #print_bot, print_sidesplus, print_top
 from .game_engine_encoder import GameEngineEncoder
-
+from .recorder import Recorder
 class RewardEngine():
 
     @staticmethod
-    def reward(game:Game, previous_state:np.ndarray | None, before_previous_state:np.ndarray | None = None) -> float:
+    def reward(game:Game,recorder:Recorder) -> float:
         reward: float = 0
         #[0] and [1] if current state are list with the cards of player1 and player2
         #[2] and [3] are the lists of the playing field 3 is the list with the sidelists and 4 is the list with the centerlists
         #every ellement in the tuple is a list of lists
-        current_state: np.ndarray = GameEngineEncoder.encode_states(game)
-        if previous_state is None:
+        if len(recorder.all_states)<=2:
             return reward
+        current_state: np.ndarray = GameEngineEncoder.encode_states(game)
+        previous_state: np.ndarray | None = recorder.all_states[-2]
+        before_previous_state: np.ndarray | None = recorder.all_states[-3]
+
         if not RewardEngine.did_an_action_do_something(previous_state, current_state):reward-=5#; print("action did something")
         if RewardEngine.punish_back_and_forth(before_previous_state, current_state): reward-=5#; print("back and forth punished")
         if RewardEngine.put_card_in_the_middel(previous_state, current_state): reward+=3 #; print("card in the middel")

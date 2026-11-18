@@ -19,24 +19,24 @@ class AgentTrainer:
 
 
 
-    def load_nn(self, file_Path1: str, file_Path2: str, learnig_rate: float = 0.001) -> None:
+    def load_nn(self, file_path1: str, file_path2: str, learnig_rate: float = 0.001) -> None:
 
         try:
-            nn1: DualingQNetwork = DualingQNetwork(learnig_rate, file_Path1)
+            nn1: DualingQNetwork = DualingQNetwork(learnig_rate, file_path1)
             nn1.load_savestate()
             self.agent1 =Agent(nn1)
         except:
             print("No savestate found for agent 1, starting from scratch")
-            nn1: DualingQNetwork = DualingQNetwork(learnig_rate, file_Path1)
+            nn1: DualingQNetwork = DualingQNetwork(learnig_rate, file_path1)
             self.agent1 = Agent(nn1)
 
         try:
-            nn2: DualingQNetwork = DualingQNetwork(learnig_rate, file_Path2)
+            nn2: DualingQNetwork = DualingQNetwork(learnig_rate, file_path2)
             nn2.load_savestate()
             self.agent2 =Agent(nn2)
         except:
             print("No savestate found for agent 2, starting from scratch")
-            nn2: DualingQNetwork = DualingQNetwork(learnig_rate, file_Path2)
+            nn2: DualingQNetwork = DualingQNetwork(learnig_rate, file_path2)
             self.agent2 = Agent(nn2)
 
     def train_agents_and_store(self, nr_episodes: int, steps: int, start_epsilon: float = 0.9, discount_factor: float = 0.9, epsilon_decay: float = 0.99995) -> None:

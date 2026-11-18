@@ -216,7 +216,7 @@ class Rules:
         return not (player.player_waste or player.player_stock or player.player_reserve)
 
     def is_stalemate(self) -> bool:
-        return self.game.stalemate_counter >= 30
+        return self.game.stalemate_counter >= 100
 
     def has_game_ended(self) -> bool:
         return (self.player_has_no_cards(self.game.player1)
@@ -225,17 +225,17 @@ class Rules:
 
     def conclude_game(self) -> None:
         if self.player_has_no_cards(self.game.player1):
-            self.game.player1.won = True
+            self.game.player1.set_won(True)
             self.game.is_running = False
             return None
         if self.player_has_no_cards(self.game.player2):
-            self.game.player2.won = True
+            self.game.player2.set_won(True)
             self.game.is_running = False
             return None
         if self.is_stalemate():
             if not self.game.player1.player_reserve and self.game.player2.player_reserve:
-                self.game.player1.won = True
+                self.game.player1.set_won(True)
             elif self.game.player1.player_reserve and not self.game.player2.player_reserve:
-                self.game.player2.won = True
+                self.game.player2.set_won(True)
             self.game.is_running = False
         return None

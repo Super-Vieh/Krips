@@ -12,8 +12,9 @@ def main() -> None:
     """
     start = time.perf_counter()
     env = KripsEnv()
-    env.reset()
     seed = random.randint(0, 2 ** 32 - 1)
+    env.reset(seed)
+
     bot1 = RandomBot(seed)
     bot2 = RandomBot(seed + 1)
     for i in range(0,100):

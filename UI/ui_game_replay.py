@@ -31,7 +31,7 @@ from krips_ui import (
     target_position,
 )
 from Gymnasium.leaky_rule_based_bot import LeakyRuleBasedBot
-from Klassen.game_orchestor import GameOrchestor
+from Klassen.game_factory import GameFactory
 from Klassen.move import DestinationType, Move, OriginType
 
 REPLAY_HELP = (
@@ -55,8 +55,22 @@ def is_krips_call(move):
     return is_off_turn(move) and move.origin_value == 1
 
 
+def normalize_moves(moves):
+    if len(moves) == 1 and isinstance(moves[0], (list, tuple)):
+        return list(moves[0])
+    return list(moves)
+
+
+def make_game(seed):
+    for offset in range(1000):
+        game = GameFactory().set_up_game(seed + offset)
+        if game.current_player is not None:
+            return game, seed + offset
+    raise RuntimeError("kein gueltiger Startspieler gefunden")
+
+
 def record_game(seed, bot_seed, limit=80, call_krips=True):
-    game = GameOrchestor(seed).set_up_game()
+    game, actual_seed = make_game(seed)
     bots = {1: LeakyRuleBasedBot(bot_seed), 2: LeakyRuleBasedBot(bot_seed + 7)}
     moves = []
     while game.is_running and len(moves) < limit and game.current_player is not None:
@@ -69,7 +83,7 @@ def record_game(seed, bot_seed, limit=80, call_krips=True):
             if call in game.rules.get_legal_moves_when_not_playing():
                 moves.append(call)
                 game.play_move_off_turn(call)
-    return moves
+    return moves, actual_seed
 
 
 def move_actor(game, move):
@@ -125,8 +139,11 @@ def apply_quiet(game, move):
         game.play_move(move)
 
 
-def make_state(game, moves, seed, style_id):
-    start = copy.deepcopy(game)
+def make_state(game, moves, seed, style_id, start_game=None):
+    moves = normalize_moves(moves)
+    if start_game is None and seed is not None:
+        start_game, _ = make_game(seed)
+    start = copy.deepcopy(start_game if start_game is not None else game)
     working = copy.deepcopy(start)
     total = len(moves)
     return {
@@ -395,7 +412,7 @@ def seek_from_x(st, x):
     seek(st, round(ratio * st["total"]))
 
 
-def play_replay(game, moves, *, seed=None, auto=False, ms_per_action=900, style_id=DEFAULT_STYLE):
+def play_replay(game, moves, *, seed=None, auto=False, ms_per_action=900, style_id=DEFAULT_STYLE, start_game=None):
     pygame.init()
     screen = pygame.display.get_surface()
     if screen is None:
@@ -404,7 +421,7 @@ def play_replay(game, moves, *, seed=None, auto=False, ms_per_action=900, style_
     assets = Assets(style_id)
     assets.warm()
     help_surface = assets.fonts["help"].render(REPLAY_HELP, True, assets.style["label_rgb"])
-    st = make_state(game, moves, seed, style_id)
+    st = make_state(game, moves, seed, style_id, start_game=start_game)
     st["auto"] = auto
     st["last_auto"] = pygame.time.get_ticks()
     surf = pygame.Surface((WIDTH, HEIGHT))
@@ -513,12 +530,12 @@ def play_replay(game, moves, *, seed=None, auto=False, ms_per_action=900, style_
 def run_screenshots(seed, bot_seed, limit, style_id=DEFAULT_STYLE):
     pygame.init()
     pygame.display.set_mode((WIDTH, HEIGHT))
-    moves = record_game(seed, bot_seed, max(limit, 400))
-    game = GameOrchestor(seed).set_up_game()
+    moves, actual_seed = record_game(seed, bot_seed, max(limit, 400))
+    game, _ = make_game(actual_seed)
     assets = Assets(style_id)
     assets.warm()
     help_surface = assets.fonts["help"].render(REPLAY_HELP, True, assets.style["label_rgb"])
-    st = make_state(game, moves, seed, style_id)
+    st = make_state(game, moves, actual_seed, style_id)
     st["auto"] = False
     shade = make_shade()
     surf = pygame.Surface((WIDTH, HEIGHT))
@@ -586,11 +603,12 @@ def main():
         for path in run_screenshots(args.seed, args.bot_seed, args.limit, args.style):
             print(path)
         return
-    moves = record_game(args.seed, args.bot_seed, args.limit)
+    moves, actual_seed = record_game(args.seed, args.bot_seed, args.limit)
+    game, _ = make_game(actual_seed)
     play_replay(
-        GameOrchestor(args.seed).set_up_game(),
+        game,
         moves,
-        seed=args.seed,
+        seed=actual_seed,
         auto=args.auto,
         ms_per_action=args.ms,
         style_id=args.style,

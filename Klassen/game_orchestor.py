@@ -7,65 +7,15 @@ from .game import Game
 from .move import DestinationType, Move, OriginType
 from .player import Player
 from .rules import Rules
-
+from .game_factory import GameFactory
 # Die Klasse Game_Orchestor baut das Spiel auf, gibt den Spielstand auf der Konsole aus
 # und übersetzt die Zug-Notation (z.B. "A0A0") in Move-Objekte für Game.play_move().
 # Die Konsolenausgabe ist identisch zu der alten SpielInitialisierer-Klasse.
 class GameOrchestor:
 
-    # Farben der Kartenarten, wie in der alten Ausgabe
-    _COLOR: dict[CardType, str] = {
-        CardType.Pik: "\033[30m",
-        CardType.Coeur: "\033[31m",
-        CardType.Treff: "\033[90m",
-        CardType.Karro: "\033[35m",
-    }
-    # Reihenfolge der Stiftungen auf dem Board: Pik, Coeur, Treff, Karro (je 2 Felder)
-    _FOUNDATION_SUIT: tuple[CardType, ...] = (CardType.Pik, CardType.Coeur, CardType.Treff, CardType.Karro)
-
     def __init__(self, seed: int):
-        # seed macht die Kartenverteilung reproduzierbar
-        self.rng: random.Random = random.Random(seed)
+        self.seed =seed
 
-    def create_deck(self) -> list[Card]:
-        templist: list[Card] = []  # Speichert die Karten
-        card_type = list(CardType)
-        card_value = list(CardValue)
-
-        for i in range(len(card_type)):
-            for j in range(len(card_value)):
-                templist.append(Card(card_type[i], card_value[j]))
-        return templist
-
-    def set_up_game(self) -> Game:
-        # Entspricht SpielInitialisierer.set_up_game + set_up_fist_moves
-        game: Game = Game()
-        game.board = Board()
-
-        deck1: list[Card] = self.create_deck()
-        deck2: list[Card] = self.create_deck()
-        self.rng.shuffle(deck1)
-        self.rng.shuffle(deck2)
-
-        player1: Player = Player(1, deck1)
-        player2: Player = Player(2, deck2)
-
-        player1.set_opponent(player2)
-        player2.set_opponent(player1)
-        #player1.set_game(game)
-        #player2.set_game(game)
-
-        game.player1 = player1
-        game.player2 = player2
-        game.rules = Rules(game)
-
-        player1.distribute_cards_to_decks()
-        player2.distribute_cards_to_decks()
-
-        game.play_fist_cards()
-
-        game.decide_first_player()
-        return game
 
     @staticmethod
     def sanitize_notation(notation: str) -> str | None:
@@ -182,13 +132,28 @@ class GameOrchestor:
     @staticmethod
     def print_card(card: Card) -> None:
         # Eine Karte in ihrer Kartenart-Farbe, wie in der alten print_sidesplus
-        print(f"{GameOrchestor._COLOR[card.card_type]}{card.card_rank.value}\033[0m", end=",")
+        if card.card_type == CardType.Pik:
+            color = "\033[30m"
+        elif card.card_type == CardType.Coeur:
+            color = "\033[31m"
+        elif card.card_type == CardType.Treff:
+            color = "\033[90m"
+        else:
+            color = "\033[35m"
+        print(f"{color}{card.card_rank.value}\033[0m", end=",")
 
     @staticmethod
     def print_middle(board: Board, i: int) -> None:
         # Die beiden Stiftungen einer Kartenart.
         # i = 0 Pik, 1 Coeur, 2 Treff, 3 Karro -> Stiftungen 2*i und 2*i+1
-        color: str = GameOrchestor._COLOR[GameOrchestor._FOUNDATION_SUIT[i]]
+        if i == 0:
+            color = "\033[30m"
+        elif i == 1:
+            color = "\033[31m"
+        elif i == 2:
+            color = "\033[90m"
+        else:
+            color = "\033[35m"
         foundation1: list[Card] = board.foundations[2 * i]
         foundation2: list[Card] = board.foundations[2 * i + 1]
 
@@ -281,7 +246,9 @@ class GameOrchestor:
             print("Closed", end="")
 
     def play_console(self, game: Game) -> list[str]:
-        # Eine Spiel Simulation in der Konsole ohne Gui
+        # Eine Spiel Simulation in der Konsole ohne Gui#
+
+        game = GameFactory.set_up_game(self.seed)
         list_of_recordedactions: list[str] = []
         while game.is_running:
             # print_top, print_sidesplus und print_bot geben die Karten auf der Konsole aus

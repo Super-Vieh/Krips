@@ -18,9 +18,7 @@ class DualingQNetwork(nn.Module):
         self.valuelayer1: nn.Linear = nn.Linear(256,64)
         self.valueoutputlayer: nn.Linear = nn.Linear(64,1)
         self.advantagelayer1: nn.Linear = nn.Linear(512,256)
-        self.advantageOutput1: nn.Linear = nn.Linear(256, 12)
-        #the first advantage layer is added to the second layer so it has knowledge of the second.
-        self.advantageOutput2: nn.Linear = nn.Linear(268, 21)
+        self.advantageoutputlayer: nn.Linear = nn.Linear(256, 184)
 
         self.optimizer: optim.Adam = optim.Adam(self.parameters(), lr=self.learning_rate)
         self.loss: nn.MSELoss = nn.MSELoss()
@@ -30,7 +28,7 @@ class DualingQNetwork(nn.Module):
 
 
 
-    def forward(self, states: T.Tensor) -> tuple[T.Tensor, T.Tensor, T.Tensor]:
+    def forward(self, states: T.Tensor) -> tuple[T.Tensor, T.Tensor]:
 
         states = states.to(self.device)
         #here are the first 3 layers
@@ -57,41 +55,20 @@ class DualingQNetwork(nn.Module):
         advantageinput1 = F.relu(advantageinput1)
 
         # no activation fuction for the output
-        #12 actions
-        avantage1: T.Tensor = self.advantageOutput1(advantageinput1)
-        advantageinput2: T.Tensor = T.cat((avantage1,advantageinput1),dim=0)
-        #21 actions
-        avantage2: T.Tensor = self.advantageOutput2(advantageinput2)
+        advantageoutput: T.Tensor = self.advantageoutputlayer(advantageinput1)
 
-        return valueoutput, avantage1, avantage2
+        return valueoutput, advantageoutput
 
 
 
-    def combine_value_advantage(self, value: T.Tensor, advantage1: T.Tensor, advantage2: T.Tensor) -> T.Tensor:
-        # the unsequeeze function adds a dimension to the tensor it makes it a list of lists with only one list containig all elements
-        # for the opperations to work on  the tensors,they need to be a centain shape
-        # here the unsqueeze 1 makes the adv1 tensor in the shape of (N,1) the 0 makes adv2 in the shape of (1,M)
-        adv1: T.Tensor = advantage1.unsqueeze(1)
-        adv2: T.Tensor = advantage2.unsqueeze(0)
-
-        # the pair_mean is also now a list of list.
-        # it is like a nested for loop where the first element of adv1 is seperatly added to all elements of adv2 creating a 1d list
-        # then the second element of adv1 is seperatly added to all elements of adv2 creating a 1d and so on
-        #these 1d list are as long as there are elements in adv2 and as many as there are elements in adv1
-        # pair_mean = [N][M]
-        pair_mean: T.Tensor = (adv1 + adv2) / 2
-
-        # the overall_mean is the scalar of all pairs of N and M
-        # it takes the mean of MxN pairs
-        overall_mean: T.Tensor = pair_mean.mean()
-
+    def combine_value_advantage(self, value: T.Tensor, advantage: T.Tensor) -> T.Tensor:
         # the q_values are the standart value v(s) and the advantage of an action (a)
         # the advantage is calculated by how good the pair values are compared to the average values
         # and the value is the value of the state so it is always present
-        q_values: T.Tensor = value + pair_mean - overall_mean
+        q_values: T.Tensor = value + advantage - advantage.mean(dim=-1, keepdim=True)
         # P.S. this is a heavily simplified version done by a LLM.
         # my version was python algorith based and not tensor based thus extremly slow the idea was the same though
-        return q_values.squeeze(0)
+        return q_values
 
 
 
