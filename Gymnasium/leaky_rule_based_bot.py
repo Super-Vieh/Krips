@@ -45,8 +45,7 @@ class LeakyRuleBasedBot:
         self.mistake_rate: float = mistake_rate
         self.krips_miss_rate: float = krips_miss_rate
 
-    def act(self, game: Game) -> Move:
-        legal_moves: list[Move] = game.rules.get_all_legal_moves()
+    def act(self, game: Game,legal_moves:list[Move]) -> Move:
         if not legal_moves:
             raise ValueError("No legal moves available")
         if self.rng.random() < self.mistake_rate:
@@ -57,8 +56,7 @@ class LeakyRuleBasedBot:
         best_moves: list[Move] = [move for move, score in zip(legal_moves, scores) if score == best_score]
         return self.rng.choice(best_moves)
 
-    def act_off_turn(self, game: Game) -> Move:
-        legal_moves: list[Move] = game.rules.get_legal_moves_when_not_playing()
+    def act_off_turn(self, game: Game,legal_moves:list[Move]) -> Move:
         if not legal_moves:
             raise ValueError("No legal off-turn moves available")
         krips_call = Move(OriginType.KRIPS, 1, DestinationType.KRIPS, 1)

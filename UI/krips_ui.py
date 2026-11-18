@@ -613,7 +613,7 @@ class KripsUI:
         return True
 
     def bot_turn(self):
-        move = self.bot.act(self.game)
+        move = self.bot.act(self.game, self.game.rules.get_all_legal_moves())
         actor = self.game.current_player.player_number
         card = None
         position = None

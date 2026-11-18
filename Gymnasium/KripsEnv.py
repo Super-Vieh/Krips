@@ -15,9 +15,8 @@ from Neuralnetwork_Stuff import GameEngineEncoder, RewardEngine, Recorder
 
 class KripsEnv(gymnasium.Env):
 
-    def __init__(self,render_mode: bool=False):
+    def __init__(self):
         super().__init__()
-        self.render_mode: bool = render_mode
         self.game: Game | None = None
         self.game_seed: int | None = None
         self.recorder: Recorder | None = None

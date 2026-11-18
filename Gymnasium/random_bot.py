@@ -10,10 +10,8 @@ class RandomBot:
     def __init__(self, seed: int ):
         self.rng: random.Random = random.Random(seed)
 
-    def act(self, game: Game) -> Move:
-        legal_moves: list[Move] = game.rules.get_all_legal_moves()
+    def act(self, legal_moves:list[Move]) -> Move:
         return self.rng.choice(legal_moves)
 
-    def act_off_turn(self, game: Game) -> Move:
-        legal_moves = game.rules.get_legal_moves_when_not_playing()
+    def act_off_turn(self, legal_moves:list[Move]) -> Move:
         return self.rng.choice(legal_moves)

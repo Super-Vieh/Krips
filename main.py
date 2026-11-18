@@ -1,42 +1,40 @@
 import time
 
-from Klassen.game_orchestor import GameOrchestor
-from Gymnasium import KripsEnv, RandomBot
+from Gymnasium import KripsEnv, RandomBot,LeakyRuleBasedBot
 import random
 
 def main() -> None:
-    """
-    orchestrator: GameOrchestor = GameOrchestor(seed=42)
-    game = orchestrator.set_up_game()
-    orchestrator.play_console(game)
-    """
+
+    #seed = random.randint(0, 2 ** 32 - 1)
+    seed = 44
     start = time.perf_counter()
     env = KripsEnv()
-    seed = random.randint(0, 2 ** 32 - 1)
-    env.reset(seed)
+    observation , (info) = env.reset(seed)
+    legal_moves, player_number = (info["legal_moves"], info["player_number"])
+    bot1 = LeakyRuleBasedBot(seed)
+    bot2 = LeakyRuleBasedBot(seed)
 
-    bot1 = RandomBot(seed)
-    bot2 = RandomBot(seed + 1)
-    for i in range(0,100):
-            if env.game.current_player.player_number == 1:
-                move = bot1.act(env.game)
-                step_return = env.step(move,False)
-                if step_return[2]:
+    while True:
+            if player_number == 1:
+                move = bot1.act(env.game,legal_moves)
+                (_, _, terminated, truncated, info) = env.step(move,False)
+                legal_moves,player_number = (info["legal_moves"],info["player_number"])
+                if terminated or truncated :
                     break
-                move = bot2.act_off_turn(env.game)
-                step_return = env.step(move,True)
-                if step_return[2]:
+                move = bot2.act_off_turn(env.game,legal_moves)
+                (_, _, terminated, truncated, info) = env.step(move,True)
+                legal_moves, player_number = (info["legal_moves"],info["player_number"])
+            if player_number == 2:
+                move = bot2.act(env.game,legal_moves)
+                (_, _, terminated, truncated, info) = env.step(move,False)
+                legal_moves ,player_number= (info["legal_moves"],info["player_number"])
+                if terminated or truncated:
                     break
-                continue
-            if env.game.current_player.player_number == 2:
-                move = bot2.act(env.game)
-                step_return = env.step(move,False)
-                if step_return[2]:
-                    break
-                move = bot1.act_off_turn(env.game)
-                step_return = env.step(move,True)
-                if step_return[2]:
-                    break
+                move = bot1.act_off_turn(env.game,legal_moves)
+                (_, _, terminated, truncated, info) = env.step(move,True)
+                legal_moves, player_number = (info["legal_moves"],info["player_number"])
+
+
     env.render()
     dauer = time.perf_counter() - start
     print(dauer)
